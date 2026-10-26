@@ -7,8 +7,9 @@ import {
 } from './api/client';
 import { AssessmentResults } from './components/assessment/AssessmentResults';
 import { AssessmentWizard } from './components/assessment/AssessmentWizard';
+import { RecommendationsView } from './components/recommendations/RecommendationsView';
 
-type ViewMode = 'landing' | 'wizard' | 'results';
+type ViewMode = 'landing' | 'wizard' | 'results' | 'recommendations';
 
 function App() {
   const [view, setView] = useState<ViewMode>('landing');
@@ -16,6 +17,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [isLoadingEstimate, setIsLoadingEstimate] = useState<boolean>(false);
   const [assessmentResult, setAssessmentResult] = useState<AssessmentResponse | null>(null);
+  const [lastAssessmentRequest, setLastAssessmentRequest] = useState<AssessmentRequest | null>(null);
   const [assessmentError, setAssessmentError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,6 +35,7 @@ function App() {
   const handleWizardSubmit = async (request: AssessmentRequest) => {
     setIsLoadingEstimate(true);
     setAssessmentError(null);
+    setLastAssessmentRequest(request);
     try {
       const response = await api.estimate(request);
       setAssessmentResult(response);
@@ -242,7 +245,30 @@ function App() {
           <AssessmentResults
             result={assessmentResult}
             onRecalculate={handleRecalculate}
+            onExplorePlans={() => {
+              setView('recommendations');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             onTalkToAdvisor={() => alert('Phase 4 Advisor Matching will connect you to certified language advisors!')}
+          />
+        )}
+
+        {/* STAGE 3: RECOMMENDATIONS & POLICY CUSTOMIZATION VIEW */}
+        {view === 'recommendations' && assessmentResult && (
+          <RecommendationsView
+            assessment={assessmentResult}
+            initialProfile={{
+              age: lastAssessmentRequest?.age || 30,
+              annual_income_inr: lastAssessmentRequest?.annual_income_inr || 1000000,
+              is_homemaker: lastAssessmentRequest?.is_homemaker || false,
+              monthly_household_expenses_inr: lastAssessmentRequest?.monthly_household_expenses_inr || 50000,
+              existing_cover_inr: lastAssessmentRequest?.individual_life_cover_inr || 0,
+            }}
+            onBackToResults={() => {
+              setView('results');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onConsultAdvisor={() => alert('Phase 4 Advisor Matching will connect you to certified language advisors!')}
           />
         )}
       </main>

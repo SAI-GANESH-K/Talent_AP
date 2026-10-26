@@ -9,12 +9,14 @@ interface AssessmentResultsProps {
   result: AssessmentResponse;
   onRecalculate: () => void;
   onTalkToAdvisor?: () => void;
+  onExplorePlans?: () => void;
 }
 
 export function AssessmentResults({
   result,
   onRecalculate,
   onTalkToAdvisor,
+  onExplorePlans,
 }: AssessmentResultsProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'net_needs' | 'hlv' | 'assumptions'>('overview');
   const [showYearBreakdown, setShowYearBreakdown] = useState<boolean>(false);
@@ -530,8 +532,8 @@ export function AssessmentResults({
           </button>
           <button
             type="button"
-            onClick={() => alert(`Phase 3 Product Recommendation Engine will filter products matching ₹${parseFloat(recommended_gap_rounded).toLocaleString('en-IN')} sum assured!`)}
-            className="bg-gradient-to-r from-[var(--color-teal-600)] to-[var(--color-teal-500)] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md hover:from-[var(--color-teal-500)] hover:to-[var(--color-teal-400)] transition"
+            onClick={onExplorePlans ? onExplorePlans : () => alert(`Phase 3 Product Recommendation Engine will filter products matching ₹${parseFloat(recommended_gap_rounded).toLocaleString('en-IN')} sum assured!`)}
+            className="bg-gradient-to-r from-[var(--color-teal-600)] to-[var(--color-teal-500)] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md hover:from-[var(--color-teal-500)] hover:to-[var(--color-teal-400)] transition cursor-pointer"
           >
             Explore Matching Plans →
           </button>

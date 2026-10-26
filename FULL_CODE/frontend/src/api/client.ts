@@ -190,6 +190,147 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   return response.json();
 }
 
+// ── Phase 3: Product Recommendations & Pricing Models ──
+
+export interface CustomerProfile {
+  age: number;
+  gender: 'male' | 'female';
+  smoker_status: 'smoker' | 'non_smoker';
+  annual_income_inr: number;
+  is_homemaker?: boolean;
+  spouse_annual_income_inr?: number;
+  is_nri?: boolean;
+  existing_individual_life_cover_inr?: number;
+  existing_non_term_sa_inr?: number;
+  children_ages?: number[];
+  has_outstanding_loan?: boolean;
+  preferred_policy_term_years?: number;
+  monthly_premium_budget_inr?: number;
+  risk_appetite?: 'low' | 'moderate' | 'high';
+}
+
+export interface RecommendationRequest {
+  customer: CustomerProfile;
+  recommended_gap_inr: number;
+}
+
+export interface SelectedRiderInput {
+  rider_id: string;
+  sum_assured?: number;
+}
+
+export interface PricingInput {
+  product_id: string;
+  sum_assured: number;
+  entry_age: number;
+  policy_term_years: number;
+  gender?: 'male' | 'female';
+  smoker_status?: 'smoker' | 'non_smoker';
+  premium_payment_option?: string;
+  premium_mode?: 'annual' | 'half_yearly' | 'quarterly' | 'monthly' | 'single';
+  selected_riders?: SelectedRiderInput[];
+  ulip_annual_premium?: number;
+  ulip_sa_multiple?: number;
+  ulip_fund_id?: string;
+}
+
+export interface RiderQuote {
+  rider_id: string;
+  rider_name: string;
+  rider_category: string;
+  rider_sa: string;
+  annual_premium: string;
+  instalment_premium: string;
+  rate_used: string;
+  smoker_multiplier_applied: string;
+}
+
+export interface PricingQuote {
+  product_id: string;
+  product_name: string;
+  product_type: string;
+  variant: string;
+  sum_assured: string;
+  policy_term_years: number;
+  premium_payment_option: string;
+  premium_paying_term_years: number;
+  premium_mode: string;
+  base_annual_premium: string;
+  base_instalment_premium: string;
+  rider_quotes: RiderQuote[];
+  total_annual_premium: string;
+  total_instalment_premium: string;
+  modal_factor_used: string;
+  sa_band_factor_used: string;
+  rate_per_1000_used: string;
+  is_ulip: boolean;
+  warnings: string[];
+}
+
+export interface RecommendedProduct {
+  rank: number;
+  product_id: string;
+  product_name: string;
+  product_type: string;
+  variant: string;
+  category_label: string;
+  composite_score: number;
+  coverage_fit_score: number;
+  affordability_score: number;
+  type_fit_score: number;
+  feature_fit_score: number;
+  recommended_sum_assured: string;
+  recommended_policy_term: number;
+  coverage_shortfall: string;
+  quote: PricingQuote;
+  why_recommended: string;
+  key_benefits: string[];
+  key_limitations: string[];
+  allowed_terms: number[];
+  min_allowed_sa: string;
+  max_allowed_sa: string;
+  sum_assured_step: string;
+  allowed_payment_options: string[];
+  allowed_modes: string[];
+  eligible_rider_ids: string[];
+}
+
+export interface RejectedProduct {
+  product_id: string;
+  product_name: string;
+  product_type: string;
+  variant: string;
+  rejection_reasons: string[];
+}
+
+export interface RecommendationResult {
+  recommended_coverage_gap: string;
+  total_products_evaluated: number;
+  eligible_count: number;
+  ineligible_count: number;
+  recommendations: RecommendedProduct[];
+  rejected_products: RejectedProduct[];
+  headline_explanation: string;
+  disclaimer: string;
+}
+
+export interface RiderDetail {
+  rider_id: string;
+  rider_name: string;
+  rider_category: string;
+  benefit: string;
+  available_on_product_ids: string;
+  min_entry_age: number;
+  max_entry_age: number;
+  max_cover_age: number;
+  min_rider_sa_inr: number | null;
+  max_rider_sa_inr: number | null;
+  max_rider_sa_pct_of_base_sa: number | null;
+  rate_basis: string;
+  smoker_multiplier: number;
+  max_premium_pct_of_base_premium: number | null;
+}
+
 export const api = {
   health: () => fetchJson<HealthResponse>('/health'),
   products: () => fetchJson<ProductSummary[]>('/products'),
@@ -207,4 +348,19 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req),
     }),
+  // Phase 3 endpoints
+  recommendations: (req: RecommendationRequest) =>
+    fetchJson<RecommendationResult>('/products/recommendations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }),
+  quote: (pricingIn: PricingInput) =>
+    fetchJson<PricingQuote>('/products/quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(pricingIn),
+    }),
+  riders: () => fetchJson<RiderDetail[]>('/products/riders/all'),
+  productDetails: (productId: string) => fetchJson<any>(`/products/${productId}/details`),
 };
