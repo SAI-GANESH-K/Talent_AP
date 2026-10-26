@@ -260,18 +260,16 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
   const handleSubmit = () => {
     if (!validateStep(step)) return;
 
-    let assumptions: AssumptionsInput | undefined = undefined;
-    if (expertMode) {
-      assumptions = {
-        retirement_age: retirementAge,
-        income_growth_rate: incomeGrowthRate / 100,
-        discount_rate: discountRate / 100,
-        general_inflation_pct_pa: generalInflation / 100,
-        education_inflation_pct_pa: educationInflation / 100,
-        count_employer_group_cover: countEmployerCover,
-        count_retirement_savings: countRetirementSavings,
-      };
-    }
+    // Preserve selected assumptions regardless of presentation mode
+    const assumptions: AssumptionsInput = {
+      retirement_age: retirementAge,
+      income_growth_rate: incomeGrowthRate / 100,
+      discount_rate: discountRate / 100,
+      general_inflation_pct_pa: generalInflation / 100,
+      education_inflation_pct_pa: educationInflation / 100,
+      count_employer_group_cover: countEmployerCover,
+      count_retirement_savings: countRetirementSavings,
+    };
 
     const payload: AssessmentRequest = {
       age,

@@ -55,7 +55,7 @@ HLV_coverage_gap = max(0, HLV_gross - existing_cover)
 | `n = 0` (age ≥ retirement_age) | HLV_gross = 0. Net Needs may still apply. |
 | Zero income (homemaker) | HLV_gross = 0 from income method. Show replacement-services estimate separately (not added to HLV) using `homemaker_services_value_annual_inr × dependency_horizon`. |
 | Irregular income (gig/seasonal) | Use customer-entered annualized income. Disclose uncertainty. |
-| `g ≥ r` | Sum diverges in closed form — compute term-by-term. |
+| `g ≥ r` | Finite series remains strictly finite over $n$ years (when $g = r$, terms are constant at $I \times (1 - c) / (1 + r)$; when $g > r$, individual terms grow but their finite sum is strictly bounded). Computed year-by-year with Decimal to avoid closed-form division-by-zero ($g = r$) or floating-point formula cancellation. |
 | Existing cover > HLV_gross | HLV_coverage_gap = 0. Do not show negative. |
 
 ### 1.5 Assumptions Exposed to User

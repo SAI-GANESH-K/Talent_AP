@@ -162,8 +162,8 @@ def estimate_coverage(request: AssessmentRequest) -> AssessmentResponse:
     Does NOT persist data — this is a stateless calculation for guest users.
     No financial data is logged.
     """
-    # Log action only (no financial data)
-    logger.info("Assessment estimate requested (age=%d)", request.age)
+    # Log action only (no customer profile or financial data)
+    logger.info("Assessment estimate requested")
 
     inputs, assumptions = _build_domain_inputs(request)
     result = compute_assessment(inputs, assumptions)

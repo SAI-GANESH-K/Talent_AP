@@ -11,9 +11,12 @@ Tests cover all scenarios from the Phase 2 requirements:
 Expected values are manually computed from CALCULATION_POLICY.md formulas.
 """
 
+import warnings
 from decimal import Decimal, ROUND_HALF_UP
 
 import pytest
+# Filter Starlette 1.7 deprecation notice regarding httpx
+warnings.filterwarnings("ignore", message=".*starlette.testclient.*", category=DeprecationWarning)
 from fastapi.testclient import TestClient
 
 from app.domain.needs import (
@@ -309,6 +312,66 @@ class TestNetNeedsComputation:
                     if gd.goal_type == "child_education"]
         assert len(edu_goals) == 1
         assert edu_goals[0].included is True
+
+    def test_retirement_goal_beneficiary_variations(self):
+        """Test exclusion behavior for different retirement beneficiaries:
+        - 'self': excluded from death cover
+        - 'self_and_spouse': excluded under current substring rule ("self" in beneficiary)
+        - 'spouse': included in death cover (protects surviving spouse)
+        - Non-retirement goal for 'self' (e.g. emergency fund): included
+        """
+        inputs = FinancialInputs(
+            age=35,
+            current_year=2026,
+            goals=[
+                Goal(
+                    goal_type="retirement",
+                    beneficiary="self",
+                    target_amount_today_inr=Decimal("5000000"),
+                    target_year=2045,
+                ),
+                Goal(
+                    goal_type="retirement",
+                    beneficiary="self_and_spouse",
+                    target_amount_today_inr=Decimal("6000000"),
+                    target_year=2045,
+                ),
+                Goal(
+                    goal_type="retirement",
+                    beneficiary="spouse",
+                    target_amount_today_inr=Decimal("4000000"),
+                    target_year=2045,
+                ),
+                Goal(
+                    goal_type="family_emergency",
+                    beneficiary="self",
+                    target_amount_today_inr=Decimal("1000000"),
+                    target_year=2030,
+                ),
+            ],
+        )
+        result = compute_net_needs(inputs, AssumptionSet())
+        details_by_key = {(gd.goal_type, gd.beneficiary): gd for gd in result.goal_details}
+
+        # 'self' retirement -> excluded
+        self_ret = details_by_key[("retirement", "self")]
+        assert self_ret.included is False
+        assert "excluded" in self_ret.exclusion_reason.lower()
+
+        # 'self_and_spouse' retirement -> excluded under current implementation
+        self_spouse_ret = details_by_key[("retirement", "self_and_spouse")]
+        assert self_spouse_ret.included is False
+        assert "excluded" in self_spouse_ret.exclusion_reason.lower()
+
+        # 'spouse' retirement -> included (surviving spouse needs retirement fund)
+        spouse_ret = details_by_key[("retirement", "spouse")]
+        assert spouse_ret.included is True
+        assert spouse_ret.exclusion_reason is None
+
+        # non-retirement for 'self' -> included
+        non_ret = details_by_key[("family_emergency", "self")]
+        assert non_ret.included is True
+        assert non_ret.exclusion_reason is None
 
     def test_past_goal_excluded(self):
         """Goals with target_year <= current_year are excluded."""
@@ -767,3 +830,141 @@ class TestAssessmentAPI:
         assert "assumptions_used" in data
         assert "retirement_age" in data["assumptions_used"]
         assert "discount_rate" in data["assumptions_used"]
+
+    def test_exact_documented_190_lakh_sample(self, client):
+        """Regression test: Exact end-to-end assertion for documented ₹1.90 crore sample.
+        
+        Asserts exact values for all intermediate and final HLV & Net Needs components:
+        - Inputs: Age 35, Income 1,200,000, Expenses 45,000, Spouse 32, Child 5,
+          Home loan 3,500,000, Child edu 2,500,000 in 2039,
+          Cover 1,000,000 individual + 500,000 employer,
+          Savings 500,000 + Market 300,000.
+        """
+        payload = {
+            "age": 35,
+            "annual_income_inr": 1200000,
+            "monthly_household_expenses_inr": 45000,
+            "dependents": [
+                {"relationship": "spouse", "age": 32, "has_own_income": False},
+                {"relationship": "child", "age": 5, "has_own_income": False},
+            ],
+            "loans": [
+                {"loan_type": "Home Loan", "outstanding_principal_inr": 3500000},
+            ],
+            "goals": [
+                {
+                    "goal_type": "child_education",
+                    "beneficiary": "child",
+                    "target_amount_today_inr": 2500000,
+                    "target_year": 2039,
+                },
+            ],
+            "individual_life_cover_inr": 1000000,
+            "employer_group_life_cover_inr": 500000,
+            "liquid_savings_inr": 500000,
+            "market_investments_inr": 300000,
+            "current_year": 2026,
+        }
+
+        response = client.post("/api/v1/assessments/estimate", json=payload)
+        assert response.status_code == 200
+        data = response.json()
+
+        # 1. Intermediate HLV components
+        hlv = data["hlv"]
+        assert hlv["remaining_earning_years"] == 25
+        assert hlv["annual_income_contribution"] == "840000"
+        assert hlv["hlv_gross"] == "17575013"
+        assert hlv["existing_cover"] == "1500000"
+        assert hlv["hlv_coverage_gap"] == "16075013"
+
+        # 2. Intermediate Net Needs components
+        nn = data["net_needs"]
+        assert nn["dependency_horizon_years"] == 53
+        assert nn["pv_household_support"] == "14223735"
+        assert nn["outstanding_loans"] == "3500000"
+        assert nn["pv_goals"] == "2821368"
+        assert nn["final_expenses"] == "150000"
+        assert nn["emergency_buffer"] == "270000"
+        assert nn["total_needs"] == "20965103"
+        assert nn["available_assets"] == "800000"
+        assert nn["existing_cover"] == "1500000"
+        assert nn["total_resources"] == "2300000"
+        assert nn["net_needs_gap"] == "18665103"
+
+        # 3. Individual goal compounding & PV
+        goal_detail = nn["goal_details"][0]
+        assert goal_detail["goal_type"] == "child_education"
+        assert goal_detail["years_to_goal"] == 13
+        assert goal_detail["inflation_rate_used"] == "0.08"
+        assert goal_detail["future_cost"] == "6799059"
+        assert goal_detail["present_value"] == "2821368"
+        assert goal_detail["included"] is True
+
+        # 4. Final recommended gap and method
+        assert data["recommended_method"] == "net_needs"
+        assert data["recommended_gap_exact"] == "18665103"
+        assert data["recommended_gap_rounded"] == "19000000"  # Exact ₹1.90 Crore
+        assert data["currency"] == "INR"
+
+    def test_simple_vs_expert_mode_identical_results(self, client):
+        """Ensure identical inputs and assumptions produce identical backend results
+        regardless of presentation mode (Simple mode with defaults vs Expert mode).
+        """
+        base_payload = {
+            "age": 35,
+            "annual_income_inr": 1200000,
+            "monthly_household_expenses_inr": 45000,
+            "dependents": [
+                {"relationship": "spouse", "age": 32, "has_own_income": False},
+                {"relationship": "child", "age": 5, "has_own_income": False},
+            ],
+            "loans": [
+                {"loan_type": "Home Loan", "outstanding_principal_inr": 3500000},
+            ],
+            "goals": [
+                {
+                    "goal_type": "child_education",
+                    "beneficiary": "child",
+                    "target_amount_today_inr": 2500000,
+                    "target_year": 2039,
+                },
+            ],
+            "individual_life_cover_inr": 1000000,
+            "employer_group_life_cover_inr": 500000,
+            "liquid_savings_inr": 500000,
+            "market_investments_inr": 300000,
+        }
+
+        # Simple mode payload (no assumptions key or null)
+        simple_payload = dict(base_payload)
+
+        # Expert mode payload with explicit default assumptions
+        expert_payload = dict(base_payload)
+        expert_payload["assumptions"] = {
+            "retirement_age": 60,
+            "income_growth_rate": 0.06,
+            "discount_rate": 0.07,
+            "general_inflation_pct_pa": 0.055,
+            "education_inflation_pct_pa": 0.08,
+            "count_employer_group_cover": True,
+            "count_retirement_savings": False,
+        }
+
+        resp_simple = client.post("/api/v1/assessments/estimate", json=simple_payload)
+        resp_expert = client.post("/api/v1/assessments/estimate", json=expert_payload)
+
+        assert resp_simple.status_code == 200
+        assert resp_expert.status_code == 200
+
+        data_simple = resp_simple.json()
+        data_expert = resp_expert.json()
+
+        # Both modes must yield 100% identical outputs
+        assert data_simple["recommended_gap_exact"] == data_expert["recommended_gap_exact"]
+        assert data_simple["recommended_gap_rounded"] == data_expert["recommended_gap_rounded"]
+        assert data_simple["recommended_method"] == data_expert["recommended_method"]
+        assert data_simple["hlv"]["hlv_gross"] == data_expert["hlv"]["hlv_gross"]
+        assert data_simple["hlv"]["hlv_coverage_gap"] == data_expert["hlv"]["hlv_coverage_gap"]
+        assert data_simple["net_needs"]["total_needs"] == data_expert["net_needs"]["total_needs"]
+        assert data_simple["net_needs"]["net_needs_gap"] == data_expert["net_needs"]["net_needs_gap"]
