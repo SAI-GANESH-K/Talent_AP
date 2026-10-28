@@ -8,6 +8,8 @@ import {
   type PricingQuote,
   type RecommendedProduct,
   type RiderDetail,
+  type SelectedPlan,
+  type SelectedPlanRider,
 } from '../../api/client';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { CoverageShortfallVisualizer } from './CoverageShortfallVisualizer';
@@ -17,6 +19,7 @@ interface PolicyCustomizerModalProps {
   customer: CustomerProfile;
   recommendedGap: number;
   onClose: () => void;
+  onSelectPlan?: (selectedPlan: SelectedPlan) => void;
   allRiders: RiderDetail[];
 }
 
@@ -25,6 +28,7 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
   customer,
   recommendedGap,
   onClose,
+  onSelectPlan,
   allRiders,
 }) => {
   const { t } = useLanguage();
@@ -108,14 +112,14 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
       };
 
       try {
-        const quote = await api.quote(pricingIn);
-        setLiveQuote(quote);
+        const resultQuote = await api.quote(pricingIn);
+        setLiveQuote(resultQuote);
       } catch (err: any) {
         setCalcError(err?.message || 'Failed to calculate quote for selected combination.');
       } finally {
         setIsCalculating(false);
       }
-    }, 280);
+    }, 250);
 
     return () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
@@ -139,7 +143,6 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
     setSelectedRiders((prev) => {
       const nextActive = !prev[riderId];
       if (nextActive && !riderSumAssureds[riderId]) {
-        // default rider SA: 50% of base SA or 50L
         const defaultSa = Math.min(sumAssured * 0.5, defaultMaxSa || 5000000);
         setRiderSumAssureds((saPrev) => ({ ...saPrev, [riderId]: defaultSa }));
       }
@@ -148,15 +151,50 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
   };
 
   const currentCover = isUlip ? ulipAnnualPremium * ulipSaMultiple : sumAssured;
+  const remainingShortfall = Math.max(0, recommendedGap - currentCover);
+
+  const handleSelectPlan = () => {
+    if (!liveQuote || isCalculating || calcError) return;
+
+    const chosenRiders: SelectedPlanRider[] = (liveQuote.rider_quotes || []).map((rq) => ({
+      rider_id: rq.rider_id,
+      rider_name: rq.rider_name,
+      rider_sa: parseFloat(rq.rider_sa) || 0,
+      annual_premium: rq.annual_premium,
+      instalment_premium: rq.instalment_premium,
+    }));
+
+    const plan: SelectedPlan = {
+      product_id: product.product_id,
+      product_name: product.product_name,
+      product_type: product.product_type,
+      variant: product.variant,
+      sum_assured: currentCover,
+      policy_term_years: policyTerm,
+      premium_mode: paymentMode,
+      riders: chosenRiders,
+      ulip_config: isUlip ? { fund_id: ulipFundId, annual_premium: ulipAnnualPremium } : undefined,
+      quote: liveQuote,
+      total_annual_premium: liveQuote.total_annual_premium,
+      total_instalment_premium: liveQuote.total_instalment_premium,
+      recommended_gap_inr: recommendedGap,
+      remaining_shortfall_inr: remainingShortfall,
+    };
+
+    if (onSelectPlan) {
+      onSelectPlan(plan);
+    }
+    onClose();
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden my-8 max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+      <div className="relative w-full max-w-4xl bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden my-8 max-h-[90vh] flex flex-col text-slate-800">
         {/* Modal Header */}
-        <div className="px-6 py-5 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700/80 flex items-center justify-between">
+        <div className="px-6 py-5 bg-[var(--color-navy-900)] border-b border-slate-800 flex items-center justify-between text-white">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-teal-500/10 text-teal-300 border border-teal-500/30 uppercase tracking-wider">
+              <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-teal-500/20 text-teal-300 border border-teal-500/40 uppercase tracking-wider">
                 {product.category_label}
               </span>
               <span className="text-xs text-slate-400 font-mono">
@@ -169,8 +207,9 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
           </div>
 
           <button
+            type="button"
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-all"
+            className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-all cursor-pointer"
             aria-label="Close customizer"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -180,7 +219,7 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
         </div>
 
         {/* Modal Content - 2 Column Layout */}
-        <div className="p-6 overflow-y-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="p-6 overflow-y-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 bg-slate-50/50">
           {/* Left Column: Interactive Controls */}
           <div className="lg:col-span-7 space-y-6">
             {/* Coverage Shortfall Alignment Component */}
@@ -192,12 +231,12 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
 
             {/* Sum Assured Slider (Non-ULIP) */}
             {!isUlip && (
-              <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5">
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
                 <div className="flex justify-between items-center mb-2">
-                  <label className="text-xs uppercase font-bold tracking-wider text-slate-300">
+                  <label className="text-xs uppercase font-bold tracking-wider text-slate-700">
                     {t.recommendations.sumAssured}
                   </label>
-                  <span className="text-base font-extrabold text-teal-300">
+                  <span className="text-base font-extrabold text-teal-700">
                     {formatINRLakhCr(sumAssured)}
                   </span>
                 </div>
@@ -209,10 +248,10 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                   step={saStep}
                   value={sumAssured}
                   onChange={(e) => setSumAssured(parseFloat(e.target.value))}
-                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600"
                 />
 
-                <div className="flex justify-between text-[11px] text-slate-400 mt-2 font-mono">
+                <div className="flex justify-between text-[11px] text-slate-500 mt-2 font-mono">
                   <span>Min: {formatINRLakhCr(minSa)}</span>
                   <span>Step: {formatINRLakhCr(saStep)}</span>
                   <span>Max: {formatINRLakhCr(maxSa)}</span>
@@ -222,13 +261,13 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
 
             {/* ULIP Parameters */}
             {isUlip && (
-              <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 space-y-4 shadow-xs">
                 <div>
                   <div className="flex justify-between items-center mb-1.5">
-                    <label className="text-xs uppercase font-bold tracking-wider text-slate-300">
+                    <label className="text-xs uppercase font-bold tracking-wider text-slate-700">
                       Annual Investment Premium
                     </label>
-                    <span className="text-base font-extrabold text-teal-300">
+                    <span className="text-base font-extrabold text-teal-700">
                       {formatINR(ulipAnnualPremium)}
                     </span>
                   </div>
@@ -239,19 +278,19 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                     step={10000}
                     value={ulipAnnualPremium}
                     onChange={(e) => setUlipAnnualPremium(parseFloat(e.target.value))}
-                    className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs uppercase font-semibold text-slate-400 mb-1">
+                    <label className="block text-xs uppercase font-semibold text-slate-600 mb-1">
                       SA Multiple
                     </label>
                     <select
                       value={ulipSaMultiple}
                       onChange={(e) => setUlipSaMultiple(parseInt(e.target.value))}
-                      className="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2 text-xs focus:ring-teal-500"
+                      className="w-full bg-white border border-slate-300 text-slate-800 rounded-xl px-3 py-2 text-xs focus:ring-teal-500 outline-none"
                     >
                       <option value={7}>7x (₹{formatINR(ulipAnnualPremium * 7)})</option>
                       <option value={10}>10x (₹{formatINR(ulipAnnualPremium * 10)})</option>
@@ -261,13 +300,13 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase font-semibold text-slate-400 mb-1">
+                    <label className="block text-xs uppercase font-semibold text-slate-600 mb-1">
                       Target Fund
                     </label>
                     <select
                       value={ulipFundId}
                       onChange={(e) => setUlipFundId(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2 text-xs focus:ring-teal-500"
+                      className="w-full bg-white border border-slate-300 text-slate-800 rounded-xl px-3 py-2 text-xs focus:ring-teal-500 outline-none"
                     >
                       <option value="FND-VNJ5TV">Equity Fund (High Risk)</option>
                       <option value="FND-RDC0W3">Balanced Fund (Moderate)</option>
@@ -280,12 +319,12 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
             )}
 
             {/* Policy Tenure */}
-            <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
               <div className="flex justify-between items-center mb-2">
-                <label className="text-xs uppercase font-bold tracking-wider text-slate-300">
+                <label className="text-xs uppercase font-bold tracking-wider text-slate-700">
                   {t.recommendations.policyTerm}
                 </label>
-                <span className="text-sm font-bold text-white">
+                <span className="text-sm font-bold text-slate-900">
                   {policyTerm} Years (Matures at age {customer.age + policyTerm})
                 </span>
               </div>
@@ -294,12 +333,13 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                 <div className="flex flex-wrap gap-2 mt-2">
                   {product.allowed_terms.map((term) => (
                     <button
+                      type="button"
                       key={term}
                       onClick={() => setPolicyTerm(term)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                         policyTerm === term
-                          ? 'bg-teal-500 text-slate-950 shadow-md shadow-teal-500/30'
-                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/60'
+                          ? 'bg-teal-600 text-white shadow-md shadow-teal-600/20'
+                          : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-300'
                       }`}
                     >
                       {term} Yrs
@@ -314,26 +354,27 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                   step={1}
                   value={policyTerm}
                   onChange={(e) => setPolicyTerm(parseInt(e.target.value))}
-                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-400 mt-2"
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600 mt-2"
                 />
               )}
             </div>
 
             {/* Premium Payment Option */}
             {product.allowed_payment_options && product.allowed_payment_options.length > 1 && (
-              <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5">
-                <label className="block text-xs uppercase font-bold tracking-wider text-slate-300 mb-2">
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+                <label className="block text-xs uppercase font-bold tracking-wider text-slate-700 mb-2">
                   Payment Option
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {product.allowed_payment_options.map((opt) => (
                     <button
+                      type="button"
                       key={opt}
                       onClick={() => setPaymentOption(opt)}
-                      className={`py-2 px-3 rounded-xl text-xs font-semibold capitalize transition-all ${
+                      className={`py-2 px-3 rounded-xl text-xs font-semibold capitalize transition-all cursor-pointer ${
                         paymentOption === opt
-                          ? 'bg-teal-500 text-slate-950 shadow-md shadow-teal-500/30'
-                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/60'
+                          ? 'bg-teal-600 text-white shadow-md shadow-teal-600/20'
+                          : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-300'
                       }`}
                     >
                       {opt.replace('_', ' ')}
@@ -344,19 +385,20 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
             )}
 
             {/* Payment Frequency */}
-            <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5">
-              <label className="block text-xs uppercase font-bold tracking-wider text-slate-300 mb-2">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+              <label className="block text-xs uppercase font-bold tracking-wider text-slate-700 mb-2">
                 {t.recommendations.premiumFrequency}
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {(['monthly', 'quarterly', 'half_yearly', 'annual'] as const).map((mode) => (
                   <button
+                    type="button"
                     key={mode}
                     onClick={() => setPaymentMode(mode)}
-                    className={`py-2 px-3 rounded-xl text-xs font-semibold capitalize transition-all ${
+                    className={`py-2 px-3 rounded-xl text-xs font-semibold capitalize transition-all cursor-pointer ${
                       paymentMode === mode
-                        ? 'bg-teal-500 text-slate-950 shadow-md shadow-teal-500/30'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/60'
+                        ? 'bg-teal-600 text-white shadow-md shadow-teal-600/20'
+                        : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-300'
                     }`}
                   >
                     {mode.replace('_', ' ')}
@@ -367,12 +409,12 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
 
             {/* Optional Riders Selection */}
             {productRiders.length > 0 && (
-              <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 space-y-3 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs uppercase font-bold tracking-wider text-slate-300">
+                  <label className="text-xs uppercase font-bold tracking-wider text-slate-700">
                     {t.recommendations.optionalRiders}
                   </label>
-                  <span className="text-[11px] text-teal-400 font-semibold">
+                  <span className="text-[11px] text-teal-700 font-semibold bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
                     {Object.values(selectedRiders).filter(Boolean).length} Selected
                   </span>
                 </div>
@@ -387,8 +429,8 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                         key={rider.rider_id}
                         className={`p-3.5 rounded-xl border transition-all ${
                           isChecked
-                            ? 'bg-slate-900 border-teal-500/60'
-                            : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                            ? 'bg-teal-50/60 border-teal-400'
+                            : 'bg-slate-50/80 border-slate-200 hover:border-slate-300'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-3">
@@ -397,28 +439,28 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                               type="checkbox"
                               checked={isChecked}
                               onChange={() => toggleRider(rider.rider_id, rider.max_rider_sa_inr)}
-                              className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-teal-500 focus:ring-teal-500/40 mt-0.5"
+                              className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 mt-0.5"
                             />
                             <div>
-                              <div className="text-xs font-bold text-white">
+                              <div className="text-xs font-bold text-slate-900">
                                 {rider.rider_name}
                               </div>
-                              <div className="text-[11px] text-slate-400 mt-0.5">
+                              <div className="text-[11px] text-slate-500 mt-0.5">
                                 {rider.benefit}
                               </div>
                             </div>
                           </label>
 
-                          <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 whitespace-nowrap">
+                          <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white text-slate-600 border border-slate-200 whitespace-nowrap">
                             {rider.rider_category}
                           </span>
                         </div>
 
                         {/* If checked & customizable SA */}
                         {isChecked && rider.rate_basis === 'per_1000_rider_sa' && (
-                          <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between gap-4">
-                            <span className="text-[11px] text-slate-400">Rider Cover:</span>
-                            <span className="text-xs font-bold text-teal-300">
+                          <div className="mt-3 pt-3 border-t border-slate-200 flex items-center justify-between gap-4">
+                            <span className="text-[11px] text-slate-500">Rider Cover:</span>
+                            <span className="text-xs font-bold text-teal-700">
                               {formatINRLakhCr(activeSa)}
                             </span>
                           </div>
@@ -433,11 +475,11 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
 
           {/* Right Column: Live Recalculated Premium Quote */}
           <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
-            <div className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border border-teal-500/40 rounded-2xl p-6 shadow-xl relative">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-md relative">
               {/* Spinner overlay during debounced quote calculation */}
               {isCalculating && (
-                <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px] rounded-2xl flex items-center justify-center z-10">
-                  <div className="flex items-center gap-2 text-teal-400 text-xs font-bold">
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] rounded-2xl flex items-center justify-center z-10">
+                  <div className="flex items-center gap-2 text-teal-700 text-xs font-bold">
                     <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
@@ -447,50 +489,50 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                 </div>
               )}
 
-              <div className="text-xs uppercase font-bold tracking-wider text-teal-400 mb-1">
+              <div className="text-xs uppercase font-bold tracking-wider text-teal-700 mb-1">
                 Live Validated Quote
               </div>
-              <h3 className="text-lg font-bold text-white mb-4">
+              <h3 className="text-lg font-bold text-slate-900 mb-4">
                 Premium Summary
               </h3>
 
               {calcError ? (
-                <div className="p-3 bg-red-950/60 border border-red-800 rounded-xl text-xs text-red-300 mb-4">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 mb-4">
                   {calcError}
                 </div>
               ) : (
                 <div className="space-y-4">
                   {/* Big Total Price */}
-                  <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 text-center">
-                    <div className="text-xs text-slate-400 capitalize">
+                  <div className="bg-teal-50/60 border border-teal-200/80 rounded-xl p-4 text-center">
+                    <div className="text-xs text-slate-600 capitalize">
                       Total {paymentMode.replace('_', ' ')} Instalment
                     </div>
-                    <div className="text-3xl font-black text-teal-300 mt-1">
+                    <div className="text-3xl font-black text-teal-700 mt-1">
                       {formatINR(liveQuote.total_instalment_premium)}
                     </div>
-                    <div className="text-xs text-slate-400 mt-1">
-                      Annual: <strong className="text-slate-200">{formatINR(liveQuote.total_annual_premium)}</strong>
+                    <div className="text-xs text-slate-500 mt-1">
+                      Annual: <strong className="text-slate-800">{formatINR(liveQuote.total_annual_premium)}</strong>
                     </div>
                   </div>
 
                   {/* Breakdown List */}
-                  <div className="space-y-2 text-xs border-t border-slate-800 pt-3">
-                    <div className="flex justify-between text-slate-300">
+                  <div className="space-y-2 text-xs border-t border-slate-200 pt-3">
+                    <div className="flex justify-between text-slate-600">
                       <span>Base Policy Instalment:</span>
-                      <span className="font-semibold text-white">
+                      <span className="font-semibold text-slate-900">
                         {formatINR(liveQuote.base_instalment_premium)}
                       </span>
                     </div>
 
                     {liveQuote.rider_quotes && liveQuote.rider_quotes.length > 0 && (
-                      <div className="space-y-1.5 pt-1 border-t border-slate-800/60">
-                        <div className="text-slate-400 text-[11px] uppercase tracking-wider font-semibold">
+                      <div className="space-y-1.5 pt-1 border-t border-slate-200">
+                        <div className="text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
                           Selected Riders Breakdown
                         </div>
                         {liveQuote.rider_quotes.map((rq) => (
-                          <div key={rq.rider_id} className="flex justify-between text-slate-300 text-[11px]">
+                          <div key={rq.rider_id} className="flex justify-between text-slate-700 text-[11px]">
                             <span className="truncate max-w-[200px]">{rq.rider_name}</span>
-                            <span className="font-mono text-teal-400">
+                            <span className="font-mono text-teal-700 font-semibold">
                               +{formatINR(rq.instalment_premium)}
                             </span>
                           </div>
@@ -500,18 +542,18 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                   </div>
 
                   {/* Calculation Transparency Badges */}
-                  <div className="p-3 bg-slate-950/80 border border-slate-800/80 rounded-xl text-[11px] text-slate-400 space-y-1.5 font-mono">
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 space-y-1.5 font-mono">
                     <div className="flex justify-between">
                       <span>Rate Per 1,000 SA:</span>
-                      <span className="text-slate-200">{liveQuote.rate_per_1000_used}</span>
+                      <span className="text-slate-800 font-medium">{liveQuote.rate_per_1000_used}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Band Factor Applied:</span>
-                      <span className="text-slate-200">{liveQuote.sa_band_factor_used}</span>
+                      <span className="text-slate-800 font-medium">{liveQuote.sa_band_factor_used}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Modal Factor Used:</span>
-                      <span className="text-slate-200">{liveQuote.modal_factor_used}</span>
+                      <span className="text-slate-800 font-medium">{liveQuote.modal_factor_used}</span>
                     </div>
                   </div>
                 </div>
@@ -519,13 +561,25 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 pt-2">
               <button
+                type="button"
                 onClick={onClose}
-                className="w-full py-3 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
+                className="w-1/3 py-3 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 transition-colors cursor-pointer"
               >
-                {t.common.close}
+                {t.common.back || 'Back to Plans'}
               </button>
+              {onSelectPlan && (
+                <button
+                  type="button"
+                  disabled={isCalculating || !liveQuote || !!calcError}
+                  onClick={handleSelectPlan}
+                  className="w-2/3 py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white shadow-md shadow-teal-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <span>✓</span>
+                  <span>{(t.recommendations as any).selectPlanBtn || 'Select This Plan'}</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

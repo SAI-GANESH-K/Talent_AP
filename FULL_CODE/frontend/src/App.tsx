@@ -1,21 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   api,
   type AssessmentRequest,
   type AssessmentResponse,
-  type HealthResponse,
+  type SelectedPlan,
   type User,
 } from './api/client';
-import { AdminDashboard } from './components/admin/AdminDashboard';
-import { AdvisorPortal } from './components/advisor/AdvisorPortal';
+import { useLanguage } from './i18n/LanguageContext';
+import { SUPPORTED_LANGUAGES, type LanguageOption } from './i18n/translations';
+import { AssessmentWizard } from './components/assessment/AssessmentWizard';
+import { AssessmentResults } from './components/assessment/AssessmentResults';
+import { RecommendationsView } from './components/recommendations/RecommendationsView';
 import { AdvisorDirectory } from './components/advisory/AdvisorDirectory';
 import { MyAppointments } from './components/advisory/MyAppointments';
-import { AssessmentResults } from './components/assessment/AssessmentResults';
-import { AssessmentWizard } from './components/assessment/AssessmentWizard';
+import { AdvisorPortal } from './components/advisor/AdvisorPortal';
+import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AuthModal } from './components/auth/AuthModal';
-import { RecommendationsView } from './components/recommendations/RecommendationsView';
-import { SUPPORTED_LANGUAGES } from './i18n/translations';
-import { useLanguage } from './i18n/LanguageContext';
 
 type ViewMode =
   | 'landing'
@@ -30,25 +30,34 @@ type ViewMode =
 function App() {
   const { language, setLanguage, t } = useLanguage();
   const [view, setView] = useState<ViewMode>('landing');
-  const [health, setHealth] = useState<HealthResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  // Assessment state — preserved across language and view transitions
+  // Assessment & Plan Selection state — preserved across language and view transitions
   const [isLoadingEstimate, setIsLoadingEstimate] = useState<boolean>(false);
   const [assessmentResult, setAssessmentResult] = useState<AssessmentResponse | null>(null);
   const [lastAssessmentRequest, setLastAssessmentRequest] = useState<AssessmentRequest | null>(null);
   const [assessmentError, setAssessmentError] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
 
-  // Check health and active session on mount
+  // Set document lang attribute
   useEffect(() => {
-    api.health()
-      .then(setHealth)
-      .catch((err) => setError(err.message));
+    document.documentElement.lang = language;
+  }, [language]);
+
+  // Check health and active session on mount with role recovery
+  useEffect(() => {
+    api.health().catch((err) => console.warn('Health check:', err));
 
     api.auth.me()
-      .then((res) => setCurrentUser(res.user))
+      .then((res) => {
+        setCurrentUser(res.user);
+        if (res.user.role === 'advisor') {
+          setView('advisor-portal');
+        } else if (res.user.role === 'admin') {
+          setView('admin-dashboard');
+        }
+      })
       .catch(() => setCurrentUser(null));
   }, []);
 
@@ -80,7 +89,13 @@ function App() {
   };
 
   const handleReturnHome = () => {
-    setView('landing');
+    if (currentUser?.role === 'advisor') {
+      setView('advisor-portal');
+    } else if (currentUser?.role === 'admin') {
+      setView('admin-dashboard');
+    } else {
+      setView('landing');
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -91,7 +106,9 @@ function App() {
       // ignore
     }
     setCurrentUser(null);
+    setSelectedPlan(null);
     setView('landing');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const navigateToAppropriateDashboard = (user: User) => {
@@ -100,9 +117,25 @@ function App() {
     } else if (user.role === 'advisor') {
       setView('advisor-portal');
     } else {
-      setView('advisors');
+      if (view === 'advisor-portal' || view === 'admin-dashboard') {
+        setView('landing');
+      }
     }
   };
+
+  // Determine effective view enforcing strict role guards
+  const effectiveView: ViewMode = (() => {
+    if (currentUser?.role === 'advisor') {
+      return 'advisor-portal';
+    }
+    if (currentUser?.role === 'admin') {
+      return 'admin-dashboard';
+    }
+    if (view === 'advisor-portal' || view === 'admin-dashboard') {
+      return 'landing';
+    }
+    return view;
+  })();
 
   return (
     <div className="min-h-screen bg-[var(--color-offwhite)] flex flex-col justify-between">
@@ -114,106 +147,135 @@ function App() {
             <button
               type="button"
               onClick={handleReturnHome}
-              className="flex items-center gap-2.5 text-left focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-xl p-1"
+              className="flex items-center gap-2.5 text-left focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-xl p-1 cursor-pointer"
             >
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--color-teal-500)] to-[var(--color-teal-600)] flex items-center justify-center font-bold text-sm shadow-sm text-white">
                 CW
               </div>
               <div>
-                <span className="font-[var(--font-heading)] font-semibold text-lg tracking-tight block">
+                <span className="font-[var(--font-heading)] font-bold text-xl tracking-tight text-white block">
                   CoverWise
-                </span>
-                <span className="text-[10px] text-teal-400 block -mt-1 font-medium">
-                  BFSI Needs Finder
                 </span>
               </div>
             </button>
 
-            {/* Navigation Links */}
+            {/* Role-Specific Navigation Links */}
             <div className="hidden md:flex items-center gap-1 text-xs">
-              <button
-                type="button"
-                onClick={handleReturnHome}
-                className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                  view === 'landing' ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                {t.nav.home}
-              </button>
+              {/* Case A: Guest / Customer Navigation */}
+              {(!currentUser || currentUser.role === 'customer') && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleReturnHome}
+                    className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                      effectiveView === 'landing' ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    {t.nav.home}
+                  </button>
 
-              <button
-                type="button"
-                onClick={handleStartAssessment}
-                className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                  view === 'wizard' ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                {t.nav.findCover}
-              </button>
+                  <button
+                    type="button"
+                    onClick={handleStartAssessment}
+                    className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                      effectiveView === 'wizard' ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    {t.nav.findCover}
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setView('advisors');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                  view === 'advisors' ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                {t.nav.advisors}
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setView('advisors');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                      effectiveView === 'advisors' ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    {t.nav.advisors}
+                  </button>
 
-              {/* Role specific links */}
-              {currentUser?.role === 'customer' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setView('my-appointments');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                    view === 'my-appointments'
-                      ? 'bg-white/10 text-white'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  {t.nav.myAppointments}
-                </button>
+                  {currentUser?.role === 'customer' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setView('my-appointments');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                        effectiveView === 'my-appointments'
+                          ? 'bg-white/10 text-white'
+                          : 'text-slate-300 hover:text-white'
+                      }`}
+                    >
+                      {t.nav.myAppointments}
+                    </button>
+                  )}
+                </>
               )}
 
+              {/* Case B: Financial Advisor Navigation */}
               {currentUser?.role === 'advisor' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setView('advisor-portal');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                    view === 'advisor-portal'
-                      ? 'bg-white/10 text-white'
-                      : 'text-teal-300 hover:text-white'
-                  }`}
-                >
-                  🩺 {t.nav.advisorPortal}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setView('advisor-portal');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className={`px-3.5 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                      effectiveView === 'advisor-portal'
+                        ? 'bg-white/10 text-teal-300'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    🩺 {t.nav.advisorPortal}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setView('advisor-portal');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="px-3.5 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white transition cursor-pointer"
+                  >
+                    📋 {(t.nav as any).assignedConsultations || 'Assigned Consultations'}
+                  </button>
+                </>
               )}
 
+              {/* Case C: Administrator Navigation */}
               {currentUser?.role === 'admin' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setView('admin-dashboard');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                    view === 'admin-dashboard'
-                      ? 'bg-white/10 text-white'
-                      : 'text-purple-300 hover:text-white'
-                  }`}
-                >
-                  🛡️ {t.nav.adminDashboard}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setView('admin-dashboard');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className={`px-3.5 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                      effectiveView === 'admin-dashboard'
+                        ? 'bg-white/10 text-purple-300'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    🛡️ {(t.nav as any).adminDashboard || 'Admin Dashboard'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setView('admin-dashboard');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="px-3.5 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white transition cursor-pointer"
+                  >
+                    📈 {(t.nav as any).platformAnalytics || 'Platform Analytics'}
+                  </button>
+                </>
               )}
             </div>
 
@@ -227,7 +289,7 @@ function App() {
                   aria-label="Select Interface Language"
                   className="bg-slate-800 text-white border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer"
                 >
-                  {SUPPORTED_LANGUAGES.map((l) => (
+                  {SUPPORTED_LANGUAGES.map((l: LanguageOption) => (
                     <option key={l.code} value={l.code}>
                       {l.nativeLabel} ({l.label})
                     </option>
@@ -276,7 +338,7 @@ function App() {
       {/* Main Content Area */}
       <main className="flex-1">
         {/* LANDING PAGE VIEW */}
-        {view === 'landing' && (
+        {effectiveView === 'landing' && (
           <div>
             {/* Hero Section */}
             <header className="bg-gradient-to-b from-[var(--color-navy-900)] to-[var(--color-navy-800)] text-white">
@@ -305,106 +367,82 @@ function App() {
                       setView('advisors');
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className="bg-white/10 hover:bg-white/20 text-white px-6 py-4 rounded-xl text-base font-semibold border border-white/20 transition cursor-pointer"
+                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-8 py-4 rounded-xl text-lg font-semibold transition cursor-pointer backdrop-blur-sm"
                   >
                     {t.nav.advisors} →
                   </button>
                 </div>
-                <p className="mt-4 text-xs text-slate-400">
+                <p className="text-xs text-slate-400 mt-4">
                   {t.landing.ctaSubtext}
                 </p>
               </div>
             </header>
 
-            {/* Feature Cards */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  {
-                    icon: '📊',
-                    title: t.landing.card1Title,
-                    desc: t.landing.card1Desc,
-                  },
-                  {
-                    icon: '🩺',
-                    title: t.landing.card2Title,
-                    desc: t.landing.card2Desc,
-                  },
-                  {
-                    icon: '🛡️',
-                    title: t.landing.card3Title,
-                    desc: t.landing.card3Desc,
-                  },
-                ].map((card) => (
-                  <div
-                    key={card.title}
-                    className="bg-white rounded-2xl p-8 shadow-lg shadow-slate-200/60 border border-slate-100 hover:shadow-xl transition-shadow"
-                  >
-                    <div className="text-3xl mb-4">{card.icon}</div>
-                    <h3 className="font-[var(--font-heading)] text-lg font-semibold text-[var(--color-navy-900)] mb-2">
-                      {card.title}
-                    </h3>
-                    <p className="text-sm text-slate-600 leading-relaxed">{card.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* System Status (development / jury verification) */}
+            {/* Core Value Pillars Section */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-              <div className="bg-white rounded-2xl p-6 border border-slate-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-[var(--font-heading)] text-base font-semibold text-[var(--color-navy-800)]">
-                    {t.landing.systemStatus}
-                  </h2>
-                  <span className="text-xs text-slate-400 font-mono">FastAPI + PostgreSQL + Argon2id</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
+                  <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 text-xl font-bold mb-5 border border-teal-100">
+                    📐
+                  </div>
+                  <h3 className="font-[var(--font-heading)] text-xl font-bold text-[var(--color-navy-900)] mb-3">
+                    {t.landing.card1Title}
+                  </h3>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {t.landing.card1Desc}
+                  </p>
                 </div>
-                {error ? (
-                  <div className="text-[var(--color-danger)] text-sm bg-red-50 p-4 rounded-xl border border-red-100">
-                    ⚠ Backend not reachable: {error}
-                    <br />
-                    <span className="text-slate-500 text-xs">
-                      Ensure backend uvicorn server is running on port 8000.
-                    </span>
+
+                <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
+                  <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 text-xl font-bold mb-5 border border-teal-100">
+                    🤝
                   </div>
-                ) : health ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                      <div className="text-slate-500 mb-1">Service</div>
-                      <div className="font-semibold text-slate-800">{health.service}</div>
-                    </div>
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                      <div className="text-slate-500 mb-1">Version</div>
-                      <div className="font-semibold text-slate-800">{health.version}</div>
-                    </div>
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                      <div className="text-slate-500 mb-1">Status</div>
-                      <div className={`font-semibold ${health.status === 'ok' ? 'text-[var(--color-success)]' : 'text-[var(--color-warning)]'}`}>
-                        {health.status === 'ok' ? '● Connected' : '○ ' + health.status}
-                      </div>
-                    </div>
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                      <div className="text-slate-500 mb-1">Database</div>
-                      <div className={`font-semibold ${health.database === 'connected' ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'}`}>
-                        {health.database === 'connected' ? '● PostgreSQL Connected' : '○ ' + health.database}
-                      </div>
-                    </div>
+                  <h3 className="font-[var(--font-heading)] text-xl font-bold text-[var(--color-navy-900)] mb-3">
+                    {t.landing.card2Title}
+                  </h3>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {t.landing.card2Desc}
+                  </p>
+                </div>
+
+                <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
+                  <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 text-xl font-bold mb-5 border border-teal-100">
+                    🔍
                   </div>
-                ) : (
-                  <div className="text-slate-400 text-sm">Checking backend connection...</div>
-                )}
+                  <h3 className="font-[var(--font-heading)] text-xl font-bold text-[var(--color-navy-900)] mb-3">
+                    {t.landing.card3Title}
+                  </h3>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {t.landing.card3Desc}
+                  </p>
+                </div>
               </div>
             </section>
           </div>
         )}
 
-        {/* STAGE 1: QUESTIONNAIRE VIEW */}
-        {view === 'wizard' && (
+        {/* STAGE 1: ASSESSMENT WIZARD VIEW */}
+        {effectiveView === 'wizard' && (
           <div>
+            {isLoadingEstimate && (
+              <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-2xl shadow-xl flex items-center gap-4 text-slate-800">
+                  <div className="animate-spin w-6 h-6 border-3 border-teal-600 border-t-transparent rounded-full" />
+                  <span className="text-sm font-semibold">Computing Actuarial Human Life Value & Net Needs...</span>
+                </div>
+              </div>
+            )}
             {assessmentError && (
-              <div className="max-w-3xl mx-auto mt-6 px-4">
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800">
-                  ⚠ Error running assessment: {assessmentError}
+              <div className="max-w-3xl mx-auto mt-4 px-4">
+                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex justify-between items-center">
+                  <span>⚠ {assessmentError}</span>
+                  <button
+                    type="button"
+                    onClick={() => setAssessmentError(null)}
+                    className="text-red-500 font-bold ml-4 cursor-pointer"
+                  >
+                    ✕
+                  </button>
                 </div>
               </div>
             )}
@@ -416,8 +454,8 @@ function App() {
           </div>
         )}
 
-        {/* STAGE 2: RESULTS VIEW */}
-        {view === 'results' && assessmentResult && (
+        {/* STAGE 2: ASSESSMENT RESULTS VIEW */}
+        {effectiveView === 'results' && assessmentResult && (
           <AssessmentResults
             result={assessmentResult}
             onRecalculate={handleRecalculate}
@@ -433,7 +471,7 @@ function App() {
         )}
 
         {/* STAGE 3: RECOMMENDATIONS & POLICY CUSTOMIZATION VIEW */}
-        {view === 'recommendations' && assessmentResult && (
+        {effectiveView === 'recommendations' && assessmentResult && (
           <RecommendationsView
             assessment={assessmentResult}
             initialProfile={{
@@ -443,6 +481,8 @@ function App() {
               monthly_household_expenses_inr: lastAssessmentRequest?.monthly_household_expenses_inr || 50000,
               existing_cover_inr: lastAssessmentRequest?.individual_life_cover_inr || 0,
             }}
+            selectedPlan={selectedPlan}
+            onSelectPlan={(plan) => setSelectedPlan(plan)}
             onBackToResults={() => {
               setView('results');
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -451,19 +491,33 @@ function App() {
               setView('advisors');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
+            onContinueToAdvisor={() => {
+              setView('advisors');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
           />
         )}
 
         {/* STAGE 4: ADVISOR DISCOVERY & BOOKING VIEW */}
-        {view === 'advisors' && (
+        {effectiveView === 'advisors' && (
           <AdvisorDirectory
             currentUser={currentUser}
             assessmentSummary={
-              assessmentResult
+              assessmentResult || selectedPlan
                 ? {
-                    recommended_cover: assessmentResult.recommended_gap_exact,
-                    recommended_method: assessmentResult.recommended_method,
-                    explanation: assessmentResult.explanation,
+                    recommended_cover_inr: assessmentResult ? Math.round(parseFloat(assessmentResult.recommended_gap_exact) || 0) : undefined,
+                    coverage_gap: assessmentResult ? Math.round(parseFloat(assessmentResult.recommended_gap_rounded) || 0) : undefined,
+                    method: assessmentResult?.recommended_method,
+                    user_age: lastAssessmentRequest?.age,
+                    annual_income_inr: lastAssessmentRequest?.annual_income_inr,
+                    selected_plan_id: selectedPlan?.product_id,
+                    selected_plan_name: selectedPlan?.product_name,
+                    selected_sum_assured_inr: selectedPlan?.sum_assured,
+                    selected_tenure_years: selectedPlan?.policy_term_years,
+                    selected_premium_mode: selectedPlan?.premium_mode,
+                    selected_premium_amount_inr: selectedPlan ? Math.round(parseFloat(selectedPlan.total_instalment_premium) || 0) : undefined,
+                    selected_riders: selectedPlan?.riders.map((r) => r.rider_name),
+                    remaining_shortfall_inr: selectedPlan?.remaining_shortfall_inr,
                   }
                 : undefined
             }
@@ -478,7 +532,7 @@ function App() {
         )}
 
         {/* CUSTOMER APPOINTMENTS VIEW */}
-        {view === 'my-appointments' && (
+        {effectiveView === 'my-appointments' && (
           <MyAppointments
             onExploreAdvisors={() => {
               setView('advisors');
@@ -488,12 +542,12 @@ function App() {
         )}
 
         {/* ADVISOR PORTAL VIEW */}
-        {view === 'advisor-portal' && currentUser && currentUser.role === 'advisor' && (
+        {effectiveView === 'advisor-portal' && currentUser && currentUser.role === 'advisor' && (
           <AdvisorPortal currentUser={currentUser} />
         )}
 
         {/* ADMIN DASHBOARD VIEW */}
-        {view === 'admin-dashboard' && currentUser && currentUser.role === 'admin' && (
+        {effectiveView === 'admin-dashboard' && currentUser && currentUser.role === 'admin' && (
           <AdminDashboard currentUser={currentUser} />
         )}
       </main>

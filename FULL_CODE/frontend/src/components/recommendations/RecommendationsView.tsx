@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
   api,
+  formatINR,
   formatINRLakhCr,
   type AssessmentResponse,
   type CustomerProfile,
   type RecommendationResult,
   type RecommendedProduct,
   type RiderDetail,
+  type SelectedPlan,
 } from '../../api/client';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { ProductCard } from './ProductCard';
@@ -22,15 +24,21 @@ interface RecommendationsViewProps {
     monthly_household_expenses_inr: number;
     existing_cover_inr: number;
   };
+  selectedPlan: SelectedPlan | null;
+  onSelectPlan: (plan: SelectedPlan | null) => void;
   onBackToResults: () => void;
   onConsultAdvisor?: () => void;
+  onContinueToAdvisor?: () => void;
 }
 
 export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
   assessment,
   initialProfile,
+  selectedPlan,
+  onSelectPlan,
   onBackToResults,
   onConsultAdvisor,
+  onContinueToAdvisor,
 }) => {
   const { t } = useLanguage();
   // Customer Profile state (allows quick tweaking for quotes)
@@ -118,53 +126,56 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[var(--color-offwhite)] text-slate-900 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Navigation & Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
           <div>
             <button
+              type="button"
               onClick={onBackToResults}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-400 hover:text-teal-300 transition-colors mb-2"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-900 transition-colors mb-2 cursor-pointer"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               <span>{t.recommendations.backToAssessment}</span>
             </button>
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight font-[var(--font-heading)]">
               {t.recommendations.title}
             </h1>
-            <p className="text-sm text-slate-400 mt-1 max-w-2xl">
+            <p className="text-sm text-slate-600 mt-1 max-w-2xl">
               {t.recommendations.subtitle}
             </p>
           </div>
 
           {/* Quick Profile Controls Badge Bar */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex flex-wrap items-center gap-3 self-start">
+          <div className="bg-white border border-slate-200 rounded-2xl p-3 flex flex-wrap items-center gap-3 self-start shadow-xs">
             {/* Gender Toggle */}
-            <div className="flex items-center gap-1 text-xs bg-slate-950 px-2.5 py-1.5 rounded-xl border border-slate-800">
-              <span className="text-slate-400 font-medium">Gender:</span>
+            <div className="flex items-center gap-1.5 text-xs bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+              <span className="text-slate-500 font-medium">Gender:</span>
               <button
+                type="button"
                 onClick={() => setProfile((p) => ({ ...p, gender: p.gender === 'male' ? 'female' : 'male' }))}
-                className="font-bold text-teal-400 capitalize hover:text-teal-300"
+                className="font-bold text-teal-700 capitalize hover:text-teal-900 cursor-pointer"
               >
                 {profile.gender} ↻
               </button>
             </div>
 
             {/* Smoker Toggle */}
-            <div className="flex items-center gap-1 text-xs bg-slate-950 px-2.5 py-1.5 rounded-xl border border-slate-800">
-              <span className="text-slate-400 font-medium">Smoker:</span>
+            <div className="flex items-center gap-1.5 text-xs bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+              <span className="text-slate-500 font-medium">Smoker:</span>
               <button
+                type="button"
                 onClick={() =>
                   setProfile((p) => ({
                     ...p,
                     smoker_status: p.smoker_status === 'smoker' ? 'non_smoker' : 'smoker',
                   }))
                 }
-                className={`font-bold capitalize ${
-                  profile.smoker_status === 'smoker' ? 'text-amber-400' : 'text-emerald-400'
+                className={`font-bold capitalize cursor-pointer ${
+                  profile.smoker_status === 'smoker' ? 'text-amber-700' : 'text-emerald-700'
                 }`}
               >
                 {profile.smoker_status === 'smoker' ? 'Yes' : 'No'} ↻
@@ -172,11 +183,12 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
             </div>
 
             {/* NRI Toggle */}
-            <div className="flex items-center gap-1 text-xs bg-slate-950 px-2.5 py-1.5 rounded-xl border border-slate-800">
-              <span className="text-slate-400 font-medium">NRI:</span>
+            <div className="flex items-center gap-1.5 text-xs bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+              <span className="text-slate-500 font-medium">NRI:</span>
               <button
+                type="button"
                 onClick={() => setProfile((p) => ({ ...p, is_nri: !p.is_nri }))}
-                className={`font-bold capitalize ${profile.is_nri ? 'text-teal-400' : 'text-slate-400'}`}
+                className={`font-bold capitalize cursor-pointer ${profile.is_nri ? 'text-teal-700' : 'text-slate-500'}`}
               >
                 {profile.is_nri ? 'Yes' : 'No'} ↻
               </button>
@@ -184,8 +196,104 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
           </div>
         </div>
 
+        {/* Selected Plan Summary Banner (if active) */}
+        {selectedPlan && (
+          <div className="bg-gradient-to-br from-teal-900 via-teal-800 to-[var(--color-navy-900)] text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-teal-500/30 animate-fadeIn">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-teal-700/50">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-semibold text-teal-300">
+                  <span>✓</span> {(t.recommendations as any).selectedPlanTitle || 'Your Selected Protection Plan'}
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-[var(--font-heading)]">
+                  {selectedPlan.product_name}
+                </h2>
+                <p className="text-xs text-teal-200">
+                  {selectedPlan.product_type} {selectedPlan.variant ? `(${selectedPlan.variant})` : ''} · Validated Actuarial Quotation
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const prod = recData?.recommendations.find((p) => p.product_id === selectedPlan.product_id);
+                    if (prod) setCustomizingProduct(prod);
+                  }}
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
+                >
+                  ✏ {(t.recommendations as any).editCustomizationBtn || 'Edit Customization'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onSelectPlan(null)}
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
+                >
+                  {(t.recommendations as any).changePlanBtn || 'Change Plan'}
+                </button>
+                {(onContinueToAdvisor || onConsultAdvisor) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onContinueToAdvisor) onContinueToAdvisor();
+                      else if (onConsultAdvisor) onConsultAdvisor();
+                    }}
+                    className="px-6 py-2.5 bg-gradient-to-r from-teal-400 to-emerald-400 hover:from-teal-300 hover:to-emerald-300 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition-all cursor-pointer"
+                  >
+                    {(t.recommendations as any).continueToAdvisorBtn || 'Continue to Advisor Consultation →'}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
+              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-xs">
+                <span className="text-[11px] text-teal-200 uppercase font-medium block">Life Cover (SA)</span>
+                <span className="text-xl font-extrabold text-white mt-0.5 block">{formatINRLakhCr(selectedPlan.sum_assured)}</span>
+                <span className="text-[11px] text-teal-300">{selectedPlan.policy_term_years} Years Tenure</span>
+              </div>
+
+              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-xs">
+                <span className="text-[11px] text-teal-200 uppercase font-medium block">Premium Payable</span>
+                <span className="text-xl font-extrabold text-teal-300 mt-0.5 block">
+                  {formatINR(selectedPlan.total_instalment_premium)}
+                  <span className="text-xs font-normal text-teal-200 ml-1">/{selectedPlan.premium_mode}</span>
+                </span>
+                <span className="text-[11px] text-teal-300">Annual: {formatINR(selectedPlan.total_annual_premium)}</span>
+              </div>
+
+              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-xs">
+                <span className="text-[11px] text-teal-200 uppercase font-medium block">Chosen Riders</span>
+                <span className="text-base font-bold text-white mt-0.5 block">
+                  {selectedPlan.riders.length > 0 ? `${selectedPlan.riders.length} Active Rider(s)` : 'Base Cover Only'}
+                </span>
+                {selectedPlan.riders.length > 0 && (
+                  <span className="text-[11px] text-teal-200 truncate block">
+                    {selectedPlan.riders.map((r) => r.rider_name).join(', ')}
+                  </span>
+                )}
+              </div>
+
+              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-xs">
+                <span className="text-[11px] text-teal-200 uppercase font-medium block">Protection Fit</span>
+                <span className="text-base font-bold text-white mt-0.5 block">
+                  {selectedPlan.remaining_shortfall_inr === 0 ? (
+                    <span className="text-emerald-300 font-bold">✓ 100% Covered</span>
+                  ) : (
+                    <span className="text-amber-300">Shortfall: {formatINRLakhCr(selectedPlan.remaining_shortfall_inr)}</span>
+                  )}
+                </span>
+                <span className="text-[11px] text-teal-300">Target: {formatINRLakhCr(selectedPlan.recommended_gap_inr)}</span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-teal-300/80 pt-4 mt-4 border-t border-teal-700/40 text-center sm:text-left">
+              * Illustrative quote based on synthetic rates and entered health/age criteria. Non-binding demonstration.
+            </p>
+          </div>
+        )}
+
         {/* Coverage Need Banner */}
-        <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="bg-gradient-to-r from-[var(--color-navy-900)] to-[var(--color-navy-800)] text-white rounded-3xl p-6 sm:p-8 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1">
             <span className="text-xs uppercase font-bold tracking-wider text-teal-400">
               Target Financial Protection Need
@@ -193,27 +301,27 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
             <div className="text-3xl font-black text-white">
               {formatINRLakhCr(recommendedGap)}
             </div>
-            <p className="text-xs text-slate-400 max-w-xl">
+            <p className="text-xs text-slate-300 max-w-xl">
               Calculated using the approved {assessment.recommended_method} algorithm from your financial profile and dependency horizon.
             </p>
           </div>
 
-          <div className="flex items-center gap-4 text-xs text-slate-300">
-            <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-center">
-              <div className="text-slate-400 text-[11px] uppercase">{t.recommendations.evaluated}</div>
-              <div className="text-lg font-bold text-white mt-0.5">
+          <div className="flex items-center gap-3 text-xs">
+            <div className="bg-white/10 rounded-2xl p-3.5 text-center min-w-[90px] backdrop-blur-xs">
+              <div className="text-slate-300 text-[11px] uppercase font-semibold">{t.recommendations.evaluated}</div>
+              <div className="text-xl font-bold text-white mt-0.5">
                 {recData?.total_products_evaluated || 14}
               </div>
             </div>
-            <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-center">
-              <div className="text-slate-400 text-[11px] uppercase">{t.recommendations.eligible}</div>
-              <div className="text-lg font-bold text-emerald-400 mt-0.5">
+            <div className="bg-white/10 rounded-2xl p-3.5 text-center min-w-[90px] backdrop-blur-xs">
+              <div className="text-slate-300 text-[11px] uppercase font-semibold">{t.recommendations.eligible}</div>
+              <div className="text-xl font-bold text-teal-300 mt-0.5">
                 {recData?.eligible_count || 0}
               </div>
             </div>
-            <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-center">
-              <div className="text-slate-400 text-[11px] uppercase">{t.recommendations.ineligible}</div>
-              <div className="text-lg font-bold text-slate-400 mt-0.5">
+            <div className="bg-white/10 rounded-2xl p-3.5 text-center min-w-[90px] backdrop-blur-xs">
+              <div className="text-slate-300 text-[11px] uppercase font-semibold">{t.recommendations.ineligible}</div>
+              <div className="text-xl font-bold text-slate-300 mt-0.5">
                 {recData?.ineligible_count || 0}
               </div>
             </div>
@@ -223,11 +331,11 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
         {/* Loading State */}
         {loading && (
           <div className="py-20 text-center space-y-4">
-            <div className="inline-block animate-spin w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full" />
-            <div className="text-base font-bold text-slate-200">
+            <div className="inline-block animate-spin w-10 h-10 border-4 border-teal-600 border-t-transparent rounded-full" />
+            <div className="text-base font-bold text-slate-800">
               {t.recommendations.evaluatingMsg}
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               {t.recommendations.evaluatingDesc}
             </p>
           </div>
@@ -235,12 +343,13 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
 
         {/* Error State */}
         {!loading && error && (
-          <div className="p-6 bg-red-950/40 border border-red-800/80 rounded-2xl text-center space-y-3">
-            <div className="text-red-400 font-bold text-lg">Unable to Load Recommendations</div>
-            <p className="text-xs text-red-200 max-w-md mx-auto">{error}</p>
+          <div className="p-6 bg-red-50 border border-red-200 rounded-2xl text-center space-y-3">
+            <div className="text-red-700 font-bold text-lg">Unable to Load Recommendations</div>
+            <p className="text-xs text-red-600 max-w-md mx-auto">{error}</p>
             <button
+              type="button"
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold"
+              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold cursor-pointer"
             >
               Retry
             </button>
@@ -266,18 +375,19 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
               </div>
             ) : (
               /* No eligible product state */
-              <div className="p-8 bg-slate-900 border border-slate-800 rounded-3xl text-center space-y-4 max-w-xl mx-auto">
-                <div className="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
+              <div className="p-8 bg-white border border-slate-200 rounded-3xl text-center space-y-4 max-w-xl mx-auto shadow-sm">
+                <div className="w-12 h-12 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
                   !
                 </div>
-                <h3 className="text-xl font-bold text-white">{t.recommendations.noEligibleTitle}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <h3 className="text-xl font-bold text-slate-900">{t.recommendations.noEligibleTitle}</h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
                   {t.recommendations.noEligibleDesc}
                 </p>
                 {onConsultAdvisor && (
                   <button
+                    type="button"
                     onClick={onConsultAdvisor}
-                    className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg hover:brightness-110"
+                    className="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-bold text-xs rounded-xl shadow-md hover:brightness-105 cursor-pointer"
                   >
                     {t.recommendations.consultAdvisorBtn}
                   </button>
@@ -287,37 +397,38 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
 
             {/* Ineligible Products Section (Accordion) */}
             {recData.rejected_products && recData.rejected_products.length > 0 && (
-              <div className="border border-slate-800 rounded-2xl bg-slate-900/40 overflow-hidden">
+              <div className="border border-slate-200 rounded-3xl bg-white shadow-xs overflow-hidden">
                 <button
+                  type="button"
                   onClick={() => setShowIneligible(!showIneligible)}
-                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-900/80 transition-colors"
+                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xs uppercase font-bold tracking-wider text-slate-400">
+                    <span className="text-xs uppercase font-bold tracking-wider text-slate-600">
                       {t.recommendations.excludedPlans}
                     </span>
-                    <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">
+                    <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono">
                       {recData.rejected_products.length} {t.recommendations.products}
                     </span>
                   </div>
-                  <span className="text-xs text-teal-400 font-semibold">
+                  <span className="text-xs text-teal-700 font-semibold">
                     {showIneligible ? t.recommendations.hideReasons : t.recommendations.viewReasons}
                   </span>
                 </button>
 
                 {showIneligible && (
-                  <div className="p-6 pt-2 border-t border-slate-800 divide-y divide-slate-800/60">
+                  <div className="p-6 pt-2 border-t border-slate-100 divide-y divide-slate-100">
                     {recData.rejected_products.map((rp) => (
                       <div key={rp.product_id} className="py-3 flex flex-col md:flex-row md:items-start justify-between gap-3 text-xs">
                         <div>
-                          <div className="font-bold text-slate-200">{rp.product_name}</div>
+                          <div className="font-bold text-slate-900">{rp.product_name}</div>
                           <div className="text-[11px] text-slate-500 font-mono">{rp.product_type} ({rp.variant})</div>
                         </div>
                         <div className="md:text-right space-y-1">
                           {rp.rejection_reasons.map((r, i) => (
                             <span
                               key={i}
-                              className="inline-block bg-red-950/40 text-red-300 border border-red-800/40 rounded-lg px-2.5 py-1 text-[11px] font-medium mr-1.5 mb-1"
+                              className="inline-block bg-red-50 text-red-700 border border-red-200 rounded-lg px-2.5 py-1 text-[11px] font-medium mr-1.5 mb-1"
                             >
                               {r}
                             </span>
@@ -339,7 +450,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
 
         {/* Sticky Floating Compare Drawer */}
         {selectedForCompare.length > 0 && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 border border-teal-500/50 shadow-2xl rounded-2xl px-6 py-3.5 backdrop-blur-md flex items-center gap-5 text-xs animate-slideUp">
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[var(--color-navy-900)] border border-teal-500/50 shadow-2xl rounded-2xl px-6 py-3.5 backdrop-blur-md flex items-center gap-5 text-xs animate-slideUp text-white">
             <div className="flex items-center gap-2">
               <span className="font-bold text-white">{t.recommendations.comparePlans}:</span>
               <div className="flex items-center gap-1.5">
@@ -350,8 +461,9 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                   >
                     <span className="truncate max-w-[120px]">{p.product_name}</span>
                     <button
+                      type="button"
                       onClick={() => handleRemoveFromCompare(p.product_id)}
-                      className="text-slate-400 hover:text-white"
+                      className="text-slate-400 hover:text-white cursor-pointer"
                     >
                       ×
                     </button>
@@ -362,15 +474,17 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
 
             <div className="flex items-center gap-3">
               <button
+                type="button"
                 disabled={selectedForCompare.length < 2}
                 onClick={() => setIsCompareModalOpen(true)}
-                className="px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold rounded-xl disabled:opacity-50 transition-all shadow-md"
+                className="px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-950 font-bold rounded-xl disabled:opacity-50 transition-all shadow-md cursor-pointer"
               >
                 {t.recommendations.compareSelected} ({selectedForCompare.length}/3)
               </button>
               <button
+                type="button"
                 onClick={() => setSelectedForCompare([])}
-                className="text-slate-400 hover:text-white underline text-[11px]"
+                className="text-slate-400 hover:text-white underline text-[11px] cursor-pointer"
               >
                 {t.common.cancel}
               </button>
@@ -385,6 +499,10 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
             customer={profile}
             recommendedGap={recommendedGap}
             onClose={() => setCustomizingProduct(null)}
+            onSelectPlan={(plan) => {
+              onSelectPlan(plan);
+              setCustomizingProduct(null);
+            }}
             allRiders={allRiders}
           />
         )}

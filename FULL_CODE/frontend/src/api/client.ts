@@ -378,6 +378,34 @@ export interface RiderDetail {
   max_premium_pct_of_base_premium: number | null;
 }
 
+export interface SelectedPlanRider {
+  rider_id: string;
+  rider_name: string;
+  rider_sa: number;
+  annual_premium: string;
+  instalment_premium: string;
+}
+
+export interface SelectedPlan {
+  product_id: string;
+  product_name: string;
+  product_type: string;
+  variant?: string;
+  sum_assured: number;
+  policy_term_years: number;
+  premium_mode: string;
+  riders: SelectedPlanRider[];
+  ulip_config?: {
+    fund_id?: string;
+    annual_premium?: number;
+  };
+  quote: PricingQuote;
+  total_annual_premium: string;
+  total_instalment_premium: string;
+  recommended_gap_inr: number;
+  remaining_shortfall_inr: number;
+}
+
 // ── Helpers ──
 
 export function formatINR(amount: string | number): string {

@@ -52,6 +52,14 @@ class AssessmentSummaryData(BaseModel):
     mode: Optional[str] = Field(None, max_length=20)
     user_age: Optional[int] = Field(None, ge=18, le=100)
     annual_income_inr: Optional[int] = Field(None, ge=0, le=500000000)
+    selected_plan_id: Optional[str] = Field(None, max_length=50)
+    selected_plan_name: Optional[str] = Field(None, max_length=150)
+    selected_sum_assured_inr: Optional[int] = Field(None, ge=0, le=1000000000)
+    selected_tenure_years: Optional[int] = Field(None, ge=1, le=100)
+    selected_premium_mode: Optional[str] = Field(None, max_length=20)
+    selected_premium_amount_inr: Optional[int] = Field(None, ge=0, le=100000000)
+    selected_riders: Optional[List[str]] = None
+    remaining_shortfall_inr: Optional[int] = Field(None, ge=0, le=1000000000)
 
 
 class CreateBookingRequest(BaseModel):

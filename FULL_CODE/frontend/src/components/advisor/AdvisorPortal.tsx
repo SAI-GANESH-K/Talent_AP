@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { api, type Booking, type User } from '../../api/client';
+import { api, formatINR, formatINRLakhCr, type Booking, type User } from '../../api/client';
 import { useLanguage } from '../../i18n/LanguageContext';
 
 interface AdvisorPortalProps {
@@ -188,15 +188,93 @@ export const AdvisorPortal: React.FC<AdvisorPortalProps> = ({ currentUser }) => 
                   </div>
                 </div>
 
-                {/* Assessment Summary shared by customer */}
-                {booking.assessment_summary && (
-                  <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 text-xs">
-                    <div className="font-bold text-slate-700 mb-1">
-                      Customer Financial Context:
+                {/* Customer Financial Summary */}
+                {booking.assessment_summary && Object.keys(booking.assessment_summary).length > 0 ? (
+                  <div className="bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200 text-xs space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                      <div className="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                        <span>📊</span> Customer's Shared Financial Summary
+                      </div>
+                      {booking.assessment_summary.method && (
+                        <span className="text-[11px] font-medium text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200 uppercase tracking-wider">
+                          {booking.assessment_summary.method}
+                        </span>
+                      )}
                     </div>
-                    <div className="font-mono text-slate-600 text-[11px] whitespace-pre-wrap">
-                      {JSON.stringify(booking.assessment_summary, null, 2)}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                      {/* Estimated Protection Gap */}
+                      {(booking.assessment_summary.coverage_gap !== undefined || booking.assessment_summary.recommended_cover_inr !== undefined) && (
+                        <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                          <span className="text-[11px] text-slate-500 font-medium block">Estimated Protection Gap</span>
+                          <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                            {formatINR(booking.assessment_summary.coverage_gap ?? booking.assessment_summary.recommended_cover_inr)}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Selected Plan */}
+                      <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                        <span className="text-[11px] text-slate-500 font-medium block">Selected Plan</span>
+                        <span className="text-sm font-bold text-teal-700 mt-0.5 block truncate" title={booking.assessment_summary.selected_plan_name || booking.assessment_summary.product || 'Not yet selected'}>
+                          {booking.assessment_summary.selected_plan_name || booking.assessment_summary.product || 'Not yet selected'}
+                        </span>
+                      </div>
+
+                      {/* Proposed Life Cover */}
+                      {booking.assessment_summary.selected_sum_assured_inr !== undefined && (
+                        <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                          <span className="text-[11px] text-slate-500 font-medium block">Proposed Life Cover</span>
+                          <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                            {formatINRLakhCr(booking.assessment_summary.selected_sum_assured_inr)}
+                            {booking.assessment_summary.selected_tenure_years && (
+                              <span className="text-xs font-normal text-slate-500 ml-1">({booking.assessment_summary.selected_tenure_years} yrs)</span>
+                            )}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Validated Premium */}
+                      {booking.assessment_summary.selected_premium_amount_inr !== undefined && (
+                        <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                          <span className="text-[11px] text-slate-500 font-medium block">Validated Premium</span>
+                          <span className="text-sm font-bold text-emerald-700 mt-0.5 block">
+                            {formatINR(booking.assessment_summary.selected_premium_amount_inr)}
+                            <span className="text-xs font-normal text-slate-500 ml-1">
+                              /{booking.assessment_summary.selected_premium_mode || 'mo'}
+                            </span>
+                          </span>
+                        </div>
+                      )}
                     </div>
+
+                    {/* Riders & Profile Context */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-slate-600">
+                      <div>
+                        <strong className="text-slate-700">Riders: </strong>
+                        {Array.isArray(booking.assessment_summary.selected_riders) && booking.assessment_summary.selected_riders.length > 0 ? (
+                          <span className="text-slate-800 font-medium">
+                            {booking.assessment_summary.selected_riders.join(', ')}
+                          </span>
+                        ) : (
+                          <span className="text-slate-500">None selected</span>
+                        )}
+                      </div>
+
+                      {(booking.assessment_summary.user_age || booking.assessment_summary.annual_income_inr) && (
+                        <div className="text-slate-500">
+                          {booking.assessment_summary.user_age && <span>Age: {booking.assessment_summary.user_age} yrs</span>}
+                          {booking.assessment_summary.user_age && booking.assessment_summary.annual_income_inr && <span> · </span>}
+                          {booking.assessment_summary.annual_income_inr && (
+                            <span>Income: {formatINR(booking.assessment_summary.annual_income_inr)}/yr</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 text-xs text-slate-500 italic">
+                    Financial details were not shared by this customer.
                   </div>
                 )}
 
@@ -212,9 +290,10 @@ export const AdvisorPortal: React.FC<AdvisorPortalProps> = ({ currentUser }) => 
                     id={`notes_${booking.id}`}
                     rows={3}
                     value={activeNotes[booking.id] || ''}
-                    onChange={(e) =>
-                      setActiveNotes({ ...activeNotes, [booking.id]: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setActiveNotes((prev) => ({ ...prev, [booking.id]: val }));
+                    }}
                     placeholder="Enter key recommendations, customer goals discussed, follow-up items..."
                     className="w-full p-3 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                   />

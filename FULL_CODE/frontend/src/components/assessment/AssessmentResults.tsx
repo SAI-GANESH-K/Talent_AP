@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   type AssessmentResponse,
   formatINR,
@@ -24,6 +24,50 @@ export function AssessmentResults({
   const [showYearBreakdown, setShowYearBreakdown] = useState<boolean>(false);
 
   const { hlv, net_needs, recommended_gap_rounded, recommended_gap_exact, recommended_method, explanation, assumptions_used, warnings } = result;
+
+  // Deduplicate and transform warnings to friendly, plain-language text
+  const cleanWarnings = useMemo(() => {
+    if (!warnings || warnings.length === 0) return [];
+
+    const seen = new Set<string>();
+    const cleaned: { id: string; text: string; linkToAssumptions?: boolean }[] = [];
+
+    warnings.forEach((w) => {
+      const lower = w.toLowerCase();
+
+      if (lower.includes('retirement savings') && (lower.includes('excluded') || lower.includes('count_retirement_savings'))) {
+        if (!seen.has('retirement_excluded')) {
+          seen.add('retirement_excluded');
+          cleaned.push({
+            id: 'retirement_excluded',
+            text: (t.results as any).cleanWarningRetirement || "Your retirement savings were not deducted from your family's insurance needs because these funds may be intended for your retirement. You can review this assumption in Expert Mode.",
+            linkToAssumptions: true,
+          });
+        }
+      } else if (lower.includes('employer group cover') || lower.includes('employer-provided')) {
+        if (!seen.has('employer_cover')) {
+          seen.add('employer_cover');
+          cleaned.push({
+            id: 'employer_cover',
+            text: (t.results as any).cleanWarningEmployer || 'Your employer-provided life insurance has been included in this estimate. Keep in mind that this cover may end when you leave your job.',
+            linkToAssumptions: true,
+          });
+        }
+      } else {
+        const sanitized = w.replace(/count_[a-z_]+/g, 'assumptions').trim();
+        const normKey = sanitized.toLowerCase();
+        if (!seen.has(normKey)) {
+          seen.add(normKey);
+          cleaned.push({
+            id: normKey,
+            text: sanitized,
+          });
+        }
+      }
+    });
+
+    return cleaned;
+  }, [warnings, t]);
 
   const isNetNeedsDriver = recommended_method === 'net_needs';
   const hasZeroGap = parseFloat(recommended_gap_rounded) <= 0;
@@ -60,15 +104,32 @@ export function AssessmentResults({
         </div>
       </div>
 
-      {/* Warnings & Advisories */}
-      {warnings && warnings.length > 0 && (
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 space-y-1">
-          <div className="font-bold flex items-center gap-1.5 text-amber-950">
-            <span>⚠</span> Note regarding your profile:
+      {/* Cleaned Warnings & Explanatory Notes */}
+      {cleanWarnings.length > 0 && (
+        <div className="p-4 sm:p-5 bg-amber-50/90 border border-amber-200/90 rounded-2xl text-xs text-amber-900 space-y-2.5 shadow-sm">
+          <div className="font-bold flex items-center gap-2 text-amber-950 text-sm">
+            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-200/80 text-amber-900 text-xs font-bold">ℹ</span>
+            {(t.results as any).cleanWarningsTitle || 'Important things to know about your estimate'}
           </div>
-          {warnings.map((w, idx) => (
-            <p key={idx} className="pl-4">• {w}</p>
-          ))}
+          <div className="space-y-2 pl-7">
+            {cleanWarnings.map((item) => (
+              <div key={item.id} className="leading-relaxed flex items-start gap-2">
+                <span className="text-amber-500 mt-0.5">•</span>
+                <div>
+                  <span>{item.text}</span>
+                  {item.linkToAssumptions && (
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('assumptions')}
+                      className="ml-2 text-teal-700 hover:text-teal-900 underline font-medium inline-block cursor-pointer"
+                    >
+                      View assumptions →
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

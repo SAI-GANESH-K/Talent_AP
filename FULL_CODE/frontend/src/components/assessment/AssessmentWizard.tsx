@@ -348,8 +348,8 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
   const stepTitles = [
     t.wizard.step1Title,
     t.wizard.step2Title,
-    t.wizard.step4Title,
     t.wizard.step3Title,
+    t.wizard.step4Title,
     t.wizard.step5Title,
   ];
 
@@ -610,7 +610,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     </div>
 
                     <div className="w-24">
-                      <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.ageLabel}</label>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.dependentAgeLabel || "Dependent's Age"}</label>
                       <input
                         type="number"
                         min={0}
@@ -694,7 +694,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     className="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-wrap items-center gap-3 sm:gap-4"
                   >
                     <div className="flex-1 min-w-[160px]">
-                      <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.loansLabel}</label>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.loanTypeLabel || 'Loan Type / Purpose'}</label>
                       <input
                         type="text"
                         value={loan.loan_type}
