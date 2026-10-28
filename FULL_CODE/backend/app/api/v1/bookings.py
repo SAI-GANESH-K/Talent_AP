@@ -8,6 +8,8 @@ Implements:
 """
 
 import uuid
+import zoneinfo
+from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -20,13 +22,17 @@ from app.db.session import get_db
 from app.models.app_data import Booking, User
 from app.models.source_data import Advisor, AdvisorSlot
 from app.schemas.advisory import (
+    AdminBookingResponse,
     AdminStatsResponse,
+    AssessmentSummaryData,
     BookingResponse,
     CreateBookingRequest,
     UpdateConsultationRequest,
 )
 
 router = APIRouter(prefix="/api/v1", tags=["Bookings & Consultations"])
+
+IST = zoneinfo.ZoneInfo("Asia/Kolkata")
 
 
 def _build_booking_response(booking: Booking, db: Session) -> BookingResponse:
@@ -49,6 +55,27 @@ def _build_booking_response(booking: Booking, db: Session) -> BookingResponse:
         assessment_summary=booking.assessment_summary,
         status=booking.status,
         advisor_notes=booking.advisor_notes,
+        created_at=booking.created_at,
+    )
+
+
+def _build_admin_booking_response(booking: Booking, db: Session) -> AdminBookingResponse:
+    """Helper for admin dashboard operational overview with private data redacted."""
+    customer = db.query(User).filter(User.id == booking.user_id).first()
+    advisor = db.query(Advisor).filter(Advisor.advisor_id == booking.advisor_id).first()
+    slot = db.query(AdvisorSlot).filter(AdvisorSlot.slot_id == booking.slot_id).first()
+
+    return AdminBookingResponse(
+        id=booking.id,
+        user_id=booking.user_id,
+        customer_name=customer.full_name if customer else "Customer",
+        slot_id=booking.slot_id,
+        advisor_id=booking.advisor_id,
+        advisor_name=advisor.advisor_name if advisor else booking.advisor_id,
+        consultation_mode=booking.consultation_mode,
+        slot_start=slot.slot_start if slot else None,
+        slot_end=slot.slot_end if slot else None,
+        status=booking.status,
         created_at=booking.created_at,
     )
 
@@ -88,10 +115,19 @@ def create_booking(
             detail=f"Slot '{req.slot_id}' not found.",
         )
 
+    # Server-side rejection of expired and past consultation slots
+    now_ist = datetime.now(IST)
+    slot_start_ist = slot.slot_start if slot.slot_start.tzinfo else slot.slot_start.replace(tzinfo=IST)
+    if slot_start_ist <= now_ist:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Consultation slot has expired and cannot be reserved.",
+        )
+
     if slot.status != "available":
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="This consultation slot is already booked or unavailable.",
+            detail="This consultation slot is already booked by another user. Please select another slot.",
         )
 
     # 2. Verify advisor supports the requested consultation mode
@@ -111,14 +147,26 @@ def create_booking(
             detail=f"Advisor '{advisor.advisor_name}' does not support mode '{mode_clean}'. Supported: {supported_modes}.",
         )
 
-    # 3. Mark slot booked and insert booking record
+    # 3. Customer privacy: sanitize and validate optional financial summary
+    sanitized_summary = None
+    if req.share_assessment and req.assessment_summary:
+        try:
+            validated = AssessmentSummaryData.model_validate(req.assessment_summary)
+            sanitized_summary = validated.model_dump(exclude_none=True)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid assessment summary format: {str(exc)}",
+            )
+
+    # 4. Mark slot booked and insert booking record
     slot.status = "booked"
     new_booking = Booking(
         user_id=user.id,
         slot_id=slot.slot_id,
         advisor_id=slot.advisor_id,
         consultation_mode=mode_clean,
-        assessment_summary=req.assessment_summary,
+        assessment_summary=sanitized_summary,
         status="confirmed",
         advisor_notes=None,
     )
@@ -171,7 +219,12 @@ def cancel_booking(
 
     Releases the slot back to 'available' while preserving the booking record in 'cancelled' state.
     """
-    booking = db.query(Booking).filter(Booking.id == booking_id).first()
+    booking = (
+        db.query(Booking)
+        .filter(Booking.id == booking_id)
+        .with_for_update()
+        .first()
+    )
     if not booking:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -185,6 +238,7 @@ def cancel_booking(
             detail="You are not authorized to cancel another customer's booking.",
         )
 
+    # State Machine: Completed/Cancelled are terminal states
     if booking.status == "cancelled":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -197,7 +251,13 @@ def cancel_booking(
             detail="Cannot cancel a completed consultation.",
         )
 
-    # Release slot back to 'available' with row lock
+    if booking.status != "confirmed":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Illegal transition: cannot cancel a booking with status '{booking.status}'.",
+        )
+
+    # Release slot back to 'available' with row lock only if no other active booking holds it
     slot = (
         db.query(AdvisorSlot)
         .filter(AdvisorSlot.slot_id == booking.slot_id)
@@ -205,7 +265,17 @@ def cancel_booking(
         .first()
     )
     if slot:
-        slot.status = "available"
+        other_active = (
+            db.query(Booking)
+            .filter(
+                Booking.slot_id == booking.slot_id,
+                Booking.id != booking.id,
+                Booking.status == "confirmed",
+            )
+            .first()
+        )
+        if not other_active:
+            slot.status = "available"
 
     booking.status = "cancelled"
     db.commit()
@@ -257,8 +327,14 @@ def update_advisor_consultation(
     """Advisor updates consultation status (completed/cancelled) and records notes.
 
     Enforces BOLA: advisor can only update consultations assigned to them.
+    Enforces State Machine: completed and cancelled are terminal states.
     """
-    booking = db.query(Booking).filter(Booking.id == booking_id).first()
+    booking = (
+        db.query(Booking)
+        .filter(Booking.id == booking_id)
+        .with_for_update()
+        .first()
+    )
     if not booking:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -271,14 +347,21 @@ def update_advisor_consultation(
             detail="Access denied: consultation is assigned to another advisor.",
         )
 
+    # Terminal state check: completed/cancelled cannot be modified or reopened
+    if booking.status in ("completed", "cancelled"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot update consultation in terminal '{booking.status}' state. Reopening terminal records is prohibited.",
+        )
+
     if req.status:
-        if req.status not in ("completed", "cancelled", "confirmed"):
+        if req.status not in ("completed", "cancelled"):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid status '{req.status}'. Permitted: 'completed', 'cancelled', 'confirmed'.",
+                detail=f"Invalid transition from '{booking.status}' to '{req.status}'. Only 'completed' or 'cancelled' permitted.",
             )
         booking.status = req.status
-        # If advisor cancelled, release the slot
+        # If advisor cancelled, release the slot if no other active booking exists
         if req.status == "cancelled":
             slot = (
                 db.query(AdvisorSlot)
@@ -287,7 +370,17 @@ def update_advisor_consultation(
                 .first()
             )
             if slot:
-                slot.status = "available"
+                other_active = (
+                    db.query(Booking)
+                    .filter(
+                        Booking.slot_id == booking.slot_id,
+                        Booking.id != booking.id,
+                        Booking.status == "confirmed",
+                    )
+                    .first()
+                )
+                if not other_active:
+                    slot.status = "available"
 
     if req.advisor_notes is not None:
         booking.advisor_notes = req.advisor_notes.strip()
@@ -365,13 +458,14 @@ def get_admin_stats(
 
 @router.get(
     "/admin/bookings",
-    response_model=List[BookingResponse],
+    response_model=List[AdminBookingResponse],
     summary="All operational bookings (Admin only)",
 )
 def list_admin_bookings(
     _admin: User = Depends(require_role("admin")),
     db: Session = Depends(get_db),
 ):
-    """List operational consultations for platform monitoring."""
+    """List operational consultations with private customer financial assessments redacted."""
     bookings = db.query(Booking).order_by(Booking.created_at.desc()).limit(100).all()
-    return [_build_booking_response(b, db) for b in bookings]
+    return [_build_admin_booking_response(b, db) for b in bookings]
+

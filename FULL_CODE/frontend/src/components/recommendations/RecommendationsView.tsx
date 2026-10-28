@@ -8,6 +8,7 @@ import {
   type RecommendedProduct,
   type RiderDetail,
 } from '../../api/client';
+import { useLanguage } from '../../i18n/LanguageContext';
 import { ProductCard } from './ProductCard';
 import { PolicyCustomizerModal } from './PolicyCustomizerModal';
 import { PlanComparisonModal } from './PlanComparisonModal';
@@ -31,6 +32,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
   onBackToResults,
   onConsultAdvisor,
 }) => {
+  const { t } = useLanguage();
   // Customer Profile state (allows quick tweaking for quotes)
   const [profile, setProfile] = useState<CustomerProfile>({
     age: initialProfile.age,
@@ -128,13 +130,13 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              <span>Back to Assessment Results</span>
+              <span>{t.recommendations.backToAssessment}</span>
             </button>
             <h1 className="text-3xl font-extrabold text-white tracking-tight">
-              Personalized Insurance Recommendations
+              {t.recommendations.title}
             </h1>
             <p className="text-sm text-slate-400 mt-1 max-w-2xl">
-              Stage 3 — Official BFSI B2 matching engine evaluating eligibility, rates, and 4-pillar composite scoring for your calculated need.
+              {t.recommendations.subtitle}
             </p>
           </div>
 
@@ -198,19 +200,19 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
 
           <div className="flex items-center gap-4 text-xs text-slate-300">
             <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-center">
-              <div className="text-slate-400 text-[11px] uppercase">Evaluated</div>
+              <div className="text-slate-400 text-[11px] uppercase">{t.recommendations.evaluated}</div>
               <div className="text-lg font-bold text-white mt-0.5">
                 {recData?.total_products_evaluated || 14}
               </div>
             </div>
             <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-center">
-              <div className="text-slate-400 text-[11px] uppercase">Eligible</div>
+              <div className="text-slate-400 text-[11px] uppercase">{t.recommendations.eligible}</div>
               <div className="text-lg font-bold text-emerald-400 mt-0.5">
                 {recData?.eligible_count || 0}
               </div>
             </div>
             <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-center">
-              <div className="text-slate-400 text-[11px] uppercase">Ineligible</div>
+              <div className="text-slate-400 text-[11px] uppercase">{t.recommendations.ineligible}</div>
               <div className="text-lg font-bold text-slate-400 mt-0.5">
                 {recData?.ineligible_count || 0}
               </div>
@@ -223,10 +225,10 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
           <div className="py-20 text-center space-y-4">
             <div className="inline-block animate-spin w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full" />
             <div className="text-base font-bold text-slate-200">
-              Evaluating eligibility & calculating rate quotations...
+              {t.recommendations.evaluatingMsg}
             </div>
             <p className="text-xs text-slate-400">
-              Executing exact official dataset pricing rules and 4-pillar deterministic ranking.
+              {t.recommendations.evaluatingDesc}
             </p>
           </div>
         )}
@@ -268,16 +270,16 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                 <div className="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
                   !
                 </div>
-                <h3 className="text-xl font-bold text-white">No Off-the-Shelf Eligible Product</h3>
+                <h3 className="text-xl font-bold text-white">{t.recommendations.noEligibleTitle}</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Based on the entered age, income underwriting caps, or residency parameters, no standard product from the dataset currently satisfies all strict underwriting guidelines.
+                  {t.recommendations.noEligibleDesc}
                 </p>
                 {onConsultAdvisor && (
                   <button
                     onClick={onConsultAdvisor}
                     className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg hover:brightness-110"
                   >
-                    Consult an Authorized Advisor
+                    {t.recommendations.consultAdvisorBtn}
                   </button>
                 )}
               </div>
@@ -292,14 +294,14 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-xs uppercase font-bold tracking-wider text-slate-400">
-                      Excluded Plans
+                      {t.recommendations.excludedPlans}
                     </span>
                     <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">
-                      {recData.rejected_products.length} Products
+                      {recData.rejected_products.length} {t.recommendations.products}
                     </span>
                   </div>
                   <span className="text-xs text-teal-400 font-semibold">
-                    {showIneligible ? 'Hide Details ▲' : 'View Underwriting Reasons ▼'}
+                    {showIneligible ? t.recommendations.hideReasons : t.recommendations.viewReasons}
                   </span>
                 </button>
 
@@ -339,7 +341,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
         {selectedForCompare.length > 0 && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 border border-teal-500/50 shadow-2xl rounded-2xl px-6 py-3.5 backdrop-blur-md flex items-center gap-5 text-xs animate-slideUp">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-white">Compare Plans:</span>
+              <span className="font-bold text-white">{t.recommendations.comparePlans}:</span>
               <div className="flex items-center gap-1.5">
                 {selectedForCompare.map((p) => (
                   <span
@@ -364,13 +366,13 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                 onClick={() => setIsCompareModalOpen(true)}
                 className="px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold rounded-xl disabled:opacity-50 transition-all shadow-md"
               >
-                Compare Now ({selectedForCompare.length}/3)
+                {t.recommendations.compareSelected} ({selectedForCompare.length}/3)
               </button>
               <button
                 onClick={() => setSelectedForCompare([])}
                 className="text-slate-400 hover:text-white underline text-[11px]"
               >
-                Clear
+                {t.common.cancel}
               </button>
             </div>
           </div>

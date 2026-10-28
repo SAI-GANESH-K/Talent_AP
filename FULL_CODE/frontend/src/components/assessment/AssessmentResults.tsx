@@ -4,6 +4,7 @@ import {
   formatINR,
   formatINRLakhCr,
 } from '../../api/client';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface AssessmentResultsProps {
   result: AssessmentResponse;
@@ -18,6 +19,7 @@ export function AssessmentResults({
   onTalkToAdvisor,
   onExplorePlans,
 }: AssessmentResultsProps) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'overview' | 'net_needs' | 'hlv' | 'assumptions'>('overview');
   const [showYearBreakdown, setShowYearBreakdown] = useState<boolean>(false);
 
@@ -32,10 +34,10 @@ export function AssessmentResults({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-200 gap-4">
         <div>
           <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-teal-600)]">
-            Stage 2 · Assessment Complete
+            Stage 2 · {t.results.title}
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-navy-900)] font-[var(--font-heading)]">
-            Your Family's Protection Need
+            {t.results.title}
           </h2>
         </div>
         <div className="flex items-center gap-3">
@@ -44,7 +46,7 @@ export function AssessmentResults({
             onClick={onRecalculate}
             className="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition"
           >
-            ✏ Adjust Inputs
+            ✏ {t.results.recalculateBtn}
           </button>
           {onTalkToAdvisor && (
             <button
@@ -52,7 +54,7 @@ export function AssessmentResults({
               onClick={onTalkToAdvisor}
               className="bg-[var(--color-teal-600)] hover:bg-[var(--color-teal-500)] text-white px-4 py-2 rounded-xl text-xs font-semibold shadow transition"
             >
-              💬 Talk to Advisor
+              💬 {t.results.talkToAdvisorBtn}
             </button>
           )}
         </div>
@@ -79,7 +81,7 @@ export function AssessmentResults({
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-medium text-[var(--color-teal-400)] backdrop-blur">
               <span className="w-2 h-2 rounded-full bg-[var(--color-teal-400)] animate-pulse" />
-              Recommended Life Insurance Coverage
+              {t.results.recommendedGap}
             </div>
 
             {hasZeroGap ? (
@@ -528,14 +530,14 @@ export function AssessmentResults({
             onClick={onRecalculate}
             className="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition"
           >
-            ← Modify Inputs
+            ← {t.results.recalculateBtn}
           </button>
           <button
             type="button"
             onClick={onExplorePlans ? onExplorePlans : () => alert(`Phase 3 Product Recommendation Engine will filter products matching ₹${parseFloat(recommended_gap_rounded).toLocaleString('en-IN')} sum assured!`)}
             className="bg-gradient-to-r from-[var(--color-teal-600)] to-[var(--color-teal-500)] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md hover:from-[var(--color-teal-500)] hover:to-[var(--color-teal-400)] transition cursor-pointer"
           >
-            Explore Matching Plans →
+            {t.results.explorePlansBtn}
           </button>
         </div>
       </div>

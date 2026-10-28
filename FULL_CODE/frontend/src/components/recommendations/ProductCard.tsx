@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { formatINR, formatINRLakhCr, type RecommendedProduct } from '../../api/client';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface ProductCardProps {
   product: RecommendedProduct;
@@ -18,6 +19,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onToggleCompare,
   canSelectMoreForCompare,
 }) => {
+  const { t } = useLanguage();
   const [showScoreDetails, setShowScoreDetails] = useState(false);
   const [showAllBenefits, setShowAllBenefits] = useState(false);
 
@@ -46,7 +48,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
-          Top Recommendation
+          {t.recommendations.topMatch}
         </div>
       )}
 
@@ -161,7 +163,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Key Benefits */}
         <div className="space-y-1.5 mb-3">
           <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-            Key Features
+            {t.recommendations.keyFeatures}
           </div>
           {(showAllBenefits ? product.key_benefits : product.key_benefits.slice(0, 2)).map((b, idx) => (
             <div key={idx} className="flex items-start gap-2 text-xs text-slate-300 leading-snug">
@@ -184,7 +186,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Key Limitations */}
         {product.key_limitations && product.key_limitations.length > 0 && (
           <div className="text-[11px] text-slate-400 bg-slate-900/60 rounded-lg p-2 border border-slate-800/80">
-            <span className="text-slate-400 font-semibold">Important Limitation: </span>
+            <span className="text-slate-400 font-semibold">{t.recommendations.pointsToNote} </span>
             {product.key_limitations[0]}
           </div>
         )}
@@ -201,7 +203,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             onChange={() => onToggleCompare(product)}
             className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-teal-500 focus:ring-teal-500/40 focus:ring-offset-slate-900 disabled:opacity-50"
           />
-          <span>Compare</span>
+          <span>{t.recommendations.compareCheckbox}</span>
         </label>
 
         {/* Customize CTA */}
@@ -213,7 +215,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               : 'bg-teal-600 hover:bg-teal-500 text-white shadow-teal-600/20'
           }`}
         >
-          <span>Customize Plan</span>
+          <span>{t.recommendations.customizePlan}</span>
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
           </svg>

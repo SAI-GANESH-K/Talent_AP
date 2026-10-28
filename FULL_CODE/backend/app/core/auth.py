@@ -12,6 +12,7 @@ Includes:
 import collections
 import logging
 import secrets
+import threading
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Callable, Optional
@@ -30,33 +31,88 @@ CSRF_COOKIE_NAME = "coverwise_csrf"
 
 
 class InMemoryRateLimiter:
-    """Thread-safe sliding window rate limiter."""
+    """Thread-safe sliding window rate limiter with bounded memory capacity.
 
-    def __init__(self) -> None:
-        self._attempts: dict[str, collections.deque[float]] = collections.defaultdict(
-            collections.deque
-        )
+    Note on Architectural Limitations:
+        Process-local in-memory rate limiting is bound to the single application process.
+        In multi-worker or multi-server production environments behind a load balancer,
+        rate limiting should be backed by a distributed store (e.g., Redis).
+        For single-process execution, this implementation provides thread-safe
+        sliding window enforcement without external infrastructure dependencies.
+    """
+
+    def __init__(self, max_keys: int = 10000) -> None:
+        self._lock = threading.Lock()
+        self._max_keys = max_keys
+        self._attempts: dict[str, collections.deque[float]] = {}
+
+    def _evict_stale_locked(self, now: float, window_seconds: int = 300) -> None:
+        """Evict expired or empty keys while holding the lock."""
+        stale_keys = []
+        for key, q in self._attempts.items():
+            while q and q[0] <= now - window_seconds:
+                q.popleft()
+            if not q:
+                stale_keys.append(key)
+        for key in stale_keys:
+            del self._attempts[key]
+
+        # If still over max_keys, evict oldest entries
+        if len(self._attempts) >= self._max_keys:
+            excess = len(self._attempts) - self._max_keys + 100
+            for k in list(self._attempts.keys())[:excess]:
+                del self._attempts[k]
 
     def is_allowed(self, key: str, max_attempts: int = 5, window_seconds: int = 300) -> bool:
-        """Check if an action is within rate limits."""
+        """Check if an action is within rate limits with thread safety and bounded memory."""
         now = time.time()
-        q = self._attempts[key]
-        # Purge timestamps outside the window
-        while q and q[0] <= now - window_seconds:
-            q.popleft()
-        if len(q) >= max_attempts:
-            return False
-        q.append(now)
-        return True
+        with self._lock:
+            # Check capacity and purge if needed
+            if len(self._attempts) >= self._max_keys:
+                self._evict_stale_locked(now, window_seconds)
+
+            if key not in self._attempts:
+                self._attempts[key] = collections.deque()
+
+            q = self._attempts[key]
+            # Purge timestamps outside the window
+            while q and q[0] <= now - window_seconds:
+                q.popleft()
+
+            if len(q) >= max_attempts:
+                return False
+
+            q.append(now)
+            return True
 
     def reset(self, key: str) -> None:
         """Reset attempts for a key upon successful action."""
-        if key in self._attempts:
-            del self._attempts[key]
+        with self._lock:
+            if key in self._attempts:
+                del self._attempts[key]
 
 
 # Global rate limiter instances
 auth_rate_limiter = InMemoryRateLimiter()
+
+
+def get_client_ip(request: Request) -> str:
+    """Safely resolve client IP address with reverse proxy verification.
+
+    Only trusts 'X-Forwarded-For' if the direct peer connecting to FastAPI
+    is an explicitly configured trusted proxy (e.g. 127.0.0.1, internal reverse proxy).
+    Prevents client IP spoofing in public deployments.
+    """
+    peer_ip = request.client.host if request.client else "127.0.0.1"
+    trusted_proxies = settings.trusted_proxy_list
+    if peer_ip in trusted_proxies:
+        forwarded = request.headers.get("X-Forwarded-For")
+        if forwarded:
+            candidate = forwarded.split(",")[0].strip()
+            if candidate:
+                return candidate
+    return peer_ip
+
 
 
 def generate_session_token() -> str:

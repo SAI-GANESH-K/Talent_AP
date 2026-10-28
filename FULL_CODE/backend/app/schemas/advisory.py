@@ -36,11 +36,33 @@ class AdvisorSlotResponse(BaseModel):
     status: str
 
 
+class AssessmentSummaryData(BaseModel):
+    """Validated and sanitized customer financial assessment summary.
+
+    Enforces data privacy by rejecting arbitrary payload keys and restricting
+    financial fields to reasonable, verified ranges.
+    """
+
+    recommended_cover_inr: Optional[int] = Field(None, ge=0, le=1000000000)
+    coverage_gap: Optional[int] = Field(None, ge=0, le=1000000000)
+    recommended_product_id: Optional[str] = Field(None, max_length=50)
+    product: Optional[str] = Field(None, max_length=50)
+    recommended_product_name: Optional[str] = Field(None, max_length=150)
+    method: Optional[str] = Field(None, max_length=30)
+    mode: Optional[str] = Field(None, max_length=20)
+    user_age: Optional[int] = Field(None, ge=18, le=100)
+    annual_income_inr: Optional[int] = Field(None, ge=0, le=500000000)
+
+
 class CreateBookingRequest(BaseModel):
     """Customer request to book a consultation slot."""
 
     slot_id: str = Field(..., description="Dataset slot identifier, e.g. SLT-...")
     consultation_mode: str = Field(..., description="'video', 'phone', or 'chat'")
+    share_assessment: bool = Field(
+        True,
+        description="Explicit user consent to share assessment summary with the assigned advisor",
+    )
     assessment_summary: Optional[Dict[str, Any]] = Field(
         None, description="Optional customer financial assessment summary"
     )
@@ -64,6 +86,28 @@ class BookingResponse(BaseModel):
     assessment_summary: Optional[Dict[str, Any]] = None
     status: str
     advisor_notes: Optional[str] = None
+    created_at: datetime
+
+
+class AdminBookingResponse(BaseModel):
+    """Operational booking record for platform administrators with private details omitted.
+
+    Protects customer privacy by excluding private financial assessment summaries
+    and advisor-client confidential consultation notes.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    user_id: uuid.UUID
+    customer_name: Optional[str] = None
+    slot_id: str
+    advisor_id: str
+    advisor_name: Optional[str] = None
+    consultation_mode: str
+    slot_start: Optional[datetime] = None
+    slot_end: Optional[datetime] = None
+    status: str
     created_at: datetime
 
 

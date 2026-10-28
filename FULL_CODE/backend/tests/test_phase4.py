@@ -19,6 +19,8 @@ Verifies:
 
 import concurrent.futures
 import uuid
+import zoneinfo
+from datetime import datetime
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -30,6 +32,7 @@ from app.models.app_data import User
 from app.models.source_data import Advisor, AdvisorSlot
 
 client = TestClient(app)
+IST = zoneinfo.ZoneInfo("Asia/Kolkata")
 
 
 @pytest.fixture(autouse=True)
@@ -254,7 +257,7 @@ def test_transaction_safe_slot_booking_and_cancellation(db_session: Session):
     # 1. Find an available slot in database and check advisor's supported mode
     slot = (
         db_session.query(AdvisorSlot)
-        .filter(AdvisorSlot.status == "available")
+        .filter(AdvisorSlot.status == "available", AdvisorSlot.slot_start > datetime.now(IST))
         .first()
     )
     assert slot is not None, "Expected available slots in official dataset"
@@ -356,7 +359,7 @@ def test_idor_customer_cannot_cancel_other_customer_booking(db_session: Session)
     # 2. Customer B books an available slot
     slot = (
         db_session.query(AdvisorSlot)
-        .filter(AdvisorSlot.status == "available")
+        .filter(AdvisorSlot.status == "available", AdvisorSlot.slot_start > datetime.now(IST))
         .first()
     )
     assert slot is not None
@@ -401,7 +404,11 @@ def test_advisor_consultation_portal_and_notes(db_session: Session):
     # 1. Customer books a slot for advisor ADV-7JIHQA
     slot = (
         db_session.query(AdvisorSlot)
-        .filter(AdvisorSlot.advisor_id == "ADV-7JIHQA", AdvisorSlot.status == "available")
+        .filter(
+            AdvisorSlot.advisor_id == "ADV-7JIHQA",
+            AdvisorSlot.status == "available",
+            AdvisorSlot.slot_start > datetime.now(IST),
+        )
         .first()
     )
     assert slot is not None, "Need available slot for ADV-7JIHQA"
@@ -475,7 +482,7 @@ def test_concurrent_double_booking_race_condition(db_session: Session):
     # 2. Pick an available slot
     slot = (
         db_session.query(AdvisorSlot)
-        .filter(AdvisorSlot.status == "available")
+        .filter(AdvisorSlot.status == "available", AdvisorSlot.slot_start > datetime.now(IST))
         .first()
     )
     assert slot is not None

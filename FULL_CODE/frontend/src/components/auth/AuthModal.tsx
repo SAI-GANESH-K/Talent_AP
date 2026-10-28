@@ -203,35 +203,40 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           )}
         </div>
 
-        {/* Demo Accounts Quick-Fill for Jury / Evaluation */}
-        <div className="mt-6 pt-5 border-t border-slate-100">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">
-            Quick Demo Personas (Talent AP)
-          </p>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => handleFillDemo('customer@coverwise.test', 'Customer@123')}
-              className="text-[11px] p-2 bg-slate-50 hover:bg-teal-50 hover:text-teal-700 rounded-lg border border-slate-200 transition text-center font-medium"
-            >
-              Customer
-            </button>
-            <button
-              type="button"
-              onClick={() => handleFillDemo('advisor@coverwise.test', 'Advisor@123')}
-              className="text-[11px] p-2 bg-slate-50 hover:bg-teal-50 hover:text-teal-700 rounded-lg border border-slate-200 transition text-center font-medium"
-            >
-              Advisor
-            </button>
-            <button
-              type="button"
-              onClick={() => handleFillDemo('admin@coverwise.test', 'Admin@123')}
-              className="text-[11px] p-2 bg-slate-50 hover:bg-teal-50 hover:text-teal-700 rounded-lg border border-slate-200 transition text-center font-medium"
-            >
-              Admin
-            </button>
-          </div>
-        </div>
+        {/* Demo Accounts Quick-Fill for Local Evaluation only */}
+        {typeof window !== 'undefined' &&
+          (window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.hostname.endsWith('.local')) && (
+            <div className="mt-6 pt-5 border-t border-slate-100">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">
+                Development Evaluation Personas
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleFillDemo('customer@coverwise.test', 'Customer@123')}
+                  className="text-[11px] p-2 bg-slate-50 hover:bg-teal-50 hover:text-teal-700 rounded-lg border border-slate-200 transition text-center font-medium"
+                >
+                  Customer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFillDemo('advisor@coverwise.test', 'Advisor@123')}
+                  className="text-[11px] p-2 bg-slate-50 hover:bg-teal-50 hover:text-teal-700 rounded-lg border border-slate-200 transition text-center font-medium"
+                >
+                  Advisor
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFillDemo('admin@coverwise.test', 'Admin@123')}
+                  className="text-[11px] p-2 bg-slate-50 hover:bg-teal-50 hover:text-teal-700 rounded-lg border border-slate-200 transition text-center font-medium"
+                >
+                  Admin
+                </button>
+              </div>
+            </div>
+          )}
       </div>
     </div>
   );

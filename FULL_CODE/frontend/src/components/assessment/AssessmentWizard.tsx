@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLanguage } from '../../i18n/LanguageContext';
 import {
   type AssessmentRequest,
   type AssumptionsInput,
@@ -130,6 +131,7 @@ const PRESETS: Record<string, Partial<AssessmentRequest>> = {
 };
 
 export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWizardProps) {
+  const { t } = useLanguage();
   const [step, setStep] = useState<number>(1);
   const [expertMode, setExpertMode] = useState<boolean>(false);
 
@@ -344,11 +346,11 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
   };
 
   const stepTitles = [
-    'About You & Income',
-    'Family & Dependents',
-    'Loans & Liabilities',
-    'Future Milestones',
-    'Existing Safety Nets',
+    t.wizard.step1Title,
+    t.wizard.step2Title,
+    t.wizard.step4Title,
+    t.wizard.step3Title,
+    t.wizard.step5Title,
   ];
 
   return (
@@ -357,10 +359,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-200 gap-4">
         <div>
           <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-teal-600)]">
-            Step {step} of 5 · {stepTitles[step - 1]}
+            {t.wizard.stepOf} {step} {t.wizard.stepOfTotal} 5 · {stepTitles[step - 1]}
           </span>
           <h2 className="text-2xl font-bold text-[var(--color-navy-900)] font-[var(--font-heading)]">
-            Financial Needs Assessment
+            {t.wizard.assessmentTitle}
           </h2>
         </div>
         <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl text-xs font-medium">
@@ -373,7 +375,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Simple Mode
+            {t.wizard.simpleMode}
           </button>
           <button
             type="button"
@@ -384,42 +386,42 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            ⚙ Expert Mode
+            ⚙ {t.wizard.expertMode}
           </button>
         </div>
       </div>
 
       {/* Demo Persona Quick Selectors */}
       <div className="py-3 px-4 bg-teal-50/70 border border-teal-100 rounded-xl my-4 text-xs">
-        <span className="text-teal-900 font-semibold mr-2">⚡ Quick Test Personas:</span>
+        <span className="text-teal-900 font-semibold mr-2">{t.wizard.quickTestPersonas}</span>
         <div className="inline-flex flex-wrap gap-2 mt-1 sm:mt-0">
           <button
             type="button"
             onClick={() => applyPreset('salaried_family')}
             className="bg-white hover:bg-teal-100 text-teal-800 px-2.5 py-1 rounded-md border border-teal-200 transition-colors shadow-2xs"
           >
-            Salaried with Family
+            {t.wizard.personaSalaried}
           </button>
           <button
             type="button"
             onClick={() => applyPreset('young_professional')}
             className="bg-white hover:bg-teal-100 text-teal-800 px-2.5 py-1 rounded-md border border-teal-200 transition-colors shadow-2xs"
           >
-            Young Single (No Dependents)
+            {t.wizard.personaYoung}
           </button>
           <button
             type="button"
             onClick={() => applyPreset('homemaker_persona')}
             className="bg-white hover:bg-teal-100 text-teal-800 px-2.5 py-1 rounded-md border border-teal-200 transition-colors shadow-2xs"
           >
-            Homemaker
+            {t.wizard.personaHomemaker}
           </button>
           <button
             type="button"
             onClick={() => applyPreset('shopkeeper_loans')}
             className="bg-white hover:bg-teal-100 text-teal-800 px-2.5 py-1 rounded-md border border-teal-200 transition-colors shadow-2xs"
           >
-            Shopkeeper with Loans
+            {t.wizard.personaShopkeeper}
           </button>
         </div>
       </div>
@@ -439,17 +441,17 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
           <div className="space-y-6">
             <div>
               <h3 className="text-lg font-semibold text-[var(--color-navy-900)] mb-1">
-                Your Age & Household Expenses
+                {t.wizard.step1Title}
               </h3>
               <p className="text-sm text-slate-500">
-                These numbers form the core foundation for Human Life Value and household support calculations.
+                {t.wizard.step1Desc}
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Your Current Age
+                  {t.wizard.ageLabel}
                 </label>
                 <div className="relative">
                   <input
@@ -460,7 +462,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     onChange={(e) => setAge(parseInt(e.target.value) || 0)}
                     className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[var(--color-teal-500)] focus:border-transparent outline-none transition"
                   />
-                  <span className="absolute right-3.5 top-2.5 text-xs text-slate-400 font-medium">years</span>
+                  <span className="absolute right-3.5 top-2.5 text-xs text-slate-400 font-medium">{t.wizard.ageHelp}</span>
                 </div>
                 {errors.age && <p className="text-xs text-red-600 mt-1">{errors.age}</p>}
                 <p className="text-xs text-slate-400 mt-1">Remaining earning years to 60: {Math.max(0, 60 - age)} years</p>
@@ -468,7 +470,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Monthly Household Living Expenses
+                  {t.wizard.expensesLabel}
                 </label>
                 <div className="relative">
                   <span className="absolute left-3.5 top-2.5 text-sm text-slate-400 font-medium">₹</span>
@@ -498,10 +500,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                 />
                 <div>
                   <span className="text-sm font-semibold text-[var(--color-navy-900)]">
-                    Primary Homemaker / Full-time Family Caregiver
+                    {t.wizard.homemakerToggle}
                   </span>
                   <p className="text-xs text-slate-500">
-                    Homemakers provide invaluable childcare and household management services that would cost money to replace.
+                    {t.wizard.homemakerHelp}
                   </p>
                 </div>
               </label>
@@ -509,7 +511,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
               {isHomemaker ? (
                 <div className="mt-4 pt-3 border-t border-slate-200">
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Imputed Annual Replacement Value of Services (INR)
+                    {t.wizard.homemakerServices}
                   </label>
                   <div className="relative max-w-sm">
                     <span className="absolute left-3.5 top-2.5 text-sm text-slate-400 font-medium">₹</span>
@@ -529,7 +531,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
               ) : (
                 <div className="mt-4 pt-3 border-t border-slate-200">
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Gross Annual Income (Before Taxes)
+                    {t.wizard.incomeLabel}
                   </label>
                   <div className="relative max-w-sm">
                     <span className="absolute left-3.5 top-2.5 text-sm text-slate-400 font-medium">₹</span>
@@ -557,10 +559,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-[var(--color-navy-900)] mb-1">
-                  Your Family & Dependents
+                  {t.wizard.step2Title}
                 </h3>
                 <p className="text-sm text-slate-500">
-                  Dependent ages determine your dependency horizon (how many years household support is required).
+                  {t.wizard.step2Desc}
                 </p>
               </div>
               <button
@@ -568,22 +570,22 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                 onClick={addDependent}
                 className="text-xs font-medium text-[var(--color-teal-600)] hover:text-[var(--color-teal-500)] bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200"
               >
-                + Add Dependent
+                {t.wizard.addDependent}
               </button>
             </div>
 
             {dependents.length === 0 ? (
               <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-300">
-                <p className="text-sm font-medium text-slate-600">No dependents added</p>
+                <p className="text-sm font-medium text-slate-600">{t.wizard.dependentsLabel}: 0</p>
                 <p className="text-xs text-slate-400 mt-1">
-                  If you have no dependents relying on your income, coverage focuses solely on debt settlement.
+                  {t.wizard.step2Desc}
                 </p>
                 <button
                   type="button"
                   onClick={addDependent}
                   className="mt-3 text-xs bg-[var(--color-teal-600)] text-white px-3 py-1.5 rounded-lg"
                 >
-                  Add a Family Member
+                  {t.wizard.addDependent}
                 </button>
               </div>
             ) : (
@@ -594,20 +596,21 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     className="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-wrap items-center gap-3 sm:gap-4"
                   >
                     <div className="w-32">
-                      <label className="block text-xs font-medium text-slate-600 mb-1">Relationship</label>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.dependentsLabel}</label>
                       <select
                         value={dep.relationship}
                         onChange={(e) => updateDependent(idx, 'relationship', e.target.value)}
                         className="w-full text-sm py-1.5 px-2 bg-white border border-slate-300 rounded-lg outline-none"
                       >
-                        <option value="spouse">Spouse</option>
-                        <option value="child">Child</option>
-                        <option value="parent">Parent</option>
+                        <option value="spouse">{t.wizard.relationshipSpouse}</option>
+                        <option value="child">{t.wizard.relationshipChild}</option>
+                        <option value="parent">{t.wizard.relationshipParent}</option>
+                        <option value="sibling">{t.wizard.relationshipSibling}</option>
                       </select>
                     </div>
 
                     <div className="w-24">
-                      <label className="block text-xs font-medium text-slate-600 mb-1">Age</label>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.ageLabel}</label>
                       <input
                         type="number"
                         min={0}
@@ -626,7 +629,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                           onChange={(e) => updateDependent(idx, 'has_own_income', e.target.checked)}
                           className="w-3.5 h-3.5 text-[var(--color-teal-600)] rounded border-slate-300"
                         />
-                        Has own income
+                        {t.wizard.hasIncome}
                       </label>
                     </div>
 
@@ -636,7 +639,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                         onClick={() => removeDependent(idx)}
                         className="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded"
                       >
-                        Remove
+                        {t.wizard.remove}
                       </button>
                     </div>
 
@@ -647,10 +650,6 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                 ))}
               </div>
             )}
-
-            <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-900 leading-relaxed">
-              💡 <strong>How CoverWise calculates dependency:</strong> For children, support is planned until age 25. For spouses, support spans their life expectancy (age 85 benchmark).
-            </div>
           </div>
         )}
 
@@ -660,10 +659,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-[var(--color-navy-900)] mb-1">
-                  Outstanding Loans & Mortgages
+                  {t.wizard.step3Title}
                 </h3>
                 <p className="text-sm text-slate-500">
-                  Uninsured debt passes directly to surviving family. Outstanding principal must be fully protected.
+                  {t.wizard.step3Desc}
                 </p>
               </div>
               <button
@@ -671,20 +670,20 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                 onClick={addLoan}
                 className="text-xs font-medium text-[var(--color-teal-600)] hover:text-[var(--color-teal-500)] bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200"
               >
-                + Add Loan
+                {t.wizard.addLoan}
               </button>
             </div>
 
             {loans.length === 0 ? (
               <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-300">
-                <p className="text-sm font-medium text-slate-600">No outstanding loans listed</p>
-                <p className="text-xs text-slate-400 mt-1">Debt-free! That keeps your family's baseline protection requirement lower.</p>
+                <p className="text-sm font-medium text-slate-600">{t.wizard.loansLabel}: 0</p>
+                <p className="text-xs text-slate-400 mt-1">{t.wizard.step3Desc}</p>
                 <button
                   type="button"
                   onClick={addLoan}
                   className="mt-3 text-xs bg-[var(--color-teal-600)] text-white px-3 py-1.5 rounded-lg"
                 >
-                  Add a Loan / Mortgage
+                  {t.wizard.addLoan}
                 </button>
               </div>
             ) : (
@@ -695,18 +694,18 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     className="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-wrap items-center gap-3 sm:gap-4"
                   >
                     <div className="flex-1 min-w-[160px]">
-                      <label className="block text-xs font-medium text-slate-600 mb-1">Loan Description</label>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.loansLabel}</label>
                       <input
                         type="text"
                         value={loan.loan_type}
                         onChange={(e) => updateLoan(idx, 'loan_type', e.target.value)}
-                        placeholder="e.g. Home Loan, Car Loan"
+                        placeholder="Home Loan, Car Loan"
                         className="w-full text-sm py-1.5 px-3 bg-white border border-slate-300 rounded-lg outline-none"
                       />
                     </div>
 
                     <div className="w-44">
-                      <label className="block text-xs font-medium text-slate-600 mb-1">Outstanding Principal (₹)</label>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.outstandingAmount}</label>
                       <input
                         type="number"
                         step={50000}
@@ -722,7 +721,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                         onClick={() => removeLoan(idx)}
                         className="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded"
                       >
-                        Remove
+                        {t.wizard.remove}
                       </button>
                     </div>
 
@@ -742,10 +741,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-[var(--color-navy-900)] mb-1">
-                  Key Future Family Milestones
+                  {t.wizard.step4Title}
                 </h3>
                 <p className="text-sm text-slate-500">
-                  Goals are inflated to their target year (8% for education, 5.5% general) and discounted to present value.
+                  {t.wizard.step4Desc}
                 </p>
               </div>
               <button
@@ -753,20 +752,20 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                 onClick={addGoal}
                 className="text-xs font-medium text-[var(--color-teal-600)] hover:text-[var(--color-teal-500)] bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200"
               >
-                + Add Goal
+                {t.wizard.addGoal}
               </button>
             </div>
 
             {goals.length === 0 ? (
               <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-300">
-                <p className="text-sm font-medium text-slate-600">No specific future goals added</p>
-                <p className="text-xs text-slate-400 mt-1">You can add children's higher education, wedding funds, or family milestones.</p>
+                <p className="text-sm font-medium text-slate-600">{t.wizard.goalsLabel}: 0</p>
+                <p className="text-xs text-slate-400 mt-1">{t.wizard.step4Desc}</p>
                 <button
                   type="button"
                   onClick={addGoal}
                   className="mt-3 text-xs bg-[var(--color-teal-600)] text-white px-3 py-1.5 rounded-lg"
                 >
-                  Add Milestone Goal
+                  {t.wizard.addGoal}
                 </button>
               </div>
             ) : (
@@ -778,21 +777,21 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                   >
                     <div className="flex flex-wrap items-center gap-3">
                       <div className="flex-1 min-w-[140px]">
-                        <label className="block text-xs font-medium text-slate-600 mb-1">Goal Type</label>
+                        <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.goalsLabel}</label>
                         <select
                           value={goal.goal_type}
                           onChange={(e) => updateGoal(idx, 'goal_type', e.target.value)}
                           className="w-full text-sm py-1.5 px-2 bg-white border border-slate-300 rounded-lg outline-none"
                         >
-                          <option value="child_education">Child Higher Education (8% infl.)</option>
-                          <option value="child_marriage">Child Marriage (5.5% infl.)</option>
-                          <option value="family_emergency">Family Medical Buffer (5.5% infl.)</option>
-                          <option value="other_milestone">Other Milestone (5.5% infl.)</option>
+                          <option value="child_education">{t.wizard.goalEducation}</option>
+                          <option value="child_marriage">{t.wizard.goalMarriage}</option>
+                          <option value="family_emergency">{t.wizard.goalWealth}</option>
+                          <option value="retirement">{t.wizard.goalRetirement}</option>
                         </select>
                       </div>
 
                       <div className="w-28">
-                        <label className="block text-xs font-medium text-slate-600 mb-1">Target Year</label>
+                        <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.targetYear}</label>
                         <input
                           type="number"
                           min={2026}
@@ -804,7 +803,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                       </div>
 
                       <div className="w-36">
-                        <label className="block text-xs font-medium text-slate-600 mb-1">Today's Cost (₹)</label>
+                        <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.targetAmount}</label>
                         <input
                           type="number"
                           step={50000}
@@ -820,7 +819,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                           onClick={() => removeGoal(idx)}
                           className="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded"
                         >
-                          Remove
+                          {t.wizard.remove}
                         </button>
                       </div>
                     </div>
@@ -836,17 +835,17 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
           <div className="space-y-6">
             <div>
               <h3 className="text-lg font-semibold text-[var(--color-navy-900)] mb-1">
-                Existing Safety Nets & Available Assets
+                {t.wizard.step5Title}
               </h3>
               <p className="text-sm text-slate-500">
-                Any existing life insurance or liquid savings already protects your family and directly reduces the additional cover needed.
+                {t.wizard.step5Desc}
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Existing Individual Term / Life Cover (₹)
+                  {t.wizard.existingCoverLabel} (₹)
                 </label>
                 <input
                   type="number"
@@ -856,12 +855,12 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                   className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[var(--color-teal-500)] focus:border-transparent outline-none transition"
                 />
                 {errors.individualCover && <p className="text-xs text-red-600 mt-1">{errors.individualCover}</p>}
-                <p className="text-xs text-slate-400 mt-1">Personal policies currently active</p>
+                <p className="text-xs text-slate-400 mt-1">{t.wizard.existingCoverLabel}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Employer Group Life Cover (GTLI) (₹)
+                  {t.wizard.employerCoverHelp} (₹)
                 </label>
                 <input
                   type="number"
@@ -871,12 +870,12 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                   className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[var(--color-teal-500)] focus:border-transparent outline-none transition"
                 />
                 {errors.employerCover && <p className="text-xs text-red-600 mt-1">{errors.employerCover}</p>}
-                <p className="text-xs text-slate-400 mt-1">Group coverage provided by employer</p>
+                <p className="text-xs text-slate-400 mt-1">{t.wizard.employerCoverHelp}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Liquid Savings (Bank Deposits / FDs) (₹)
+                  {t.wizard.savingsLabel} (₹)
                 </label>
                 <input
                   type="number"
@@ -886,12 +885,12 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                   className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[var(--color-teal-500)] focus:border-transparent outline-none transition"
                 />
                 {errors.liquidSavings && <p className="text-xs text-red-600 mt-1">{errors.liquidSavings}</p>}
-                <p className="text-xs text-slate-400 mt-1">Funds immediately accessible in emergency</p>
+                <p className="text-xs text-slate-400 mt-1">{t.wizard.savingsLabel}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Mutual Funds & Equities (₹)
+                  {t.wizard.marketInvestmentsLabel} (₹)
                 </label>
                 <input
                   type="number"
@@ -901,7 +900,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                   className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[var(--color-teal-500)] focus:border-transparent outline-none transition"
                 />
                 {errors.marketInvestments && <p className="text-xs text-red-600 mt-1">{errors.marketInvestments}</p>}
-                <p className="text-xs text-slate-400 mt-1">Tradable non-retirement investments</p>
+                <p className="text-xs text-slate-400 mt-1">{t.wizard.marketInvestmentsLabel}</p>
               </div>
             </div>
 
@@ -910,14 +909,14 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
               <div className="mt-6 p-4 bg-slate-900 text-white rounded-xl space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-700 pb-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-teal-400)]">
-                    ⚙ Expert Mode: Economic & Actuarial Assumptions
+                    ⚙ {t.wizard.expertAssumptionsTitle}
                   </span>
-                  <span className="text-xs text-slate-400">Policy Defaults Loaded</span>
+                  <span className="text-xs text-slate-400">{t.wizard.expertMode}</span>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
                   <div>
-                    <label className="block text-slate-300 mb-1">Retirement Age</label>
+                    <label className="block text-slate-300 mb-1">{t.wizard.retirementAgeLabel}</label>
                     <input
                       type="number"
                       value={retirementAge}
@@ -926,7 +925,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-300 mb-1">Income Growth (% p.a.)</label>
+                    <label className="block text-slate-300 mb-1">{t.wizard.growthRateLabel}</label>
                     <input
                       type="number"
                       step={0.5}
@@ -936,7 +935,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-300 mb-1">Discount Rate (% p.a.)</label>
+                    <label className="block text-slate-300 mb-1">{t.wizard.discountRateLabel}</label>
                     <input
                       type="number"
                       step={0.5}
@@ -946,7 +945,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-300 mb-1">General Inflation (% p.a.)</label>
+                    <label className="block text-slate-300 mb-1">{t.wizard.inflationLabel}</label>
                     <input
                       type="number"
                       step={0.5}
@@ -956,7 +955,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-300 mb-1">Education Inflation (% p.a.)</label>
+                    <label className="block text-slate-300 mb-1">{t.wizard.educationInflationLabel}</label>
                     <input
                       type="number"
                       step={0.5}
@@ -975,7 +974,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                       onChange={(e) => setCountEmployerCover(e.target.checked)}
                       className="rounded"
                     />
-                    Count employer group insurance
+                    {t.wizard.includeEmployerCover}
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -984,7 +983,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                       onChange={(e) => setCountRetirementSavings(e.target.checked)}
                       className="rounded"
                     />
-                    Include retirement savings (EPF/PPF) as available asset
+                    {t.wizard.includeRetirementSavings}
                   </label>
                 </div>
               </div>
@@ -1002,7 +1001,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                 disabled={isLoading}
                 className="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-medium transition"
               >
-                ← Back
+                ← {t.common.back}
               </button>
             ) : (
               <button
@@ -1011,7 +1010,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                 disabled={isLoading}
                 className="px-4 py-2 text-slate-500 hover:text-slate-800 text-sm font-medium transition"
               >
-                Cancel
+                {t.common.cancel}
               </button>
             )}
           </div>
@@ -1023,7 +1022,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                 onClick={handleNext}
                 className="bg-[var(--color-navy-900)] hover:bg-[var(--color-navy-800)] text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-md transition"
               >
-                Continue →
+                {t.common.next} →
               </button>
             ) : (
               <button
@@ -1032,7 +1031,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                 disabled={isLoading}
                 className="bg-gradient-to-r from-[var(--color-teal-600)] to-[var(--color-teal-500)] hover:from-[var(--color-teal-500)] hover:to-[var(--color-teal-400)] text-white px-8 py-3 rounded-xl text-sm font-bold shadow-lg shadow-teal-600/30 transition transform hover:-translate-y-0.5 disabled:opacity-50"
               >
-                {isLoading ? 'Calculating Needs...' : 'Calculate My Coverage Gap 🚀'}
+                {isLoading ? t.common.loading : t.wizard.calculateBtn}
               </button>
             )}
           </div>

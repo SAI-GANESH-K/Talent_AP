@@ -17,7 +17,7 @@ from app.schemas.advisory import AdvisorDetailResponse, AdvisorSlotResponse
 
 router = APIRouter(prefix="/api/v1/advisors", tags=["Advisory"])
 
-IST = zoneinfo.ZoneInfo("Asia/Calcutta")
+IST = zoneinfo.ZoneInfo("Asia/Kolkata")
 
 
 @router.get(
@@ -32,7 +32,7 @@ def list_advisors(
     date: Optional[str] = Query(None, description="Filter advisors with available slots on YYYY-MM-DD"),
     db: Session = Depends(get_db),
 ):
-    """List advisors from official dataset with real-time available slot counts."""
+    """List advisors from official dataset with real-time available future slot counts."""
     query = db.query(Advisor)
 
     if language:
@@ -47,21 +47,26 @@ def list_advisors(
 
     advisors = query.order_by(Advisor.rating.desc(), Advisor.review_count.desc()).all()
 
-    # Calculate available slot counts per advisor
+    # Calculate available slot counts per advisor (strictly future slots)
+    now_ist = datetime.now(IST)
     slot_counts_query = (
         db.query(AdvisorSlot.advisor_id, func.count(AdvisorSlot.slot_id))
-        .filter(AdvisorSlot.status == "available")
+        .filter(AdvisorSlot.status == "available", AdvisorSlot.slot_start > now_ist)
     )
 
     if date:
         try:
             target_date = datetime.strptime(date.strip(), "%Y-%m-%d").date()
-            start_dt = datetime.combine(target_date, time.min).replace(tzinfo=IST)
+            start_dt = max(datetime.combine(target_date, time.min).replace(tzinfo=IST), now_ist)
             end_dt = datetime.combine(target_date, time.max).replace(tzinfo=IST)
-            slot_counts_query = slot_counts_query.filter(
-                AdvisorSlot.slot_start >= start_dt,
-                AdvisorSlot.slot_start <= end_dt,
-            )
+            if start_dt > end_dt:
+                # Target date has passed completely
+                slot_counts_query = slot_counts_query.filter(AdvisorSlot.slot_start < now_ist, AdvisorSlot.slot_start > now_ist)
+            else:
+                slot_counts_query = slot_counts_query.filter(
+                    AdvisorSlot.slot_start >= start_dt,
+                    AdvisorSlot.slot_start <= end_dt,
+                )
         except ValueError:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -160,15 +165,22 @@ def get_advisor_slots(
         )
 
     query = db.query(AdvisorSlot).filter(AdvisorSlot.advisor_id == advisor_id)
+    now_ist = datetime.now(IST)
 
-    if slot_status != "all":
+    if slot_status == "available":
+        query = query.filter(AdvisorSlot.status == "available", AdvisorSlot.slot_start > now_ist)
+    elif slot_status != "all":
         query = query.filter(AdvisorSlot.status == slot_status)
 
     if date:
         try:
             target_date = datetime.strptime(date.strip(), "%Y-%m-%d").date()
             start_dt = datetime.combine(target_date, time.min).replace(tzinfo=IST)
+            if slot_status == "available":
+                start_dt = max(start_dt, now_ist)
             end_dt = datetime.combine(target_date, time.max).replace(tzinfo=IST)
+            if start_dt > end_dt:
+                return []
             query = query.filter(
                 AdvisorSlot.slot_start >= start_dt,
                 AdvisorSlot.slot_start <= end_dt,

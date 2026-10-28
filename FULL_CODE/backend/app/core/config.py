@@ -24,10 +24,17 @@ class Settings(BaseSettings):
     # Session
     session_max_age_seconds: int = 1800  # 30 minutes
 
-    # Admin seed
+    # Admin & Demo seed controls
+    allow_demo_seeding: bool = True
     admin_email: str = "admin@coverwise.local"
     admin_password: str = "CHANGE-ME"
     advisor_default_password: str = "CHANGE-ME"
+    demo_customer_password: str = "Customer@123"
+    demo_advisor_password: str = "Advisor@123"
+    demo_admin_password: str = "Admin@123"
+
+    # Rate limiting & reverse proxy security
+    trusted_proxies: str = "127.0.0.1,::1"
 
     # Dataset path (relative to FULL_CODE/)
     b2_data_dir: str = "data/B2_Life_Insurance_Needs_Finder/data"
@@ -39,6 +46,10 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",")]
+
+    @property
+    def trusted_proxy_list(self) -> list[str]:
+        return [p.strip() for p in self.trusted_proxies.split(",") if p.strip()]
 
     @property
     def data_dir_path(self) -> Path:

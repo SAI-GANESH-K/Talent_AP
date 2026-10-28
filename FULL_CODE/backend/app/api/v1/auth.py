@@ -14,6 +14,7 @@ from app.core.auth import (
     clear_auth_cookies,
     generate_csrf_token,
     generate_session_token,
+    get_client_ip,
     get_current_session,
     set_auth_cookies,
     verify_csrf,
@@ -33,14 +34,6 @@ from app.schemas.auth import (
 router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
 
 
-def _get_client_ip(request: Request) -> str:
-    """Extract client IP address safely from request headers or client host."""
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "127.0.0.1"
-
-
 @router.post(
     "/register",
     response_model=AuthResponse,
@@ -54,7 +47,7 @@ def register(
     db: Session = Depends(get_db),
 ):
     """Register customer account. Role is strictly customer — advisor/admin cannot self-register."""
-    client_ip = _get_client_ip(request)
+    client_ip = get_client_ip(request)
     rate_key = f"reg:{client_ip}"
     if not auth_rate_limiter.is_allowed(rate_key, max_attempts=5, window_seconds=300):
         raise HTTPException(
@@ -123,11 +116,14 @@ def login(
     db: Session = Depends(get_db),
 ):
     """Authenticate with email and password. Issues HttpOnly session cookie."""
-    client_ip = _get_client_ip(request)
+    client_ip = get_client_ip(request)
     email_clean = req.email.strip().lower()
-    rate_key = f"login:{client_ip}:{email_clean}"
 
-    if not auth_rate_limiter.is_allowed(rate_key, max_attempts=5, window_seconds=300):
+    # Rate limiting: 1) Account-based (5 attempts/5min) and 2) IP-based (20 attempts/5min)
+    ip_key = f"login_ip:{client_ip}"
+    acc_key = f"login_acc:{email_clean}"
+
+    if not auth_rate_limiter.is_allowed(acc_key, max_attempts=5, window_seconds=300) or not auth_rate_limiter.is_allowed(ip_key, max_attempts=20, window_seconds=300):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many failed login attempts. Please wait 5 minutes before trying again.",
@@ -142,7 +138,8 @@ def login(
         )
 
     # Reset rate limit on success
-    auth_rate_limiter.reset(rate_key)
+    auth_rate_limiter.reset(acc_key)
+    auth_rate_limiter.reset(ip_key)
 
     # Generate session & CSRF tokens
     session_token = generate_session_token()
