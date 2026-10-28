@@ -1,9 +1,27 @@
 /**
  * CoverWise API client — typed fetch wrapper.
  * Communicates with FastAPI backend via Vite /api proxy.
+ * Supports HttpOnly session cookies, CSRF tokens, and Phase 4 advisory & RBAC.
  */
 
 const API_BASE = '/api/v1';
+
+let currentCsrfToken: string = '';
+
+export function setCsrfToken(token: string) {
+  currentCsrfToken = token;
+}
+
+export function getCsrfToken(): string {
+  if (!currentCsrfToken) {
+    // Check if coverwise_csrf cookie is readable
+    const match = document.cookie.match(/coverwise_csrf=([^;]+)/);
+    if (match) {
+      currentCsrfToken = match[1];
+    }
+  }
+  return currentCsrfToken;
+}
 
 export interface HealthResponse {
   status: string;
@@ -26,15 +44,82 @@ export interface ProductSummary {
   nri_eligible: boolean;
 }
 
+// ── Auth Models ──
+
+export interface User {
+  id: string;
+  email: string;
+  full_name: string;
+  role: 'customer' | 'advisor' | 'admin';
+  advisor_id?: string | null;
+  is_active: boolean;
+}
+
+export interface AuthResponse {
+  user: User;
+  csrf_token: string;
+  message: string;
+}
+
+export interface SessionInfoResponse {
+  user: User;
+  csrf_token: string;
+}
+
+// ── Advisory & Booking Models ──
+
 export interface AdvisorSummary {
   advisor_id: string;
   advisor_name: string;
-  languages: string;
-  specialisations: string;
-  consultation_modes: string;
+  email: string;
+  languages: string[];
+  specialisations: string[];
+  consultation_modes: string[];
   years_experience: number;
   rating: number;
   review_count: number;
+  working_days: string;
+  shift_start: string;
+  shift_end: string;
+  available_slot_count: number;
+}
+
+export interface AdvisorSlot {
+  slot_id: string;
+  advisor_id: string;
+  slot_start: string;
+  slot_end: string;
+  status: string;
+}
+
+export interface Booking {
+  id: string;
+  user_id: string;
+  customer_name?: string;
+  customer_email?: string;
+  slot_id: string;
+  advisor_id: string;
+  advisor_name?: string;
+  consultation_mode: string;
+  slot_start?: string;
+  slot_end?: string;
+  assessment_summary?: any;
+  status: 'confirmed' | 'completed' | 'cancelled';
+  advisor_notes?: string | null;
+  created_at: string;
+}
+
+export interface AdminStats {
+  total_bookings: number;
+  confirmed_bookings: number;
+  completed_bookings: number;
+  cancelled_bookings: number;
+  total_advisors: number;
+  total_slots: number;
+  available_slots: number;
+  booked_slots: number;
+  slot_utilization_pct: number;
+  bookings_by_mode: Record<string, number>;
 }
 
 // ── Assessment Models ──
@@ -150,44 +235,6 @@ export interface AssessmentResponse {
   assumptions_used: Record<string, any>;
   currency: string;
   warnings: string[];
-}
-
-// ── Helpers ──
-
-export function formatINR(amount: string | number): string {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(num)) return '₹0';
-  return '₹' + Math.round(num).toLocaleString('en-IN');
-}
-
-export function formatINRLakhCr(amount: string | number): string {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(num) || num === 0) return '₹0';
-  const abs = Math.abs(num);
-  if (abs >= 10_000_000) {
-    const cr = num / 10_000_000;
-    return `₹${cr.toFixed(2).replace(/\.00$/, '')} Cr`;
-  }
-  if (abs >= 100_000) {
-    const lakh = num / 100_000;
-    return `₹${lakh.toFixed(2).replace(/\.00$/, '')} Lakh`;
-  }
-  return '₹' + Math.round(num).toLocaleString('en-IN');
-}
-
-async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${url}`, init);
-  if (!response.ok) {
-    let errorDetail = response.statusText;
-    try {
-      const body = await response.json();
-      if (body.detail) errorDetail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail);
-    } catch {
-      // ignore
-    }
-    throw new Error(`API error (${response.status}): ${errorDetail}`);
-  }
-  return response.json();
 }
 
 // ── Phase 3: Product Recommendations & Pricing Models ──
@@ -331,24 +378,165 @@ export interface RiderDetail {
   max_premium_pct_of_base_premium: number | null;
 }
 
+// ── Helpers ──
+
+export function formatINR(amount: string | number): string {
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(num)) return '₹0';
+  return '₹' + Math.round(num).toLocaleString('en-IN');
+}
+
+export function formatINRLakhCr(amount: string | number): string {
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(num) || num === 0) return '₹0';
+  const abs = Math.abs(num);
+  if (abs >= 10_000_000) {
+    const cr = num / 10_000_000;
+    return `₹${cr.toFixed(2).replace(/\.00$/, '')} Cr`;
+  }
+  if (abs >= 100_000) {
+    const lakh = num / 100_000;
+    return `₹${lakh.toFixed(2).replace(/\.00$/, '')} Lakh`;
+  }
+  return '₹' + Math.round(num).toLocaleString('en-IN');
+}
+
+async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const headers = new Headers(init?.headers || {});
+
+  // Add CSRF token for mutating requests
+  const method = (init?.method || 'GET').toUpperCase();
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    const csrf = getCsrfToken();
+    if (csrf) {
+      headers.set('X-CSRF-Token', csrf);
+    }
+  }
+
+  const response = await fetch(`${API_BASE}${url}`, {
+    ...init,
+    headers,
+    credentials: 'include', // Transmits HttpOnly coverwise_session cookie
+  });
+
+  if (!response.ok) {
+    let errorDetail = response.statusText;
+    try {
+      const body = await response.json();
+      if (body.error?.message) {
+        errorDetail = body.error.message;
+      } else if (body.detail) {
+        errorDetail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail);
+      }
+    } catch {
+      // ignore
+    }
+    throw new Error(`API error (${response.status}): ${errorDetail}`);
+  }
+
+  return response.json();
+}
+
 export const api = {
   health: () => fetchJson<HealthResponse>('/health'),
   products: () => fetchJson<ProductSummary[]>('/products'),
-  advisors: (params?: { language?: string; specialty?: string; mode?: string }) => {
-    const searchParams = new URLSearchParams();
-    if (params?.language) searchParams.set('language', params.language);
-    if (params?.specialty) searchParams.set('specialty', params.specialty);
-    if (params?.mode) searchParams.set('mode', params.mode);
-    const query = searchParams.toString();
-    return fetchJson<AdvisorSummary[]>(`/advisors${query ? `?${query}` : ''}`);
+
+  // Auth endpoints
+  auth: {
+    register: (req: { email: string; password: string; full_name: string; phone?: string }) =>
+      fetchJson<AuthResponse>('/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req),
+      }).then((res) => {
+        setCsrfToken(res.csrf_token);
+        return res;
+      }),
+    login: (req: { email: string; password: string }) =>
+      fetchJson<AuthResponse>('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req),
+      }).then((res) => {
+        setCsrfToken(res.csrf_token);
+        return res;
+      }),
+    me: () =>
+      fetchJson<SessionInfoResponse>('/auth/me').then((res) => {
+        setCsrfToken(res.csrf_token);
+        return res;
+      }),
+    logout: () =>
+      fetchJson<{ success: boolean; message: string }>('/auth/logout', {
+        method: 'POST',
+      }).then((res) => {
+        setCsrfToken('');
+        return res;
+      }),
   },
+
+  // Advisory endpoints
+  advisors: {
+    list: (params?: { language?: string; specialisation?: string; mode?: string; date?: string }) => {
+      const sp = new URLSearchParams();
+      if (params?.language) sp.set('language', params.language);
+      if (params?.specialisation) sp.set('specialisation', params.specialisation);
+      if (params?.mode) sp.set('mode', params.mode);
+      if (params?.date) sp.set('date', params.date);
+      const q = sp.toString();
+      return fetchJson<AdvisorSummary[]>(`/advisors${q ? `?${q}` : ''}`);
+    },
+    get: (advisorId: string) => fetchJson<AdvisorSummary>(`/advisors/${advisorId}`),
+    slots: (advisorId: string, params?: { date?: string; status?: string }) => {
+      const sp = new URLSearchParams();
+      if (params?.date) sp.set('date', params.date);
+      if (params?.status) sp.set('status', params.status);
+      const q = sp.toString();
+      return fetchJson<AdvisorSlot[]>(`/advisors/${advisorId}/slots${q ? `?${q}` : ''}`);
+    },
+  },
+
+  // Customer Booking endpoints
+  bookings: {
+    create: (req: { slot_id: string; consultation_mode: string; assessment_summary?: any }) =>
+      fetchJson<Booking>('/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req),
+      }),
+    my: () => fetchJson<Booking[]>('/bookings/my'),
+    cancel: (bookingId: string) =>
+      fetchJson<Booking>(`/bookings/${bookingId}/cancel`, {
+        method: 'POST',
+      }),
+  },
+
+  // Advisor Portal endpoints
+  advisor: {
+    consultations: () => fetchJson<Booking[]>('/advisor/consultations'),
+    updateConsultation: (bookingId: string, req: { status?: string; advisor_notes?: string }) =>
+      fetchJson<Booking>(`/advisor/consultations/${bookingId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req),
+      }),
+  },
+
+  // Admin Dashboard endpoints
+  admin: {
+    stats: () => fetchJson<AdminStats>('/admin/stats'),
+    bookings: () => fetchJson<Booking[]>('/admin/bookings'),
+  },
+
+  // Needs Estimation
   estimate: (req: AssessmentRequest) =>
     fetchJson<AssessmentResponse>('/assessments/estimate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req),
     }),
-  // Phase 3 endpoints
+
+  // Phase 3 Product Recommendations & Pricing
   recommendations: (req: RecommendationRequest) =>
     fetchJson<RecommendationResult>('/products/recommendations', {
       method: 'POST',

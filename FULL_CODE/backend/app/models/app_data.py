@@ -146,3 +146,21 @@ class AuditEvent(Base):
     resource_type: Mapped[str | None] = mapped_column(String(30))
     resource_id: Mapped[str | None] = mapped_column(String(50))
     created_at = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+class UserSession(Base):
+    """Server-side authenticated customer/advisor/admin sessions."""
+
+    __tablename__ = "user_sessions"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, primary_key=True, default=uuid.uuid4
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    session_token: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
+    csrf_token: Mapped[str] = mapped_column(String(64), nullable=False)
+    expires_at = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+

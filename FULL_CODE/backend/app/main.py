@@ -9,7 +9,10 @@ import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.advisors import router as advisors_router
 from app.api.v1.assessment import router as assessment_router
+from app.api.v1.auth import router as auth_router
+from app.api.v1.bookings import router as bookings_router
 from app.api.v1.public import router as public_router
 from app.api.v1.recommendations import router as recommendations_router
 from app.core.config import settings
@@ -49,8 +52,11 @@ def create_app() -> FastAPI:
 
     # Mount routers
     app.include_router(public_router)
+    app.include_router(auth_router)
     app.include_router(assessment_router)
     app.include_router(recommendations_router)
+    app.include_router(advisors_router)
+    app.include_router(bookings_router)
 
     logger.info(
         "CoverWise API started (env=%s, cors=%s)",

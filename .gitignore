@@ -2,6 +2,9 @@
 # Official datasets (temporary reference only)
 FULL_CODE/data/
 
+# Local Phase Completion Reports (never commit to git per user requirement)
+FULL_CODE/docs/PHASE_*_COMPLETE.md
+
 # Environment
 .env
 .env.local
