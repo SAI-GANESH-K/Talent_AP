@@ -52,9 +52,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const handleFillDemo = (demoEmail: string, demoPass: string) => {
+  const handleFillDemo = (demoEmail: string) => {
     setEmail(demoEmail);
-    setPassword(demoPass);
+    setPassword('');
     setErrorMessage(null);
   };
 
@@ -215,21 +215,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
-                  onClick={() => handleFillDemo('customer@coverwise.test', 'Customer@123')}
+                  onClick={() => handleFillDemo('customer@coverwise.test')}
                   className="text-[11px] p-2 bg-slate-50 hover:bg-teal-50 hover:text-teal-700 rounded-lg border border-slate-200 transition text-center font-medium"
                 >
                   Customer
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleFillDemo('advisor@coverwise.test', 'Advisor@123')}
+                  onClick={() => handleFillDemo('advisor@coverwise.test')}
                   className="text-[11px] p-2 bg-slate-50 hover:bg-teal-50 hover:text-teal-700 rounded-lg border border-slate-200 transition text-center font-medium"
                 >
                   Advisor
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleFillDemo('admin@coverwise.test', 'Admin@123')}
+                  onClick={() => handleFillDemo('admin@coverwise.test')}
                   className="text-[11px] p-2 bg-slate-50 hover:bg-teal-50 hover:text-teal-700 rounded-lg border border-slate-200 transition text-center font-medium"
                 >
                   Admin

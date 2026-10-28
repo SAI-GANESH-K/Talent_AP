@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatINR, formatINRLakhCr, type RecommendedProduct } from '../../api/client';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface PlanComparisonModalProps {
   products: RecommendedProduct[];
@@ -14,6 +15,7 @@ export const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({
   onCustomize,
   onRemoveFromCompare,
 }) => {
+  const { t } = useLanguage();
   if (products.length === 0) return null;
 
   return (
@@ -23,7 +25,7 @@ export const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({
         <div className="px-6 py-5 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700/80 flex items-center justify-between">
           <div>
             <span className="text-xs uppercase font-bold tracking-wider text-teal-400">
-              Side-by-Side Comparison
+              {t.recommendations.compareModalTitle}
             </span>
             <h2 className="text-xl font-bold text-white mt-0.5">
               Comparing {products.length} Insurance Plans
@@ -33,7 +35,7 @@ export const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({
           <button
             onClick={onClose}
             className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-all"
-            aria-label="Close comparison"
+            aria-label={t.recommendations.closeComparison}
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -90,7 +92,7 @@ export const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({
 
               {/* Recommended Sum Assured */}
               <tr>
-                <td className="py-3 px-4 font-semibold text-slate-400">Recommended Cover</td>
+                <td className="py-3 px-4 font-semibold text-slate-400">{t.recommendations.sumAssured}</td>
                 {products.map((p) => (
                   <td key={p.product_id} className="py-3 px-4 font-bold text-white text-sm">
                     {formatINRLakhCr(p.recommended_sum_assured)}
@@ -100,7 +102,7 @@ export const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({
 
               {/* Monthly Premium */}
               <tr>
-                <td className="py-3 px-4 font-semibold text-slate-400">Monthly Premium</td>
+                <td className="py-3 px-4 font-semibold text-slate-400">{t.recommendations.monthlyInstalment}</td>
                 {products.map((p) => (
                   <td key={p.product_id} className="py-3 px-4">
                     <span className="font-extrabold text-teal-300 text-sm">
@@ -112,7 +114,7 @@ export const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({
 
               {/* Annual Premium */}
               <tr>
-                <td className="py-3 px-4 font-semibold text-slate-400">Annual Premium</td>
+                <td className="py-3 px-4 font-semibold text-slate-400">{t.recommendations.annualPremium}</td>
                 {products.map((p) => (
                   <td key={p.product_id} className="py-3 px-4 text-slate-300 font-mono">
                     {formatINR(p.quote.total_annual_premium)}/yr
@@ -122,7 +124,7 @@ export const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({
 
               {/* Policy Tenure */}
               <tr>
-                <td className="py-3 px-4 font-semibold text-slate-400">Recommended Tenure</td>
+                <td className="py-3 px-4 font-semibold text-slate-400">{t.recommendations.policyTerm}</td>
                 {products.map((p) => (
                   <td key={p.product_id} className="py-3 px-4 text-slate-200">
                     {p.recommended_policy_term} Years
@@ -161,7 +163,7 @@ export const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({
 
               {/* Key Features */}
               <tr>
-                <td className="py-3 px-4 font-semibold text-slate-400">Key Features</td>
+                <td className="py-3 px-4 font-semibold text-slate-400">{t.recommendations.keyFeatures}</td>
                 {products.map((p) => (
                   <td key={p.product_id} className="py-3 px-4 space-y-1">
                     {p.key_benefits.slice(0, 3).map((b, i) => (
@@ -176,7 +178,7 @@ export const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({
 
               {/* Key Limitations */}
               <tr>
-                <td className="py-3 px-4 font-semibold text-slate-400">Key Limitations</td>
+                <td className="py-3 px-4 font-semibold text-slate-400">{t.recommendations.pointsToNote}</td>
                 {products.map((p) => (
                   <td key={p.product_id} className="py-3 px-4 text-slate-400 text-[11px] leading-relaxed">
                     {p.key_limitations && p.key_limitations.length > 0
@@ -198,7 +200,7 @@ export const PlanComparisonModal: React.FC<PlanComparisonModalProps> = ({
                       }}
                       className="px-4 py-2 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-500 text-white transition-all shadow-md"
                     >
-                      Customize Plan
+                      {t.recommendations.customizePlan}
                     </button>
                   </td>
                 ))}

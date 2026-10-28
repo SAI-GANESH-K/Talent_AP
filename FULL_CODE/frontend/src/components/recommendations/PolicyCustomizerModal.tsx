@@ -9,6 +9,7 @@ import {
   type RecommendedProduct,
   type RiderDetail,
 } from '../../api/client';
+import { useLanguage } from '../../i18n/LanguageContext';
 import { CoverageShortfallVisualizer } from './CoverageShortfallVisualizer';
 
 interface PolicyCustomizerModalProps {
@@ -26,6 +27,7 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
   onClose,
   allRiders,
 }) => {
+  const { t } = useLanguage();
   // Parsing bounds
   const minSa = Math.max(parseFloat(product.min_allowed_sa) || 500000, 100000);
   const maxSa = Math.max(parseFloat(product.max_allowed_sa) || 100000000, minSa);
@@ -193,7 +195,7 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
               <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5">
                 <div className="flex justify-between items-center mb-2">
                   <label className="text-xs uppercase font-bold tracking-wider text-slate-300">
-                    Life Cover (Sum Assured)
+                    {t.recommendations.sumAssured}
                   </label>
                   <span className="text-base font-extrabold text-teal-300">
                     {formatINRLakhCr(sumAssured)}
@@ -281,7 +283,7 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
             <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5">
               <div className="flex justify-between items-center mb-2">
                 <label className="text-xs uppercase font-bold tracking-wider text-slate-300">
-                  Policy Tenure
+                  {t.recommendations.policyTerm}
                 </label>
                 <span className="text-sm font-bold text-white">
                   {policyTerm} Years (Matures at age {customer.age + policyTerm})
@@ -344,7 +346,7 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
             {/* Payment Frequency */}
             <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5">
               <label className="block text-xs uppercase font-bold tracking-wider text-slate-300 mb-2">
-                Payment Frequency
+                {t.recommendations.premiumFrequency}
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {(['monthly', 'quarterly', 'half_yearly', 'annual'] as const).map((mode) => (
@@ -368,7 +370,7 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
               <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <label className="text-xs uppercase font-bold tracking-wider text-slate-300">
-                    Add Policy Riders
+                    {t.recommendations.optionalRiders}
                   </label>
                   <span className="text-[11px] text-teal-400 font-semibold">
                     {Object.values(selectedRiders).filter(Boolean).length} Selected
@@ -522,7 +524,7 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                 onClick={onClose}
                 className="w-full py-3 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
               >
-                Close Customizer
+                {t.common.close}
               </button>
             </div>
           </div>

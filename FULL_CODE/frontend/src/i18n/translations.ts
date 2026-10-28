@@ -251,7 +251,7 @@ export const translations = {
       registerBtn: 'Create Account',
       noAccount: "Don't have an account? Register here",
       haveAccount: 'Already registered? Sign in here',
-      demoCredentialsNote: 'Demo logins: customer@coverwise.test (Customer@123), advisor@coverwise.test (Advisor@123), admin@coverwise.test (Admin@123)',
+      demoCredentialsNote: 'Demo evaluation accounts: customer@coverwise.test, advisor@coverwise.test, admin@coverwise.test',
     },
     disclaimer: {
       syntheticNotice: 'CoverWise is a demonstration prototype for Talent AP Mega Hackathon 2026 (BFSI B2). All data, advisors, and products are synthetic.',
@@ -488,7 +488,7 @@ export const translations = {
       registerBtn: 'ఖాతాను సృష్టించండి',
       noAccount: 'ఖాతా లేదా? ఇక్కడ రిజిస్టర్ అవ్వండి',
       haveAccount: 'ఇప్పటికే ఖాతా ఉందా? ఇక్కడ సైన్ ఇన్ చేయండి',
-      demoCredentialsNote: 'డెమో ఖాతాలు: customer@coverwise.test (Customer@123), advisor@coverwise.test (Advisor@123), admin@coverwise.test (Admin@123)',
+      demoCredentialsNote: 'డెమో ఖాతాలు: customer@coverwise.test, advisor@coverwise.test, admin@coverwise.test',
     },
     disclaimer: {
       syntheticNotice: 'CoverWise అనేది Talent AP Mega Hackathon 2026 కోసం రూపొందించబడిన డెమో అప్లికేషన్. మొత్తం డేటా కృత్రిమమైనది.',
@@ -725,7 +725,7 @@ export const translations = {
       registerBtn: 'खाता बनाएं',
       noAccount: 'खाता नहीं है? यहां रजिस्टर करें',
       haveAccount: 'पहले से पंजीकृत हैं? यहां साइन इन करें',
-      demoCredentialsNote: 'डेमो खाते: customer@coverwise.test (Customer@123), advisor@coverwise.test (Advisor@123), admin@coverwise.test (Admin@123)',
+      demoCredentialsNote: 'डेमो खाते: customer@coverwise.test, advisor@coverwise.test, admin@coverwise.test',
     },
     disclaimer: {
       syntheticNotice: 'CoverWise टैलेंट एपी मेगा हैकाथॉन 2026 के लिए एक प्रोटोटाइप है। सभी डेटा काल्पनिक है।',
@@ -962,7 +962,7 @@ export const translations = {
       registerBtn: 'கணக்கை உருவாக்கு',
       noAccount: 'கணக்கு இல்லையா? பதிவு செய்யவும்',
       haveAccount: 'ஏற்கனவே கணக்கு உள்ளதா? உள்நுழையவும்',
-      demoCredentialsNote: 'டெமோ கணக்குகள்: customer@coverwise.test (Customer@123), advisor@coverwise.test (Advisor@123), admin@coverwise.test (Admin@123)',
+      demoCredentialsNote: 'டெமோ கணக்குகள்: customer@coverwise.test, advisor@coverwise.test, admin@coverwise.test',
     },
     disclaimer: {
       syntheticNotice: 'CoverWise என்பது Talent AP Mega Hackathon 2026 க்கான மாதிரி செயலி. அனைத்து தகவல்களும் மாதிரியே.',
@@ -1199,7 +1199,7 @@ export const translations = {
       registerBtn: 'ಖಾತೆಯನ್ನು ರಚಿಸಿ',
       noAccount: 'ಖಾತೆ ಇಲ್ಲವೇ? ಇಲ್ಲಿ ನೋಂದಾಯಿಸಿ',
       haveAccount: 'ಈಗಾಗಲೇ ಖಾತೆ ಇದೆಯೇ? ಇಲ್ಲಿ ಸೈನ್ ಇನ್ ಮಾಡಿ',
-      demoCredentialsNote: 'ಡೆಮೊ ಖಾತೆಗಳು: customer@coverwise.test (Customer@123), advisor@coverwise.test (Advisor@123), admin@coverwise.test (Admin@123)',
+      demoCredentialsNote: 'ಡೆಮೊ ಖಾತೆಗಳು: customer@coverwise.test, advisor@coverwise.test, admin@coverwise.test',
     },
     disclaimer: {
       syntheticNotice: 'CoverWise ಟ್ಯಾಲೆಂಟ್ ಎಪಿ ಮೆಗಾ ಹ್ಯಾಕಥಾನ್ 2026 ರ ಡೆಮೊ ಮಾದರಿಯಾಗಿದೆ. ಎಲ್ಲಾ ಡೇಟಾ ಕಾಲ್ಪನಿಕವಾಗಿದೆ.',
