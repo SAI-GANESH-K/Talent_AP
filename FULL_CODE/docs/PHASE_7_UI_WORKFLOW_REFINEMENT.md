@@ -116,3 +116,4 @@ Unified all Stage 3 recommendation and exploration components under the modern L
 | `FULL_CODE/frontend/index.html` | Added Noto Sans Indic Google Fonts. |
 | `FULL_CODE/frontend/src/index.css` | Added script-aware font fallbacks and `1.65` line-height for Indic languages. |
 | `FULL_CODE/frontend/src/App.tsx` | Added role-based navigation, route guards, dynamic HTML lang sync, and plan handoff wiring. |
+

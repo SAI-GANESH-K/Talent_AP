@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { formatINR, formatINRLakhCr, type RecommendedProduct } from '../../api/client';
 import { useLanguage } from '../../i18n/LanguageContext';
+import {
+  localizeCategory,
+  localizeFeature,
+  localizeLimitation,
+  localizeWhyRecommended,
+} from '../../i18n/localizeCatalog';
 
 interface ProductCardProps {
   product: RecommendedProduct;
@@ -19,7 +25,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onToggleCompare,
   canSelectMoreForCompare,
 }) => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [showScoreDetails, setShowScoreDetails] = useState(false);
   const [showAllBenefits, setShowAllBenefits] = useState(false);
 
@@ -58,10 +64,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div>
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
               <span className="text-[11px] px-2.5 py-0.5 rounded-full font-bold bg-teal-50 text-teal-800 border border-teal-200">
-                {product.category_label}
+                {localizeCategory(product.category_label, language)}
               </span>
               <span className="text-[11px] text-slate-500 font-mono">
-                {product.product_type}
+                {localizeCategory(product.product_type, language)}
               </span>
             </div>
             <h3 className="text-xl font-bold text-slate-900 tracking-tight font-[var(--font-heading)]">
@@ -78,7 +84,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               title="Click to view match score breakdown"
             >
               <div className="text-right">
-                <div className="text-[9px] uppercase tracking-wider font-semibold opacity-75">Match</div>
+                <div className="text-[9px] uppercase tracking-wider font-semibold opacity-75">
+                  {(t.recommendations as any).matchLabel || 'Match'}
+                </div>
                 <div className="text-sm font-black">
                   {Math.round(product.composite_score)}%
                 </div>
@@ -119,26 +127,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Why Recommended Explanation */}
         <p className="text-xs text-slate-700 bg-teal-50/50 border border-teal-100 rounded-xl p-3 mb-4 leading-relaxed">
           <strong className="text-teal-900 font-semibold">{t.recommendations.whyRecommended} </strong>
-          {product.why_recommended}
+          {localizeWhyRecommended(product.why_recommended, formatINRLakhCr(product.recommended_sum_assured), language)}
         </p>
 
         {/* Key Metrics: Cover & Premium */}
         <div className="grid grid-cols-2 gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3.5 mb-4">
           <div>
             <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
-              Recommended Cover
+              {(t.recommendations as any).recommendedCoverLabel || 'Recommended Cover'}
             </div>
             <div className="text-lg font-black text-slate-900 mt-0.5">
               {formatINRLakhCr(product.recommended_sum_assured)}
             </div>
             <div className="text-[11px] text-slate-500 mt-0.5">
-              Tenure: <strong className="text-slate-800">{product.recommended_policy_term} Years</strong>
+              {(t.recommendations as any).tenureLabel || 'Tenure'}: <strong className="text-slate-800">{product.recommended_policy_term} {(t.recommendations as any).yearsLabel || 'Years'}</strong>
             </div>
           </div>
 
           <div className="text-right">
             <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
-              Estimated Premium
+              {(t.recommendations as any).estimatedPremiumLabel || 'Estimated Premium'}
             </div>
             <div className="text-lg font-black text-teal-700 mt-0.5">
               {formatINR(premiumDisplay)}
@@ -147,7 +155,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               </span>
             </div>
             <div className="text-[11px] text-slate-500 mt-0.5">
-              Annual: <strong className="text-slate-800">{formatINR(quote.total_annual_premium)}</strong>
+              {(t.recommendations as any).annualLabel || 'Annual'}: <strong className="text-slate-800">{formatINR(quote.total_annual_premium)}</strong>
             </div>
           </div>
         </div>
@@ -155,7 +163,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Shortfall Notice if any */}
         {parseFloat(product.coverage_shortfall) > 0 && (
           <div className="mb-4 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center justify-between">
-            <span className="font-medium">Remaining Need Shortfall:</span>
+            <span className="font-medium">{(t.recommendations as any).shortfallLabel || 'Remaining Need Shortfall:'}</span>
             <span className="font-bold text-amber-950">
               {formatINRLakhCr(product.coverage_shortfall)}
             </span>
@@ -172,7 +180,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <svg className="w-3.5 h-3.5 text-teal-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
-              <span>{b}</span>
+              <span>{localizeFeature(b, language)}</span>
             </div>
           ))}
           {product.key_benefits.length > 2 && (
@@ -181,7 +189,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               onClick={() => setShowAllBenefits(!showAllBenefits)}
               className="text-[11px] text-teal-700 hover:text-teal-900 font-medium pt-1 cursor-pointer"
             >
-              {showAllBenefits ? '− Show fewer features' : `+ ${product.key_benefits.length - 2} more features`}
+              {showAllBenefits ? ((t.recommendations as any).showFewerFeatures || '− Show fewer features') : `+ ${product.key_benefits.length - 2} ${(t.recommendations as any).moreFeatures || 'more features'}`}
             </button>
           )}
         </div>
@@ -190,7 +198,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {product.key_limitations && product.key_limitations.length > 0 && (
           <div className="text-[11px] text-slate-600 bg-slate-50 rounded-xl p-2.5 border border-slate-200">
             <span className="text-slate-800 font-semibold">{t.recommendations.pointsToNote} </span>
-            {product.key_limitations[0]}
+            {localizeLimitation(product.key_limitations[0], language)}
           </div>
         )}
       </div>

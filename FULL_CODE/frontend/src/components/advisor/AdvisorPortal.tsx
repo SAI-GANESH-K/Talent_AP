@@ -161,19 +161,18 @@ export const AdvisorPortal: React.FC<AdvisorPortalProps> = ({ currentUser }) => 
                   {/* Status & Complete Action */}
                   <div className="flex items-center gap-3">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        isConfirmed
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${isConfirmed
                           ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                           : isCompleted
-                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                          : 'bg-slate-100 text-slate-500'
-                      }`}
+                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                            : 'bg-slate-100 text-slate-500'
+                        }`}
                     >
                       {isConfirmed
                         ? t.common.statusConfirmed
                         : isCompleted
-                        ? t.common.statusCompleted
-                        : t.common.statusCancelled}
+                          ? t.common.statusCompleted
+                          : t.common.statusCancelled}
                     </span>
 
                     {isConfirmed && (

@@ -65,6 +65,10 @@ export const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
   }, [selectedLang, selectedMode, selectedSpecialty]);
 
   const handleOpenBooking = (adv: AdvisorSummary) => {
+    if (!currentUser) {
+      onRequestAuth();
+      return;
+    }
     setSelectedAdvisor(adv);
     setIsBookingOpen(true);
   };
@@ -78,7 +82,7 @@ export const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto mb-10">
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold mb-3 border border-teal-200/60">
-          <span>🛡️</span> Stage 4 · Certified Advisor Discovery
+          <span>🛡️</span> {(t.advisory as any).stagePill || 'Stage 4 · Certified Advisor Discovery'}
         </div>
         <h1 className="font-[var(--font-heading)] text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
           {t.advisory.title}

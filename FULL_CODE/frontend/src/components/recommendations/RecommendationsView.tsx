@@ -131,16 +131,21 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
         {/* Navigation & Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
           <div>
-            <button
-              type="button"
-              onClick={onBackToResults}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-900 transition-colors mb-2 cursor-pointer"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              <span>{t.recommendations.backToAssessment}</span>
-            </button>
+            <div className="flex items-center gap-3 mb-2">
+              <button
+                type="button"
+                onClick={onBackToResults}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-900 transition-colors cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span>{t.recommendations.backToAssessment}</span>
+              </button>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold border border-teal-200/60">
+                <span>🎯</span> {(t.recommendations as any).stagePill || 'Stage 3 · Product Recommendations'}
+              </div>
+            </div>
             <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight font-[var(--font-heading)]">
               {t.recommendations.title}
             </h1>

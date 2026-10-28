@@ -34,11 +34,10 @@ export const CoverageShortfallVisualizer: React.FC<CoverageShortfallVisualizerPr
             Need: <strong className="text-slate-900">{formatINRLakhCr(recommendedGap)}</strong>
           </span>
           <span
-            className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${
-              isFullyCovered
+            className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${isFullyCovered
                 ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
                 : 'bg-amber-50 text-amber-800 border-amber-300'
-            }`}
+              }`}
           >
             {isFullyCovered ? '100% Covered' : `${coveragePct}% Covered`}
           </span>
@@ -48,11 +47,10 @@ export const CoverageShortfallVisualizer: React.FC<CoverageShortfallVisualizerPr
       {/* Progress track */}
       <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden p-0.5 border border-slate-300 relative">
         <div
-          className={`h-full rounded-full transition-all duration-500 ease-out ${
-            isFullyCovered
+          className={`h-full rounded-full transition-all duration-500 ease-out ${isFullyCovered
               ? 'bg-gradient-to-r from-teal-600 to-emerald-500'
               : 'bg-gradient-to-r from-teal-600 via-amber-500 to-amber-600'
-          }`}
+            }`}
           style={{ width: `${coveragePct}%` }}
         />
       </div>

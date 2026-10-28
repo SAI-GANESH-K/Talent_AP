@@ -358,10 +358,13 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
       {/* Top Banner & Mode Toggle */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-200 gap-4">
         <div>
-          <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-teal-600)]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold mb-2 border border-teal-200/60">
+            <span>📋</span> {(t.wizard as any).stagePill || 'Stage 1 · Financial Needs Assessment'}
+          </div>
+          <div className="text-xs uppercase tracking-wider font-semibold text-[var(--color-teal-600)] mb-1">
             {t.wizard.stepOf} {step} {t.wizard.stepOfTotal} 5 · {stepTitles[step - 1]}
-          </span>
-          <h2 className="text-2xl font-bold text-[var(--color-navy-900)] font-[var(--font-heading)]">
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-navy-900)] font-[var(--font-heading)]">
             {t.wizard.assessmentTitle}
           </h2>
         </div>

@@ -32,6 +32,7 @@ function App() {
   const [view, setView] = useState<ViewMode>('landing');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [pendingPostLoginAction, setPendingPostLoginAction] = useState<ViewMode | null>(null);
 
   // Assessment & Plan Selection state — preserved across language and view transitions
   const [isLoadingEstimate, setIsLoadingEstimate] = useState<boolean>(false);
@@ -218,64 +219,38 @@ function App() {
 
               {/* Case B: Financial Advisor Navigation */}
               {currentUser?.role === 'advisor' && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setView('advisor-portal');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className={`px-3.5 py-1.5 rounded-lg font-medium transition cursor-pointer ${
-                      effectiveView === 'advisor-portal'
-                        ? 'bg-white/10 text-teal-300'
-                        : 'text-slate-300 hover:text-white'
-                    }`}
-                  >
-                    🩺 {t.nav.advisorPortal}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setView('advisor-portal');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="px-3.5 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white transition cursor-pointer"
-                  >
-                    📋 {(t.nav as any).assignedConsultations || 'Assigned Consultations'}
-                  </button>
-                </>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setView('advisor-portal');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`px-3.5 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                    effectiveView === 'advisor-portal'
+                      ? 'bg-white/10 text-teal-300'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  🩺 {t.nav.advisorPortal}
+                </button>
               )}
 
               {/* Case C: Administrator Navigation */}
               {currentUser?.role === 'admin' && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setView('admin-dashboard');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className={`px-3.5 py-1.5 rounded-lg font-medium transition cursor-pointer ${
-                      effectiveView === 'admin-dashboard'
-                        ? 'bg-white/10 text-purple-300'
-                        : 'text-slate-300 hover:text-white'
-                    }`}
-                  >
-                    🛡️ {(t.nav as any).adminDashboard || 'Admin Dashboard'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setView('admin-dashboard');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="px-3.5 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white transition cursor-pointer"
-                  >
-                    📈 {(t.nav as any).platformAnalytics || 'Platform Analytics'}
-                  </button>
-                </>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setView('admin-dashboard');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`px-3.5 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                    effectiveView === 'admin-dashboard'
+                      ? 'bg-white/10 text-purple-300'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  🛡️ {(t.nav as any).adminDashboard || 'Admin Dashboard'}
+                </button>
               )}
             </div>
 
@@ -343,8 +318,13 @@ function App() {
             {/* Hero Section */}
             <header className="bg-gradient-to-b from-[var(--color-navy-900)] to-[var(--color-navy-800)] text-white">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-medium text-[var(--color-teal-400)] backdrop-blur mb-6">
-                  <span>{t.landing.badge}</span>
+                <div className="inline-flex items-center gap-2.5 px-4 py-1.5 bg-teal-500/15 border border-teal-400/40 rounded-full text-xs font-medium text-teal-300 backdrop-blur-md mb-8 shadow-sm">
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-400"></span>
+                  </span>
+                  <span className="text-white font-semibold">Available in 5 Languages:</span>
+                  <span className="text-teal-200 font-medium">English • తెలుగు • हिन्दी • தமிழ் • ಕನ್ನಡ</span>
                 </div>
                 <h1 className="font-[var(--font-heading)] text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                   {t.landing.heroTitle1}{' '}
@@ -488,10 +468,20 @@ function App() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onConsultAdvisor={() => {
+              if (!currentUser) {
+                setPendingPostLoginAction('advisors');
+                setIsAuthModalOpen(true);
+                return;
+              }
               setView('advisors');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onContinueToAdvisor={() => {
+              if (!currentUser) {
+                setPendingPostLoginAction('advisors');
+                setIsAuthModalOpen(true);
+                return;
+              }
               setView('advisors');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
@@ -552,13 +542,97 @@ function App() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-[var(--color-navy-900)] text-slate-400 py-8 border-t border-slate-800 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs leading-relaxed">
-          <p className="mb-2 font-medium text-slate-300">
-            CoverWise — Team We4 · Talent AP Mega Hackathon 2026 · BFSI B2
-          </p>
-          <p>{t.disclaimer.syntheticNotice}</p>
+      {/* Professional Fintech Footer */}
+      <footer className="bg-slate-900 text-slate-400 pt-16 pb-12 border-t border-slate-800 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
+            {/* Column 1: Brand & Mission */}
+            <div className="md:col-span-1 space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center font-bold text-sm text-white shadow-sm">
+                  CW
+                </div>
+                <span className="font-[var(--font-heading)] font-bold text-xl text-white tracking-tight">
+                  CoverWise
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Empowering Indian families with mathematical clarity and certified digital advisory for optimal life protection.
+              </p>
+              <div className="text-xs text-teal-400 font-medium">
+                5 Languages · Pure Actuarial Precision
+              </div>
+            </div>
+
+            {/* Column 2: Platform Journey */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
+                Customer Journey
+              </h4>
+              <ul className="space-y-2 text-xs">
+                <li>
+                  <button onClick={handleStartAssessment} className="hover:text-teal-400 transition cursor-pointer">
+                    Stage 1: Needs Assessment
+                  </button>
+                </li>
+                <li>
+                  <button onClick={handleStartAssessment} className="hover:text-teal-400 transition cursor-pointer">
+                    Stage 2: Actuarial Analysis
+                  </button>
+                </li>
+                <li>
+                  <button onClick={handleStartAssessment} className="hover:text-teal-400 transition cursor-pointer">
+                    Stage 3: Plan Comparison
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      setView('advisors');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="hover:text-teal-400 transition cursor-pointer"
+                  >
+                    Stage 4: Advisor Consultation
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 3: Actuarial Methodology */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
+                Methodology & Trust
+              </h4>
+              <ul className="space-y-2 text-xs">
+                <li>Human Life Value (HLV) Model</li>
+                <li>Net Needs Replacement Approach</li>
+                <li>Deterministic 4-Pillar Ranking</li>
+                <li>Zero-Bias Independent Calculations</li>
+              </ul>
+            </div>
+
+            {/* Column 4: Security & Compliance */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
+                Security & Privacy
+              </h4>
+              <ul className="space-y-2 text-xs">
+                <li>HttpOnly Encrypted Sessions</li>
+                <li>Double-Submit CSRF Defense</li>
+                <li>Role-Based Access Control</li>
+                <li>Customer Data Privacy Consent</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <p>© 2026 CoverWise. All rights reserved.</p>
+            <p className="text-center sm:text-right max-w-xl text-[11px] leading-relaxed text-slate-500">
+              CoverWise provides educational insurance assessment and objective suitability calculations based on verified actuarial principles. Final policy underwriting and terms are determined solely by authorized life insurers.
+            </p>
+          </div>
         </div>
       </footer>
 
@@ -568,6 +642,13 @@ function App() {
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={(user) => {
           setCurrentUser(user);
+          if (user.role === 'customer' && pendingPostLoginAction === 'advisors') {
+            setPendingPostLoginAction(null);
+            setView('advisors');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+          }
+          setPendingPostLoginAction(null);
           navigateToAppropriateDashboard(user);
         }}
       />

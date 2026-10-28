@@ -5,6 +5,7 @@ import {
   formatINRLakhCr,
 } from '../../api/client';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { localizeGoalType } from '../../i18n/localizeCatalog';
 
 interface AssessmentResultsProps {
   result: AssessmentResponse;
@@ -19,7 +20,7 @@ export function AssessmentResults({
   onTalkToAdvisor,
   onExplorePlans,
 }: AssessmentResultsProps) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'overview' | 'net_needs' | 'hlv' | 'assumptions'>('overview');
   const [showYearBreakdown, setShowYearBreakdown] = useState<boolean>(false);
 
@@ -77,9 +78,9 @@ export function AssessmentResults({
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-200 gap-4">
         <div>
-          <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-teal-600)]">
-            Stage 2 · {t.results.title}
-          </span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold mb-2 border border-teal-200/60">
+            <span>📊</span> {(t.results as any).stagePill || 'Stage 2 · Coverage Needs Analysis'}
+          </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-navy-900)] font-[var(--font-heading)]">
             {t.results.title}
           </h2>
@@ -363,51 +364,51 @@ export function AssessmentResults({
           <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-6">
             <div>
               <h3 className="font-semibold text-lg text-[var(--color-navy-900)] mb-1">
-                Net Needs Detailed Itemization
+                {(t.results as any).netNeedsItemization || 'Net Needs Detailed Itemization'}
               </h3>
               <p className="text-xs text-slate-500">
-                How every rupee of your family's financial future is accounted for.
+                {(t.results as any).netNeedsItemizationSub || "How every rupee of your family's financial future is accounted for."}
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 bg-slate-50 rounded-xl">
-                <span className="text-xs font-medium text-slate-500">Living Support Present Value</span>
+                <span className="text-xs font-medium text-slate-500">{(t.results as any).livingSupportPV || 'Living Support Present Value'}</span>
                 <div className="text-xl font-bold text-[var(--color-navy-900)] mt-1">
                   {formatINR(net_needs.pv_household_support)}
                 </div>
                 <p className="text-xs text-slate-400 mt-1">
-                  Covers {net_needs.dependency_horizon_years} years until youngest dependent is independent, discounting for deceased member's personal share.
+                  {net_needs.dependency_horizon_years} {(t.results as any).livingSupportDesc || "years until youngest dependent is independent, discounting for personal consumption."}
                 </p>
               </div>
 
               <div className="p-4 bg-slate-50 rounded-xl">
-                <span className="text-xs font-medium text-slate-500">Debt & Liability Payoff</span>
+                <span className="text-xs font-medium text-slate-500">{(t.results as any).debtLiabilityPayoff || 'Debt & Liability Payoff'}</span>
                 <div className="text-xl font-bold text-[var(--color-navy-900)] mt-1">
                   {formatINR(net_needs.outstanding_loans)}
                 </div>
                 <p className="text-xs text-slate-400 mt-1">
-                  Ensures family home and vehicles are not liquidated by lenders.
+                  {(t.results as any).debtLiabilityDesc || 'Ensures family home and vehicles are not liquidated by lenders.'}
                 </p>
               </div>
 
               <div className="p-4 bg-slate-50 rounded-xl">
-                <span className="text-xs font-medium text-slate-500">Milestone Goals (Discounted PV)</span>
+                <span className="text-xs font-medium text-slate-500">{(t.results as any).milestoneGoalsPV || 'Milestone Goals (Discounted PV)'}</span>
                 <div className="text-xl font-bold text-[var(--color-navy-900)] mt-1">
                   {formatINR(net_needs.pv_goals)}
                 </div>
                 <p className="text-xs text-slate-400 mt-1">
-                  Children's higher education, marriages, and buffers inflated at custom rates.
+                  {(t.results as any).milestoneGoalsDesc || "Children's higher education, marriages, and buffers inflated at custom rates."}
                 </p>
               </div>
 
               <div className="p-4 bg-slate-50 rounded-xl">
-                <span className="text-xs font-medium text-slate-500">Emergency Buffer + Final Expenses</span>
+                <span className="text-xs font-medium text-slate-500">{(t.results as any).emergencyBuffer || 'Emergency Buffer + Final Expenses'}</span>
                 <div className="text-xl font-bold text-[var(--color-navy-900)] mt-1">
                   {formatINR(parseFloat(net_needs.final_expenses) + parseFloat(net_needs.emergency_buffer))}
                 </div>
                 <p className="text-xs text-slate-400 mt-1">
-                  6 months living expenses reserve + immediate medical/funeral buffer.
+                  {(t.results as any).emergencyBufferDesc || '6 months living expenses reserve + immediate medical/funeral buffer.'}
                 </p>
               </div>
             </div>
@@ -416,26 +417,26 @@ export function AssessmentResults({
             {net_needs.goal_details && net_needs.goal_details.length > 0 && (
               <div className="space-y-3 pt-4 border-t border-slate-200">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                  Individual Goal Compounding & Discounting
+                  {(t.results as any).goalTableTitle || 'Individual Goal Compounding & Discounting'}
                 </h4>
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs text-left">
                     <thead className="bg-slate-100 text-slate-700 font-semibold">
                       <tr>
-                        <th className="p-2.5 rounded-l-lg">Goal</th>
-                        <th className="p-2.5">Today Cost</th>
-                        <th className="p-2.5">Year</th>
-                        <th className="p-2.5">Inflation</th>
-                        <th className="p-2.5">Future Cost</th>
-                        <th className="p-2.5 rounded-r-lg">Present Value</th>
+                        <th className="p-2.5 rounded-l-lg">{(t.results as any).goalColGoal || 'Goal'}</th>
+                        <th className="p-2.5">{(t.results as any).goalColTodayCost || 'Today Cost'}</th>
+                        <th className="p-2.5">{(t.results as any).goalColYear || 'Year'}</th>
+                        <th className="p-2.5">{(t.results as any).goalColInflation || 'Inflation'}</th>
+                        <th className="p-2.5">{(t.results as any).goalColFutureCost || 'Future Cost'}</th>
+                        <th className="p-2.5 rounded-r-lg">{(t.results as any).goalColPV || 'Present Value'}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {net_needs.goal_details.map((gd, idx) => (
                         <tr key={idx} className="hover:bg-slate-50">
-                          <td className="p-2.5 font-medium">{gd.goal_type}</td>
+                          <td className="p-2.5 font-medium">{localizeGoalType(gd.goal_type, language)}</td>
                           <td className="p-2.5">{formatINR(gd.target_amount_today_inr)}</td>
-                          <td className="p-2.5">{gd.target_year} ({gd.years_to_goal} yrs)</td>
+                          <td className="p-2.5">{gd.target_year} ({gd.years_to_goal} {(t.recommendations as any).yearsLabel || 'yrs'})</td>
                           <td className="p-2.5 font-mono">{(parseFloat(gd.inflation_rate_used) * 100).toFixed(1)}%</td>
                           <td className="p-2.5 font-medium text-amber-700">{formatINR(gd.future_cost)}</td>
                           <td className="p-2.5 font-bold text-[var(--color-teal-600)]">{formatINR(gd.present_value)}</td>
@@ -457,10 +458,10 @@ export function AssessmentResults({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-lg text-[var(--color-navy-900)] mb-1">
-                  Human Life Value Projection
+                  {(t.results as any).hlvProjectionTitle || 'Human Life Value Projection'}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Actuarial finite year-by-year income replacement value to age 60.
+                  {(t.results as any).hlvProjectionDesc || 'Actuarial finite year-by-year income replacement value to age 60.'}
                 </p>
               </div>
               <button
@@ -468,25 +469,25 @@ export function AssessmentResults({
                 onClick={() => setShowYearBreakdown(!showYearBreakdown)}
                 className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1.5 rounded-lg transition"
               >
-                {showYearBreakdown ? 'Hide Yearly Schedule' : 'Show Full Yearly Schedule'}
+                {showYearBreakdown ? ((t.results as any).hideYearlySchedule || 'Hide Yearly Schedule') : ((t.results as any).showYearlySchedule || 'Show Full Yearly Schedule')}
               </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
               <div className="p-3 bg-slate-50 rounded-xl">
-                <span className="text-slate-500">Gross Human Life Value:</span>
+                <span className="text-slate-500">{(t.results as any).grossHLV || 'Gross Human Life Value'}:</span>
                 <div className="text-lg font-bold text-[var(--color-navy-900)] mt-0.5">
                   {formatINR(hlv.hlv_gross)}
                 </div>
               </div>
               <div className="p-3 bg-slate-50 rounded-xl">
-                <span className="text-slate-500">Remaining Earning Span:</span>
+                <span className="text-slate-500">{(t.results as any).remainingEarningSpan || 'Remaining Earning Span'}:</span>
                 <div className="text-lg font-bold text-[var(--color-navy-900)] mt-0.5">
-                  {hlv.remaining_earning_years} years
+                  {hlv.remaining_earning_years} {(t.recommendations as any).yearsLabel || 'years'}
                 </div>
               </div>
               <div className="p-3 bg-slate-50 rounded-xl">
-                <span className="text-slate-500">Annual Contribution:</span>
+                <span className="text-slate-500">{(t.results as any).annualContribution || 'Annual Contribution'}:</span>
                 <div className="text-lg font-bold text-[var(--color-navy-900)] mt-0.5">
                   {formatINR(hlv.annual_income_contribution)}
                 </div>
@@ -532,7 +533,7 @@ export function AssessmentResults({
       {activeTab === 'assumptions' && (
         <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-4 text-xs">
           <h3 className="font-semibold text-lg text-[var(--color-navy-900)] mb-1">
-            Actuarial Assumptions & Calculation Policy
+            {(t.results as any).assumptionsTitle || 'Actuarial Assumptions & Calculation Policy'}
           </h3>
           <p className="text-slate-500">
             CoverWise enforces strict, mathematically audited calculation rules documented in <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-800">docs/CALCULATION_POLICY.md</code>.
@@ -540,28 +541,28 @@ export function AssessmentResults({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <div className="p-3 bg-slate-50 rounded-xl">
-              <span className="font-semibold text-slate-700 block">Retirement Age</span>
-              <span className="text-slate-500">{assumptions_used.retirement_age} years old</span>
+              <span className="font-semibold text-slate-700 block">{t.wizard.retirementAgeLabel || 'Retirement Age'}</span>
+              <span className="text-slate-500">{assumptions_used.retirement_age} {(t.recommendations as any).yearsLabel || 'years'}</span>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl">
               <span className="font-semibold text-slate-700 block">Self-Consumption Share</span>
               <span className="text-slate-500">{(parseFloat(assumptions_used.self_consumption_share) * 100).toFixed(0)}% (standard ICMR/actuarial benchmark)</span>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl">
-              <span className="font-semibold text-slate-700 block">Annual Income Growth Rate</span>
+              <span className="font-semibold text-slate-700 block">{t.wizard.growthRateLabel || 'Annual Income Growth Rate'}</span>
               <span className="text-slate-500">{(parseFloat(assumptions_used.income_growth_rate) * 100).toFixed(1)}% p.a.</span>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl">
-              <span className="font-semibold text-slate-700 block">Actuarial Discount Rate</span>
+              <span className="font-semibold text-slate-700 block">{t.wizard.discountRateLabel || 'Actuarial Discount Rate'}</span>
               <span className="text-slate-500">{(parseFloat(assumptions_used.discount_rate) * 100).toFixed(1)}% p.a.</span>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl">
-              <span className="font-semibold text-slate-700 block">General Household Inflation</span>
+              <span className="font-semibold text-slate-700 block">{t.wizard.inflationLabel || 'General Household Inflation'}</span>
               <span className="text-slate-500">{(parseFloat(assumptions_used.general_inflation_pct_pa) * 100).toFixed(1)}% p.a.</span>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl">
-              <span className="font-semibold text-slate-700 block">Higher Education Inflation</span>
-              <span className="text-slate-500">{(parseFloat(assumptions_used.education_inflation_pct_pa) * 100).toFixed(1)}% p.a. (higher than general CPI)</span>
+              <span className="font-semibold text-slate-700 block">{t.wizard.educationInflationLabel || 'Higher Education Inflation'}</span>
+              <span className="text-slate-500">{(parseFloat(assumptions_used.education_inflation_pct_pa) * 100).toFixed(1)}% p.a.</span>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl">
               <span className="font-semibold text-slate-700 block">Cover Standardization Multiplier</span>
@@ -579,10 +580,10 @@ export function AssessmentResults({
       <div className="p-6 bg-slate-100 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <h4 className="font-semibold text-sm text-[var(--color-navy-900)]">
-            Ready to protect your family?
+            {(t.results as any).readyToProtect || 'Ready to protect your family?'}
           </h4>
           <p className="text-xs text-slate-500 mt-0.5">
-            Phase 3 will match verified IRDAI term insurance products fitting your {formatINRLakhCr(recommended_gap_rounded)} coverage gap.
+            {(t.results as any).readyToProtectDesc || `Explore verified IRDAI term insurance products fitting your ${formatINRLakhCr(recommended_gap_rounded)} coverage gap.`}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -595,7 +596,7 @@ export function AssessmentResults({
           </button>
           <button
             type="button"
-            onClick={onExplorePlans ? onExplorePlans : () => alert(`Phase 3 Product Recommendation Engine will filter products matching ₹${parseFloat(recommended_gap_rounded).toLocaleString('en-IN')} sum assured!`)}
+            onClick={onExplorePlans ? onExplorePlans : () => alert(`Product Recommendation Engine will filter products matching ₹${parseFloat(recommended_gap_rounded).toLocaleString('en-IN')} sum assured!`)}
             className="bg-gradient-to-r from-[var(--color-teal-600)] to-[var(--color-teal-500)] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md hover:from-[var(--color-teal-500)] hover:to-[var(--color-teal-400)] transition cursor-pointer"
           >
             {t.results.explorePlansBtn}
