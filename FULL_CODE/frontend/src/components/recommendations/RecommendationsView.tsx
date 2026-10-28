@@ -11,6 +11,7 @@ import {
   type SelectedPlan,
 } from '../../api/client';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { localizeGender, localizeYesNo } from '../../i18n/localizeCatalog';
 import { ProductCard } from './ProductCard';
 import { PolicyCustomizerModal } from './PolicyCustomizerModal';
 import { PlanComparisonModal } from './PlanComparisonModal';
@@ -40,7 +41,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
   onConsultAdvisor,
   onContinueToAdvisor,
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   // Customer Profile state (allows quick tweaking for quotes)
   const [profile, setProfile] = useState<CustomerProfile>({
     age: initialProfile.age,
@@ -158,19 +159,19 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
           <div className="bg-white border border-slate-200 rounded-2xl p-3 flex flex-wrap items-center gap-3 self-start shadow-xs">
             {/* Gender Toggle */}
             <div className="flex items-center gap-1.5 text-xs bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-              <span className="text-slate-500 font-medium">Gender:</span>
+              <span className="text-slate-500 font-medium">{(t.wizard as any).genderLabel || 'Gender'}:</span>
               <button
                 type="button"
                 onClick={() => setProfile((p) => ({ ...p, gender: p.gender === 'male' ? 'female' : 'male' }))}
                 className="font-bold text-teal-700 capitalize hover:text-teal-900 cursor-pointer"
               >
-                {profile.gender} ↻
+                {localizeGender(profile.gender, language)} ↻
               </button>
             </div>
 
             {/* Smoker Toggle */}
             <div className="flex items-center gap-1.5 text-xs bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-              <span className="text-slate-500 font-medium">Smoker:</span>
+              <span className="text-slate-500 font-medium">{(t.wizard as any).smokerLabel || 'Smoker'}:</span>
               <button
                 type="button"
                 onClick={() =>
@@ -183,19 +184,19 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                   profile.smoker_status === 'smoker' ? 'text-amber-700' : 'text-emerald-700'
                 }`}
               >
-                {profile.smoker_status === 'smoker' ? 'Yes' : 'No'} ↻
+                {localizeYesNo(profile.smoker_status === 'smoker', language)} ↻
               </button>
             </div>
 
             {/* NRI Toggle */}
             <div className="flex items-center gap-1.5 text-xs bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-              <span className="text-slate-500 font-medium">NRI:</span>
+              <span className="text-slate-500 font-medium">{(t.wizard as any).nriLabel || 'NRI'}:</span>
               <button
                 type="button"
                 onClick={() => setProfile((p) => ({ ...p, is_nri: !p.is_nri }))}
                 className={`font-bold capitalize cursor-pointer ${profile.is_nri ? 'text-teal-700' : 'text-slate-500'}`}
               >
-                {profile.is_nri ? 'Yes' : 'No'} ↻
+                {localizeYesNo(!!profile.is_nri, language)} ↻
               </button>
             </div>
           </div>

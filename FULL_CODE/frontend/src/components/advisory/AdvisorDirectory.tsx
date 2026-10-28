@@ -12,8 +12,10 @@ import { BookingModal } from './BookingModal';
 interface AdvisorDirectoryProps {
   currentUser: User | null;
   assessmentSummary?: any;
-  onRequestAuth: () => void;
+  onRequestAuth: (advisor?: AdvisorSummary) => void;
   onBookingSuccess: () => void;
+  initialAdvisor?: AdvisorSummary | null;
+  onClearInitialAdvisor?: () => void;
 }
 
 export const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
@@ -21,11 +23,22 @@ export const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
   assessmentSummary,
   onRequestAuth,
   onBookingSuccess,
+  initialAdvisor,
+  onClearInitialAdvisor,
 }) => {
   const { t, language } = useLanguage();
   const [advisors, setAdvisors] = useState<AdvisorSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-open booking modal if resuming from post-login handoff
+  useEffect(() => {
+    if (initialAdvisor && currentUser) {
+      setSelectedAdvisor(initialAdvisor);
+      setIsBookingOpen(true);
+      if (onClearInitialAdvisor) onClearInitialAdvisor();
+    }
+  }, [initialAdvisor, currentUser]);
 
   // Filters
   const [selectedLang, setSelectedLang] = useState<string>('all');
@@ -66,7 +79,7 @@ export const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
 
   const handleOpenBooking = (adv: AdvisorSummary) => {
     if (!currentUser) {
-      onRequestAuth();
+      onRequestAuth(adv);
       return;
     }
     setSelectedAdvisor(adv);
@@ -79,17 +92,27 @@ export const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      {/* Header */}
-      <div className="text-center max-w-3xl mx-auto mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold mb-3 border border-teal-200/60">
-          <span>🛡️</span> {(t.advisory as any).stagePill || 'Stage 4 · Certified Advisor Discovery'}
+      {/* Header — Formatted to match Stage 1, 2, 3 layout */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-200 gap-4 mb-8">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold mb-2 border border-teal-200/60">
+            <span>🛡️</span> {(t.advisory as any).stagePill || 'Stage 4 · Certified Advisor Discovery'}
+          </div>
+          <h1 className="font-[var(--font-heading)] text-2xl sm:text-3xl font-bold text-[var(--color-navy-900)] tracking-tight">
+            {t.advisory.title}
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
+            {t.advisory.subtitle}
+          </p>
         </div>
-        <h1 className="font-[var(--font-heading)] text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
-          {t.advisory.title}
-        </h1>
-        <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-          {t.advisory.subtitle}
-        </p>
+        {assessmentSummary?.selected_plan_name && (
+          <div className="bg-teal-50 border border-teal-200/80 px-3.5 py-2 rounded-2xl text-xs text-teal-900 flex items-center gap-2 shadow-xs">
+            <span className="text-teal-600 font-bold">✓</span>
+            <span>
+              Selected: <strong className="font-semibold text-teal-950">{assessmentSummary.selected_plan_name}</strong>
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Filter Bar */}

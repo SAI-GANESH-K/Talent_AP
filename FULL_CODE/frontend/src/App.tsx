@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   api,
+  type AdvisorSummary,
   type AssessmentRequest,
   type AssessmentResponse,
   type SelectedPlan,
@@ -17,6 +18,12 @@ import { AdvisorPortal } from './components/advisor/AdvisorPortal';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AuthModal } from './components/auth/AuthModal';
 import { Footer } from './components/layout/Footer';
+import { AppPreloader } from './components/layout/AppPreloader';
+import { HeroSection } from './components/landing/HeroSection';
+import { ValueProposition } from './components/landing/ValueProposition';
+import { HowItWorks } from './components/landing/HowItWorks';
+import { ExplainableGuidance } from './components/landing/ExplainableGuidance';
+import { FinalCTA } from './components/landing/FinalCTA';
 
 type ViewMode =
   | 'landing'
@@ -34,6 +41,14 @@ function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [pendingPostLoginAction, setPendingPostLoginAction] = useState<ViewMode | null>(null);
+  const [pendingBookingAdvisor, setPendingBookingAdvisor] = useState<AdvisorSummary | null>(null);
+  const [hasCompletedPreloader, setHasCompletedPreloader] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('cw_preloader_shown') === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   // Assessment & Plan Selection state — preserved across language and view transitions
   const [isLoadingEstimate, setIsLoadingEstimate] = useState<boolean>(false);
@@ -141,24 +156,34 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[var(--color-offwhite)] flex flex-col justify-between">
+      {/* Premium Branded Preloader (Runs once on initial site visit) */}
+      {!hasCompletedPreloader && (
+        <AppPreloader
+          onComplete={() => {
+            try {
+              sessionStorage.setItem('cw_preloader_shown', 'true');
+            } catch {
+              // ignore
+            }
+            setHasCompletedPreloader(true);
+          }}
+        />
+      )}
+
       {/* Navigation Bar */}
       <nav className="bg-[var(--color-navy-900)] text-white sticky top-0 z-40 shadow-lg border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Brand Logo */}
+            {/* Brand Logo - Clean Text-only Wordmark */}
             <button
               type="button"
               onClick={handleReturnHome}
-              className="flex items-center gap-2.5 text-left focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-xl p-1 cursor-pointer"
+              className="flex items-center text-left focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-xl py-1 px-1 cursor-pointer group"
+              aria-label="CoverWise Home"
             >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--color-teal-500)] to-[var(--color-teal-600)] flex items-center justify-center font-bold text-sm shadow-sm text-white">
-                CW
-              </div>
-              <div>
-                <span className="font-[var(--font-heading)] font-bold text-xl tracking-tight text-white block">
-                  CoverWise
-                </span>
-              </div>
+              <span className="font-[var(--font-heading)] font-extrabold text-2xl tracking-tight text-white group-hover:text-teal-300 transition-colors">
+                Cover<span className="text-teal-400">Wise</span>
+              </span>
             </button>
 
             {/* Role-Specific Navigation Links */}
@@ -315,90 +340,33 @@ function App() {
       <main className="flex-1">
         {/* LANDING PAGE VIEW */}
         {effectiveView === 'landing' && (
-          <div>
-            {/* Hero Section */}
-            <header className="bg-gradient-to-b from-[var(--color-navy-900)] to-[var(--color-navy-800)] text-white">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-                <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-teal-500/10 border border-teal-400/30 rounded-full text-xs font-medium text-teal-300 backdrop-blur-md mb-8 shadow-sm">
-                  <span className="flex h-2 w-2 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-400"></span>
-                  </span>
-                  <span className="text-white font-semibold">{t.landing.badge}</span>
-                  <span className="text-teal-200 font-medium">English • తెలుగు • हिन्दी • தமிழ் • ಕನ್ನಡ</span>
-                </div>
-                <h1 className="font-[var(--font-heading)] text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                  {t.landing.heroTitle1}{' '}
-                  <span className="text-[var(--color-teal-400)]">{t.landing.heroTitle2}</span>
-                </h1>
-                <p className="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-                  {t.landing.heroDesc}
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-4">
-                  <button
-                    type="button"
-                    onClick={handleStartAssessment}
-                    className="bg-[var(--color-teal-600)] hover:bg-[var(--color-teal-500)] text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-lg shadow-teal-600/30 transition-all hover:shadow-xl hover:shadow-teal-500/40 hover:-translate-y-0.5 cursor-pointer"
-                  >
-                    {t.landing.ctaFindCover}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setView('advisors');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-8 py-4 rounded-xl text-lg font-semibold transition cursor-pointer backdrop-blur-sm"
-                  >
-                    {t.nav.advisors} →
-                  </button>
-                </div>
-                <p className="text-xs text-slate-400 mt-4">
-                  {t.landing.ctaSubtext}
-                </p>
-              </div>
-            </header>
+          <div className="space-y-0">
+            {/* Section 1: Cinematic Split Hero */}
+            <HeroSection
+              onStartAssessment={handleStartAssessment}
+              onConsultAdvisor={() => {
+                setView('advisors');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
 
-            {/* Core Value Pillars Section */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-                  <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 text-xl font-bold mb-5 border border-teal-100">
-                    📐
-                  </div>
-                  <h3 className="font-[var(--font-heading)] text-xl font-bold text-[var(--color-navy-900)] mb-3">
-                    {t.landing.card1Title}
-                  </h3>
-                  <p className="text-sm text-slate-600 leading-relaxed">
-                    {t.landing.card1Desc}
-                  </p>
-                </div>
+            {/* Section 2: Why CoverWise? */}
+            <ValueProposition />
 
-                <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-                  <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 text-xl font-bold mb-5 border border-teal-100">
-                    🤝
-                  </div>
-                  <h3 className="font-[var(--font-heading)] text-xl font-bold text-[var(--color-navy-900)] mb-3">
-                    {t.landing.card2Title}
-                  </h3>
-                  <p className="text-sm text-slate-600 leading-relaxed">
-                    {t.landing.card2Desc}
-                  </p>
-                </div>
+            {/* Section 3: How CoverWise Works */}
+            <HowItWorks />
 
-                <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-                  <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 text-xl font-bold mb-5 border border-teal-100">
-                    🔍
-                  </div>
-                  <h3 className="font-[var(--font-heading)] text-xl font-bold text-[var(--color-navy-900)] mb-3">
-                    {t.landing.card3Title}
-                  </h3>
-                  <p className="text-sm text-slate-600 leading-relaxed">
-                    {t.landing.card3Desc}
-                  </p>
-                </div>
-              </div>
-            </section>
+            {/* Section 4: Clear & Explainable Financial Guidance */}
+            <ExplainableGuidance onStartAssessment={handleStartAssessment} />
+
+            {/* Section 5: Final Call to Action */}
+            <FinalCTA
+              onStartAssessment={handleStartAssessment}
+              onConsultAdvisor={() => {
+                setView('advisors');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
           </div>
         )}
 
@@ -517,10 +485,13 @@ function App() {
                   }
                 : undefined
             }
-            onRequestAuth={() => {
+            onRequestAuth={(adv) => {
               setPendingPostLoginAction('advisors');
+              if (adv) setPendingBookingAdvisor(adv);
               setIsAuthModalOpen(true);
             }}
+            initialAdvisor={pendingBookingAdvisor}
+            onClearInitialAdvisor={() => setPendingBookingAdvisor(null)}
             onBookingSuccess={() => {
               if (currentUser?.role === 'customer') {
                 setView('my-appointments');

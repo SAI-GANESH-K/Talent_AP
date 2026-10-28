@@ -50,18 +50,15 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 pb-12">
             {/* SECTION A: Brand Area (5 Cols on Desktop) */}
             <div className="lg:col-span-5 space-y-4">
-              {/* Brand Logo & Name */}
+              {/* Brand Logo - Clean Text-only Wordmark */}
               <button
                 type="button"
                 onClick={() => onNavigate('landing')}
-                className="flex items-center gap-3 text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded-xl"
+                className="flex items-center text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded-xl"
                 aria-label="CoverWise Home"
               >
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center font-bold text-sm text-white shadow-sm transition-transform duration-200 group-hover:scale-105">
-                  CW
-                </div>
-                <span className="font-[var(--font-heading)] font-bold text-2xl text-white tracking-tight">
-                  CoverWise
+                <span className="font-[var(--font-heading)] font-extrabold text-2xl text-white tracking-tight group-hover:text-teal-300 transition-colors">
+                  Cover<span className="text-teal-400">Wise</span>
                 </span>
               </button>
 
@@ -404,3 +401,4 @@ export const Footer: React.FC<FooterProps> = ({
     </>
   );
 };
+

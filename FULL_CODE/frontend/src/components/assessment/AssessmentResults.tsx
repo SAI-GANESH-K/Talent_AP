@@ -378,7 +378,7 @@ export function AssessmentResults({
                   {formatINR(net_needs.pv_household_support)}
                 </div>
                 <p className="text-xs text-slate-400 mt-1">
-                  {net_needs.dependency_horizon_years} {(t.results as any).livingSupportDesc || "years until youngest dependent is independent, discounting for personal consumption."}
+                  {net_needs.dependency_horizon_years} {(t.recommendations as any).yearsLabel || 'years'} · {(t.results as any).livingSupportDesc || "until youngest dependent is independent, discounting for personal consumption."}
                 </p>
               </div>
 
@@ -545,8 +545,8 @@ export function AssessmentResults({
               <span className="text-slate-500">{assumptions_used.retirement_age} {(t.recommendations as any).yearsLabel || 'years'}</span>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl">
-              <span className="font-semibold text-slate-700 block">Self-Consumption Share</span>
-              <span className="text-slate-500">{(parseFloat(assumptions_used.self_consumption_share) * 100).toFixed(0)}% (standard ICMR/actuarial benchmark)</span>
+              <span className="font-semibold text-slate-700 block">{(t.results as any).selfConsumptionShareLabel || 'Self-Consumption Share'}</span>
+              <span className="text-slate-500">{(parseFloat(assumptions_used.self_consumption_share) * 100).toFixed(0)}% ({(t.results as any).selfConsumptionDesc || 'standard ICMR/actuarial benchmark'})</span>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl">
               <span className="font-semibold text-slate-700 block">{t.wizard.growthRateLabel || 'Annual Income Growth Rate'}</span>
@@ -565,12 +565,12 @@ export function AssessmentResults({
               <span className="text-slate-500">{(parseFloat(assumptions_used.education_inflation_pct_pa) * 100).toFixed(1)}% p.a.</span>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl">
-              <span className="font-semibold text-slate-700 block">Cover Standardization Multiplier</span>
-              <span className="text-slate-500">Rounded up to nearest {formatINR(assumptions_used.cover_rounding_inr)}</span>
+              <span className="font-semibold text-slate-700 block">{(t.results as any).coverRoundingLabel || 'Cover Standardization Multiplier'}</span>
+              <span className="text-slate-500">{(t.results as any).roundedUpToNearest || 'Rounded up to nearest'} {formatINR(assumptions_used.cover_rounding_inr)}</span>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl">
-              <span className="font-semibold text-slate-700 block">Currency</span>
-              <span className="text-slate-500">{result.currency} (Indian Rupee)</span>
+              <span className="font-semibold text-slate-700 block">{(t.results as any).currencyLabel || 'Currency'}</span>
+              <span className="text-slate-500">{result.currency} ({(t.results as any).indianRupee || 'Indian Rupee'})</span>
             </div>
           </div>
         </div>

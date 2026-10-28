@@ -151,7 +151,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <div className="text-lg font-black text-teal-700 mt-0.5">
               {formatINR(premiumDisplay)}
               <span className="text-xs font-normal text-slate-500">
-                {isMonthly ? '/mo' : '/yr'}
+                {isMonthly ? ((t.recommendations as any).perMonthLabel || '/mo') : ((t.recommendations as any).perYearLabel || '/yr')}
               </span>
             </div>
             <div className="text-[11px] text-slate-500 mt-0.5">
