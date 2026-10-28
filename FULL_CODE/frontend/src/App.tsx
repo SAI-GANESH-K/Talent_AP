@@ -16,6 +16,7 @@ import { MyAppointments } from './components/advisory/MyAppointments';
 import { AdvisorPortal } from './components/advisor/AdvisorPortal';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AuthModal } from './components/auth/AuthModal';
+import { Footer } from './components/layout/Footer';
 
 type ViewMode =
   | 'landing'
@@ -318,12 +319,12 @@ function App() {
             {/* Hero Section */}
             <header className="bg-gradient-to-b from-[var(--color-navy-900)] to-[var(--color-navy-800)] text-white">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-                <div className="inline-flex items-center gap-2.5 px-4 py-1.5 bg-teal-500/15 border border-teal-400/40 rounded-full text-xs font-medium text-teal-300 backdrop-blur-md mb-8 shadow-sm">
+                <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-teal-500/10 border border-teal-400/30 rounded-full text-xs font-medium text-teal-300 backdrop-blur-md mb-8 shadow-sm">
                   <span className="flex h-2 w-2 relative">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-400"></span>
                   </span>
-                  <span className="text-white font-semibold">Available in 5 Languages:</span>
+                  <span className="text-white font-semibold">{t.landing.badge}</span>
                   <span className="text-teal-200 font-medium">English • తెలుగు • हिन्दी • தமிழ் • ಕನ್ನಡ</span>
                 </div>
                 <h1 className="font-[var(--font-heading)] text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
@@ -444,6 +445,11 @@ function App() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onTalkToAdvisor={() => {
+              if (!currentUser) {
+                setPendingPostLoginAction('advisors');
+                setIsAuthModalOpen(true);
+                return;
+              }
               setView('advisors');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
@@ -511,7 +517,10 @@ function App() {
                   }
                 : undefined
             }
-            onRequestAuth={() => setIsAuthModalOpen(true)}
+            onRequestAuth={() => {
+              setPendingPostLoginAction('advisors');
+              setIsAuthModalOpen(true);
+            }}
             onBookingSuccess={() => {
               if (currentUser?.role === 'customer') {
                 setView('my-appointments');
@@ -542,99 +551,16 @@ function App() {
         )}
       </main>
 
-      {/* Professional Fintech Footer */}
-      <footer className="bg-slate-900 text-slate-400 pt-16 pb-12 border-t border-slate-800 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
-            {/* Column 1: Brand & Mission */}
-            <div className="md:col-span-1 space-y-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center font-bold text-sm text-white shadow-sm">
-                  CW
-                </div>
-                <span className="font-[var(--font-heading)] font-bold text-xl text-white tracking-tight">
-                  CoverWise
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Empowering Indian families with mathematical clarity and certified digital advisory for optimal life protection.
-              </p>
-              <div className="text-xs text-teal-400 font-medium">
-                5 Languages · Pure Actuarial Precision
-              </div>
-            </div>
-
-            {/* Column 2: Platform Journey */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-                Customer Journey
-              </h4>
-              <ul className="space-y-2 text-xs">
-                <li>
-                  <button onClick={handleStartAssessment} className="hover:text-teal-400 transition cursor-pointer">
-                    Stage 1: Needs Assessment
-                  </button>
-                </li>
-                <li>
-                  <button onClick={handleStartAssessment} className="hover:text-teal-400 transition cursor-pointer">
-                    Stage 2: Actuarial Analysis
-                  </button>
-                </li>
-                <li>
-                  <button onClick={handleStartAssessment} className="hover:text-teal-400 transition cursor-pointer">
-                    Stage 3: Plan Comparison
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setView('advisors');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="hover:text-teal-400 transition cursor-pointer"
-                  >
-                    Stage 4: Advisor Consultation
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            {/* Column 3: Actuarial Methodology */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-                Methodology & Trust
-              </h4>
-              <ul className="space-y-2 text-xs">
-                <li>Human Life Value (HLV) Model</li>
-                <li>Net Needs Replacement Approach</li>
-                <li>Deterministic 4-Pillar Ranking</li>
-                <li>Zero-Bias Independent Calculations</li>
-              </ul>
-            </div>
-
-            {/* Column 4: Security & Compliance */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-                Security & Privacy
-              </h4>
-              <ul className="space-y-2 text-xs">
-                <li>HttpOnly Encrypted Sessions</li>
-                <li>Double-Submit CSRF Defense</li>
-                <li>Role-Based Access Control</li>
-                <li>Customer Data Privacy Consent</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Bottom Bar */}
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-            <p>© 2026 CoverWise. All rights reserved.</p>
-            <p className="text-center sm:text-right max-w-xl text-[11px] leading-relaxed text-slate-500">
-              CoverWise provides educational insurance assessment and objective suitability calculations based on verified actuarial principles. Final policy underwriting and terms are determined solely by authorized life insurers.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Redesigned Premium Minimal Fintech Footer */}
+      <Footer
+        currentUser={currentUser}
+        onNavigate={(v) => {
+          setView(v);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onStartAssessment={handleStartAssessment}
+        hasAssessmentResult={!!assessmentResult}
+      />
 
       {/* Auth Modal */}
       <AuthModal
