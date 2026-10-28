@@ -28,6 +28,7 @@ IST = zoneinfo.ZoneInfo("Asia/Kolkata")
 def list_advisors(
     language: Optional[str] = Query(None, description="e.g. Telugu, Hindi, Tamil, Kannada, English"),
     specialisation: Optional[str] = Query(None, description="e.g. retirement_planning, term_protection"),
+    specialty: Optional[str] = Query(None, description="Alias for specialisation"),
     mode: Optional[str] = Query(None, description="video, phone, chat"),
     date: Optional[str] = Query(None, description="Filter advisors with available slots on YYYY-MM-DD"),
     db: Session = Depends(get_db),
@@ -39,8 +40,9 @@ def list_advisors(
         # Semicolon separated, case-insensitive match
         query = query.filter(Advisor.languages.ilike(f"%{language.strip()}%"))
 
-    if specialisation:
-        query = query.filter(Advisor.specialisations.ilike(f"%{specialisation.strip()}%"))
+    spec = specialisation or specialty
+    if spec:
+        query = query.filter(Advisor.specialisations.ilike(f"%{spec.strip()}%"))
 
     if mode:
         query = query.filter(Advisor.consultation_modes.ilike(f"%{mode.strip()}%"))

@@ -241,7 +241,12 @@ export const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
                     Languages
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {adv.languages.map((l) => (
+                    {(Array.isArray(adv.languages)
+                      ? adv.languages
+                      : typeof adv.languages === 'string'
+                      ? (adv.languages as string).split(';').map((s) => s.trim()).filter(Boolean)
+                      : []
+                    ).map((l) => (
                       <span
                         key={l}
                         className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[11px] rounded-lg font-medium"
@@ -258,7 +263,12 @@ export const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
                     Specialisations
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {adv.specialisations.map((s) => (
+                    {(Array.isArray(adv.specialisations)
+                      ? adv.specialisations
+                      : typeof adv.specialisations === 'string'
+                      ? (adv.specialisations as string).split(';').map((s) => s.trim()).filter(Boolean)
+                      : []
+                    ).map((s) => (
                       <span
                         key={s}
                         className="px-2 py-0.5 bg-teal-50 text-teal-700 text-[10px] rounded-md border border-teal-200/50 font-medium"
@@ -273,7 +283,12 @@ export const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
                 <div className="flex items-center gap-2 text-xs text-slate-600 mb-4 pt-3 border-t border-slate-100">
                   <span className="text-[10px] font-bold text-slate-400 uppercase">Modes:</span>
                   <div className="flex items-center gap-2">
-                    {adv.consultation_modes.map((m) => (
+                    {(Array.isArray(adv.consultation_modes)
+                      ? adv.consultation_modes
+                      : typeof adv.consultation_modes === 'string'
+                      ? (adv.consultation_modes as string).split(';').map((s) => s.trim()).filter(Boolean)
+                      : []
+                    ).map((m) => (
                       <span key={m} className="capitalize text-[11px] font-medium text-slate-700">
                         {m === 'video' ? '🎥 Video' : m === 'phone' ? '📞 Phone' : '💬 Chat'}
                       </span>

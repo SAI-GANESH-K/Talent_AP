@@ -48,8 +48,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     }
 
     // Default to first supported mode
-    if (advisor.consultation_modes.length > 0) {
-      setSelectedMode(advisor.consultation_modes[0]);
+    const modes = Array.isArray(advisor.consultation_modes)
+      ? advisor.consultation_modes
+      : typeof advisor.consultation_modes === 'string'
+      ? (advisor.consultation_modes as string).split(';').map((s) => s.trim()).filter(Boolean)
+      : [];
+    if (modes.length > 0) {
+      setSelectedMode(modes[0]);
     }
 
     // Fetch available slots from backend
@@ -232,7 +237,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     <span>{advisor.years_experience} {t.common.yearsExp}</span>
                   </div>
                   <div className="flex flex-wrap gap-1 mt-1.5">
-                    {advisor.languages.map((l) => (
+                    {(Array.isArray(advisor.languages)
+                      ? advisor.languages
+                      : typeof advisor.languages === 'string'
+                      ? (advisor.languages as string).split(';').map((s) => s.trim()).filter(Boolean)
+                      : []
+                    ).map((l) => (
                       <span
                         key={l}
                         className="px-2 py-0.5 bg-teal-50 text-teal-700 text-[10px] font-semibold rounded-md border border-teal-200/50"
@@ -259,7 +269,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   1. {t.advisory.filterMode}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {advisor.consultation_modes.map((mode) => (
+                  {(Array.isArray(advisor.consultation_modes)
+                    ? advisor.consultation_modes
+                    : typeof advisor.consultation_modes === 'string'
+                    ? (advisor.consultation_modes as string).split(';').map((s) => s.trim()).filter(Boolean)
+                    : []
+                  ).map((mode) => (
                     <button
                       key={mode}
                       type="button"
