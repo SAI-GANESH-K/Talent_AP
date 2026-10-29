@@ -58,3 +58,7 @@ SUBMISSION_STAGING/
 
 # Logs
 *.log
+
+# Generated DOCX and scratch
+*.docx
+generate_docx.py

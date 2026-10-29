@@ -24,7 +24,6 @@ import { HeroSection } from './components/landing/HeroSection';
 import { LifeStorySection } from './components/landing/LifeStorySection';
 import { ValueProposition } from './components/landing/ValueProposition';
 import { HowItWorks } from './components/landing/HowItWorks';
-import { ExplainableGuidance } from './components/landing/ExplainableGuidance';
 import { FinalCTA } from './components/landing/FinalCTA';
 
 type ViewMode =
@@ -352,17 +351,8 @@ function App() {
               }}
             />
 
-            {/* Section 3: How CoverWise Works */}
+            {/* Section 4: How CoverWise Works */}
             <HowItWorks />
-
-            {/* Section 4: Clear & Explainable Financial Guidance */}
-            <ExplainableGuidance
-              onStartAssessment={handleStartAssessment}
-              onConsultAdvisor={() => {
-                setView('advisors');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            />
 
             {/* Section 5: Final Call to Action */}
             <FinalCTA
