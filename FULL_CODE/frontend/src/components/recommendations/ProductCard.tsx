@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { formatINR, formatINRLakhCr, type RecommendedProduct } from '../../api/client';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { FinancialHelp } from '../education/FinancialHelp';
 import {
   localizeCategory,
   localizeFeature,
@@ -42,10 +43,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div
-      className={`relative rounded-3xl transition-all duration-300 flex flex-col justify-between overflow-hidden ${
+      className={`relative rounded-3xl transition-all duration-300 transform hover:-translate-y-3 hover:shadow-2xl hover:shadow-teal-900/15 flex flex-col justify-between overflow-hidden cursor-pointer ${
         isTopMatch
           ? 'bg-white border-2 border-teal-600 ring-4 ring-teal-500/10 shadow-xl'
-          : 'bg-white border border-slate-200/90 hover:border-slate-300 shadow-sm hover:shadow-md'
+          : 'bg-white border border-slate-200/90 hover:border-teal-500/50 shadow-sm'
       }`}
     >
       {/* Top Match Banner */}
@@ -133,20 +134,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Key Metrics: Cover & Premium */}
         <div className="grid grid-cols-2 gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3.5 mb-4">
           <div>
-            <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
-              {(t.recommendations as any).recommendedCoverLabel || 'Recommended Cover'}
+            <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold flex items-center">
+              <span>{(t.recommendations as any).recommendedCoverLabel || 'Recommended Cover'}</span>
+              <FinancialHelp termId="sum_assured" />
             </div>
             <div className="text-lg font-black text-slate-900 mt-0.5">
               {formatINRLakhCr(product.recommended_sum_assured)}
             </div>
-            <div className="text-[11px] text-slate-500 mt-0.5">
-              {(t.recommendations as any).tenureLabel || 'Tenure'}: <strong className="text-slate-800">{product.recommended_policy_term} {(t.recommendations as any).yearsLabel || 'Years'}</strong>
+            <div className="text-[11px] text-slate-500 mt-0.5 flex items-center">
+              <span>{(t.recommendations as any).tenureLabel || 'Tenure'}: <strong className="text-slate-800">{product.recommended_policy_term} {(t.recommendations as any).yearsLabel || 'Years'}</strong></span>
+              <FinancialHelp termId="policy_tenure" />
             </div>
           </div>
 
           <div className="text-right">
-            <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
-              {(t.recommendations as any).estimatedPremiumLabel || 'Estimated Premium'}
+            <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold flex items-center justify-end">
+              <span>{(t.recommendations as any).estimatedPremiumLabel || 'Estimated Premium'}</span>
+              <FinancialHelp termId="premium" />
             </div>
             <div className="text-lg font-black text-teal-700 mt-0.5">
               {formatINR(premiumDisplay)}

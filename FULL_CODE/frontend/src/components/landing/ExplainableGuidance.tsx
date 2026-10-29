@@ -82,7 +82,7 @@ export const ExplainableGuidance: React.FC<ExplainableGuidanceProps> = ({
 
   return (
     <section className="bg-gradient-to-b from-slate-50 via-teal-50/20 to-slate-50 py-20 md:py-28 border-b border-slate-200/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">

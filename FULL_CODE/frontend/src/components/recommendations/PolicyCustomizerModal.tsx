@@ -13,6 +13,7 @@ import {
 } from '../../api/client';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { CoverageShortfallVisualizer } from './CoverageShortfallVisualizer';
+import { FinancialHelp } from '../education/FinancialHelp';
 
 interface PolicyCustomizerModalProps {
   product: RecommendedProduct;
@@ -233,8 +234,9 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
             {!isUlip && (
               <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
                 <div className="flex justify-between items-center mb-2">
-                  <label className="text-xs uppercase font-bold tracking-wider text-slate-700">
-                    {t.recommendations.sumAssured}
+                  <label className="text-xs uppercase font-bold tracking-wider text-slate-700 flex items-center">
+                    <span>{t.recommendations.sumAssured}</span>
+                    <FinancialHelp termId="sum_assured" />
                   </label>
                   <span className="text-base font-extrabold text-teal-700">
                     {formatINRLakhCr(sumAssured)}
@@ -321,8 +323,9 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
             {/* Policy Tenure */}
             <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
               <div className="flex justify-between items-center mb-2">
-                <label className="text-xs uppercase font-bold tracking-wider text-slate-700">
-                  {t.recommendations.policyTerm}
+                <label className="text-xs uppercase font-bold tracking-wider text-slate-700 flex items-center">
+                  <span>{t.recommendations.policyTerm}</span>
+                  <FinancialHelp termId="policy_tenure" />
                 </label>
                 <span className="text-sm font-bold text-slate-900">
                   {policyTerm} Years (Matures at age {customer.age + policyTerm})
@@ -411,15 +414,16 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
             {productRiders.length > 0 && (
               <div className="bg-white border border-slate-200/90 rounded-2xl p-5 space-y-3 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs uppercase font-bold tracking-wider text-slate-700">
-                    {t.recommendations.optionalRiders}
+                  <label className="text-xs uppercase font-bold tracking-wider text-slate-700 flex items-center">
+                    <span>{t.recommendations.optionalRiders}</span>
+                    <FinancialHelp termId="riders" />
                   </label>
                   <span className="text-[11px] text-teal-700 font-semibold bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
                     {Object.values(selectedRiders).filter(Boolean).length} Selected
                   </span>
                 </div>
 
-                <div className="space-y-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {productRiders.map((rider) => {
                     const isChecked = !!selectedRiders[rider.rider_id];
                     const activeSa = riderSumAssureds[rider.rider_id] || Math.min(sumAssured * 0.5, 5000000);
@@ -427,13 +431,13 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                     return (
                       <div
                         key={rider.rider_id}
-                        className={`p-3.5 rounded-xl border transition-all ${
+                        className={`p-3 rounded-xl border transition-all flex flex-col justify-between ${
                           isChecked
                             ? 'bg-teal-50/60 border-teal-400'
                             : 'bg-slate-50/80 border-slate-200 hover:border-slate-300'
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start justify-between gap-2.5">
                           <label className="flex items-start gap-2.5 cursor-pointer flex-1">
                             <input
                               type="checkbox"
@@ -442,24 +446,24 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                               className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 mt-0.5"
                             />
                             <div>
-                              <div className="text-xs font-bold text-slate-900">
+                              <div className="text-xs font-bold text-slate-900 leading-tight">
                                 {rider.rider_name}
                               </div>
-                              <div className="text-[11px] text-slate-500 mt-0.5">
+                              <div className="text-[11px] text-slate-500 mt-0.5 line-clamp-2">
                                 {rider.benefit}
                               </div>
                             </div>
                           </label>
 
-                          <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white text-slate-600 border border-slate-200 whitespace-nowrap">
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white text-slate-600 border border-slate-200 shrink-0">
                             {rider.rider_category}
                           </span>
                         </div>
 
                         {/* If checked & customizable SA */}
                         {isChecked && rider.rate_basis === 'per_1000_rider_sa' && (
-                          <div className="mt-3 pt-3 border-t border-slate-200 flex items-center justify-between gap-4">
-                            <span className="text-[11px] text-slate-500">Rider Cover:</span>
+                          <div className="mt-2.5 pt-2 border-t border-slate-200 flex items-center justify-between gap-2">
+                            <span className="text-[10px] text-slate-500">Rider Cover:</span>
                             <span className="text-xs font-bold text-teal-700">
                               {formatINRLakhCr(activeSa)}
                             </span>
@@ -559,28 +563,46 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                 </div>
               )}
             </div>
+          </div>
+        </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-3 pt-2">
+        {/* Sticky Action Footer Bar — Directly Visible & Selectable from Anywhere Without Scrolling */}
+        <div className="bg-white border-t border-slate-200 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 z-20 shadow-lg shrink-0">
+          <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+            <div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+                Total {paymentMode.replace('_', ' ')} Instalment
+              </div>
+              <div className="text-2xl font-black text-teal-700">
+                {formatINR(liveQuote.total_instalment_premium)}
+                <span className="text-xs font-normal text-slate-500 ml-1">/{paymentMode}</span>
+              </div>
+            </div>
+            <div className="hidden md:block pl-4 border-l border-slate-200 text-xs text-slate-600">
+              <div>Life Cover: <strong className="text-slate-900">{formatINRLakhCr(isUlip ? ulipAnnualPremium * ulipSaMultiple : sumAssured)}</strong> · Tenure: <strong className="text-slate-900">{policyTerm} Yrs</strong></div>
+              <div>Riders: <strong className="text-teal-700">{Object.values(selectedRiders).filter(Boolean).length} Active</strong> · Annual: <strong className="text-slate-800">{formatINR(liveQuote.total_annual_premium)}</strong></div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="py-2.5 px-4 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 transition-colors cursor-pointer"
+            >
+              {t.common.back || 'Back to Plans'}
+            </button>
+            {onSelectPlan && (
               <button
                 type="button"
-                onClick={onClose}
-                className="w-1/3 py-3 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 transition-colors cursor-pointer"
+                disabled={isCalculating || !liveQuote || !!calcError}
+                onClick={handleSelectPlan}
+                className="py-2.5 px-6 rounded-xl text-xs font-extrabold bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white shadow-lg shadow-teal-600/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center justify-center gap-2"
               >
-                {t.common.back || 'Back to Plans'}
+                <span>✓</span>
+                <span>{(t.recommendations as any).selectPlanBtn || 'Select This Plan'}</span>
               </button>
-              {onSelectPlan && (
-                <button
-                  type="button"
-                  disabled={isCalculating || !liveQuote || !!calcError}
-                  onClick={handleSelectPlan}
-                  className="w-2/3 py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white shadow-md shadow-teal-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <span>✓</span>
-                  <span>{(t.recommendations as any).selectPlanBtn || 'Select This Plan'}</span>
-                </button>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </div>

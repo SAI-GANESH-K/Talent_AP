@@ -15,7 +15,7 @@ interface SlideTabsProps {
   tabClassName?: string;
   activePillClassName?: string;
   hoverPillClassName?: string;
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'lg';
 }
 
 interface Position {
@@ -118,7 +118,12 @@ export const SlideTabs: React.FC<SlideTabsProps> = ({
         mass: 0.8,
       };
 
-  const padY = size === 'sm' ? 'py-1 px-3 text-xs' : 'py-1.5 px-3.5 text-xs sm:text-sm';
+  const padY =
+    size === 'sm'
+      ? 'py-1 px-3 text-xs font-semibold'
+      : size === 'lg'
+      ? 'py-2.5 px-6 sm:px-7 text-sm sm:text-base font-extrabold tracking-tight'
+      : 'py-2 px-4 text-xs sm:text-sm font-bold';
 
   return (
     <nav

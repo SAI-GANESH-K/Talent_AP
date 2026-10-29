@@ -91,32 +91,30 @@ export const AdvisorDirectory: React.FC<AdvisorDirectoryProps> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      {/* Header — Formatted to match Stage 1, 2, 3 layout */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-200 gap-4 mb-8">
-        <div>
-          {/* Big, Bold, Beautiful Stage 4 Badge */}
-          <div className="inline-flex items-center gap-2.5 sm:gap-3 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-teal-500/15 via-teal-500/10 to-emerald-500/10 border-2 border-teal-500/40 rounded-2xl mb-3 shadow-xs">
-            <span className="bg-teal-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg shadow-2xs">
-              Stage 4
-            </span>
-            <span className="text-teal-950 font-extrabold text-sm sm:text-base tracking-tight">
-              {(t.advisory as any).stagePill?.replace(/Stage 4\s*[·•-]?\s*/i, '') || 'Certified Advisor Discovery'}
-            </span>
-          </div>
-          <h1 className="font-[var(--font-heading)] text-2xl sm:text-3xl font-bold text-[var(--color-navy-900)] tracking-tight">
-            {t.advisory.title}
-          </h1>
-          <p className="mt-1 text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
-            {t.advisory.subtitle}
-          </p>
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-8">
+      {/* Header — Stage 4 Heading Centered, Big, Bold, and Black */}
+      <div className="flex flex-col items-center justify-center text-center pb-6 border-b border-slate-200 gap-3 mb-8">
+        {/* Big, Bold, Black Stage 4 Badge */}
+        <div className="inline-flex items-center gap-2.5 sm:gap-3 px-4 py-2 bg-gradient-to-r from-teal-500/15 via-teal-500/10 to-emerald-500/10 border-2 border-teal-500/40 rounded-2xl shadow-xs">
+          <span className="bg-teal-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg shadow-2xs">
+            Stage 4
+          </span>
+          <span className="text-black font-black text-sm sm:text-base tracking-tight">
+            {(t.advisory as any).stagePill?.replace(/Stage 4\s*[·•-]?\s*/i, '') || 'Certified Advisor Discovery'}
+          </span>
         </div>
+
+        <h1 className="font-[var(--font-heading)] text-3xl sm:text-4xl md:text-5xl font-black text-black tracking-tight">
+          {t.advisory.title}
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
+          {t.advisory.subtitle}
+        </p>
+
         {assessmentSummary?.selected_plan_name && (
-          <div className="bg-teal-50 border border-teal-200/80 px-3.5 py-2 rounded-2xl text-xs text-teal-900 flex items-center gap-2 shadow-xs">
+          <div className="bg-teal-50 border border-teal-200/80 px-4 py-2 rounded-2xl text-xs text-teal-900 flex items-center gap-2 shadow-xs mt-1">
             <span className="text-teal-600 font-bold">✓</span>
-            <span>
-              Selected: <strong className="font-semibold text-teal-950">{assessmentSummary.selected_plan_name}</strong>
-            </span>
+            <span>Selected: <strong>{assessmentSummary.selected_plan_name}</strong></span>
           </div>
         )}
       </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { FinancialHelp } from '../education/FinancialHelp';
 import {
   type AssessmentRequest,
   type AssumptionsInput,
@@ -354,33 +355,35 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
   ];
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      {/* Top Banner & Mode Toggle */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-200 gap-4">
-        <div>
-          {/* Big, Bold, Beautiful Stage 1 Badge */}
-          <div className="inline-flex items-center gap-2.5 sm:gap-3 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-teal-500/15 via-teal-500/10 to-emerald-500/10 border-2 border-teal-500/40 rounded-2xl mb-3 shadow-xs">
-            <span className="bg-teal-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg shadow-2xs">
-              Stage 1
-            </span>
-            <span className="text-teal-950 font-extrabold text-sm sm:text-base tracking-tight">
-              {(t.wizard as any).stagePill?.replace(/Stage 1\s*[·•-]?\s*/i, '') || 'Financial Needs Assessment'}
-            </span>
-          </div>
-          <div className="text-xs uppercase tracking-wider font-semibold text-[var(--color-teal-600)] mb-1">
-            {t.wizard.stepOf} {step} {t.wizard.stepOfTotal} 5 · {stepTitles[step - 1]}
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-navy-900)] font-[var(--font-heading)]">
-            {t.wizard.assessmentTitle}
-          </h2>
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-8">
+      {/* Top Banner — Stage 1 Heading Centered, Big, Bold, and Black */}
+      <div className="flex flex-col items-center justify-center text-center pb-6 border-b border-slate-200 gap-3">
+        {/* Big, Bold, Black Stage 1 Badge */}
+        <div className="inline-flex items-center gap-2.5 sm:gap-3 px-4 py-2 bg-gradient-to-r from-teal-500/15 via-teal-500/10 to-emerald-500/10 border-2 border-teal-500/40 rounded-2xl shadow-xs">
+          <span className="bg-teal-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg shadow-2xs">
+            Stage 1
+          </span>
+          <span className="text-black font-black text-sm sm:text-base tracking-tight">
+            {(t.wizard as any).stagePill?.replace(/Stage 1\s*[·•-]?\s*/i, '') || 'Financial Needs Assessment'}
+          </span>
         </div>
-        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl text-xs font-medium">
+        
+        <div className="text-xs uppercase tracking-wider font-bold text-teal-700">
+          {t.wizard.stepOf} {step} {t.wizard.stepOfTotal} 5 · {stepTitles[step - 1]}
+        </div>
+        
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-black font-[var(--font-heading)] tracking-tight">
+          {t.wizard.assessmentTitle}
+        </h2>
+
+        {/* Mode Toggle Controls */}
+        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl text-xs font-medium mt-1">
           <button
             type="button"
             onClick={() => setExpertMode(false)}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg transition-all ${
               !expertMode
-                ? 'bg-white shadow text-[var(--color-navy-900)] font-semibold'
+                ? 'bg-white shadow text-black font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -389,9 +392,9 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
           <button
             type="button"
             onClick={() => setExpertMode(true)}
-            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
               expertMode
-                ? 'bg-[var(--color-navy-900)] text-white shadow font-semibold'
+                ? 'bg-[var(--color-navy-900)] text-white shadow font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -482,8 +485,9 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  {t.wizard.expensesLabel}
+                <label className="flex items-center text-sm font-medium text-slate-700 mb-1">
+                  <span>{t.wizard.expensesLabel}</span>
+                  <FinancialHelp termId="monthly_expenses" />
                 </label>
                 <div className="relative">
                   <span className="absolute left-3.5 top-2.5 text-sm text-slate-400 font-medium">₹</span>
@@ -512,8 +516,9 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                   className="w-4 h-4 text-[var(--color-teal-600)] rounded border-slate-300 focus:ring-[var(--color-teal-500)]"
                 />
                 <div>
-                  <span className="text-sm font-semibold text-[var(--color-navy-900)]">
-                    {t.wizard.homemakerToggle}
+                  <span className="text-sm font-semibold text-[var(--color-navy-900)] inline-flex items-center">
+                    <span>{t.wizard.homemakerToggle}</span>
+                    <FinancialHelp termId="homemaker_contribution" />
                   </span>
                   <p className="text-xs text-slate-500">
                     {t.wizard.homemakerHelp}
@@ -523,8 +528,9 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
 
               {isHomemaker ? (
                 <div className="mt-4 pt-3 border-t border-slate-200">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    {t.wizard.homemakerServices}
+                  <label className="flex items-center text-sm font-medium text-slate-700 mb-1">
+                    <span>{t.wizard.homemakerServices}</span>
+                    <FinancialHelp termId="homemaker_contribution" />
                   </label>
                   <div className="relative max-w-sm">
                     <span className="absolute left-3.5 top-2.5 text-sm text-slate-400 font-medium">₹</span>
@@ -543,8 +549,9 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                 </div>
               ) : (
                 <div className="mt-4 pt-3 border-t border-slate-200">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    {t.wizard.incomeLabel}
+                  <label className="flex items-center text-sm font-medium text-slate-700 mb-1">
+                    <span>{t.wizard.incomeLabel}</span>
+                    <FinancialHelp termId="annual_income" />
                   </label>
                   <div className="relative max-w-sm">
                     <span className="absolute left-3.5 top-2.5 text-sm text-slate-400 font-medium">₹</span>
@@ -571,8 +578,9 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-[var(--color-navy-900)] mb-1">
-                  {t.wizard.step2Title}
+                <h3 className="text-lg font-semibold text-[var(--color-navy-900)] mb-1 flex items-center">
+                  <span>{t.wizard.step2Title}</span>
+                  <FinancialHelp termId="dependents" />
                 </h3>
                 <p className="text-sm text-slate-500">
                   {t.wizard.step2Desc}
@@ -635,14 +643,15 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     </div>
 
                     <div className="flex-1 min-w-[140px] pt-4">
-                      <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700">
+                      <label className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-700">
                         <input
                           type="checkbox"
                           checked={dep.has_own_income || false}
                           onChange={(e) => updateDependent(idx, 'has_own_income', e.target.checked)}
                           className="w-3.5 h-3.5 text-[var(--color-teal-600)] rounded border-slate-300"
                         />
-                        {t.wizard.hasIncome}
+                        <span>{t.wizard.hasIncome}</span>
+                        <FinancialHelp termId="dependent_own_income" />
                       </label>
                     </div>
 
@@ -671,8 +680,9 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-[var(--color-navy-900)] mb-1">
-                  {t.wizard.step3Title}
+                <h3 className="text-lg font-semibold text-[var(--color-navy-900)] mb-1 flex items-center">
+                  <span>{t.wizard.step3Title}</span>
+                  <FinancialHelp termId="liabilities" />
                 </h3>
                 <p className="text-sm text-slate-500">
                   {t.wizard.step3Desc}
@@ -718,7 +728,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     </div>
 
                     <div className="w-44">
-                      <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.outstandingAmount}</label>
+                      <label className="flex items-center text-xs font-medium text-slate-600 mb-1">
+                        <span>{t.wizard.outstandingAmount}</span>
+                        <FinancialHelp termId="loan_principal" />
+                      </label>
                       <input
                         type="number"
                         step={50000}
@@ -753,8 +766,9 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-[var(--color-navy-900)] mb-1">
-                  {t.wizard.step4Title}
+                <h3 className="text-lg font-semibold text-[var(--color-navy-900)] mb-1 flex items-center">
+                  <span>{t.wizard.step4Title}</span>
+                  <FinancialHelp termId="future_goals" />
                 </h3>
                 <p className="text-sm text-slate-500">
                   {t.wizard.step4Desc}
@@ -804,7 +818,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                       </div>
 
                       <div className="w-28">
-                        <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.targetYear}</label>
+                        <label className="flex items-center text-xs font-medium text-slate-600 mb-1">
+                          <span>{t.wizard.targetYear}</span>
+                          <FinancialHelp termId="target_year" />
+                        </label>
                         <input
                           type="number"
                           min={2026}
@@ -816,7 +833,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                       </div>
 
                       <div className="w-36">
-                        <label className="block text-xs font-medium text-slate-600 mb-1">{t.wizard.targetAmount}</label>
+                        <label className="flex items-center text-xs font-medium text-slate-600 mb-1">
+                          <span>{t.wizard.targetAmount}</span>
+                          <FinancialHelp termId="cost_today" />
+                        </label>
                         <input
                           type="number"
                           step={50000}
@@ -857,8 +877,9 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  {t.wizard.existingCoverLabel} (₹)
+                <label className="flex items-center text-sm font-medium text-slate-700 mb-1">
+                  <span>{t.wizard.existingCoverLabel} (₹)</span>
+                  <FinancialHelp termId="existing_cover" />
                 </label>
                 <input
                   type="number"
@@ -872,8 +893,9 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  {t.wizard.employerCoverHelp} (₹)
+                <label className="flex items-center text-sm font-medium text-slate-700 mb-1">
+                  <span>{t.wizard.employerCoverHelp} (₹)</span>
+                  <FinancialHelp termId="employer_cover" />
                 </label>
                 <input
                   type="number"
@@ -887,8 +909,9 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  {t.wizard.savingsLabel} (₹)
+                <label className="flex items-center text-sm font-medium text-slate-700 mb-1">
+                  <span>{t.wizard.savingsLabel} (₹)</span>
+                  <FinancialHelp termId="liquid_savings" />
                 </label>
                 <input
                   type="number"
@@ -902,8 +925,9 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  {t.wizard.marketInvestmentsLabel} (₹)
+                <label className="flex items-center text-sm font-medium text-slate-700 mb-1">
+                  <span>{t.wizard.marketInvestmentsLabel} (₹)</span>
+                  <FinancialHelp termId="investments" />
                 </label>
                 <input
                   type="number"
@@ -929,7 +953,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
 
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
                   <div>
-                    <label className="block text-slate-300 mb-1">{t.wizard.retirementAgeLabel}</label>
+                    <label className="flex items-center text-slate-300 mb-1">
+                      <span>{t.wizard.retirementAgeLabel}</span>
+                      <FinancialHelp termId="retirement_age" />
+                    </label>
                     <input
                       type="number"
                       value={retirementAge}
@@ -938,7 +965,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-300 mb-1">{t.wizard.growthRateLabel}</label>
+                    <label className="flex items-center text-slate-300 mb-1">
+                      <span>{t.wizard.growthRateLabel}</span>
+                      <FinancialHelp termId="income_growth_rate" />
+                    </label>
                     <input
                       type="number"
                       step={0.5}
@@ -948,7 +978,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-300 mb-1">{t.wizard.discountRateLabel}</label>
+                    <label className="flex items-center text-slate-300 mb-1">
+                      <span>{t.wizard.discountRateLabel}</span>
+                      <FinancialHelp termId="discount_rate" />
+                    </label>
                     <input
                       type="number"
                       step={0.5}
@@ -958,7 +991,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-300 mb-1">{t.wizard.inflationLabel}</label>
+                    <label className="flex items-center text-slate-300 mb-1">
+                      <span>{t.wizard.inflationLabel}</span>
+                      <FinancialHelp termId="general_inflation" />
+                    </label>
                     <input
                       type="number"
                       step={0.5}
@@ -968,7 +1004,10 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-300 mb-1">{t.wizard.educationInflationLabel}</label>
+                    <label className="flex items-center text-slate-300 mb-1">
+                      <span>{t.wizard.educationInflationLabel}</span>
+                      <FinancialHelp termId="education_inflation" />
+                    </label>
                     <input
                       type="number"
                       step={0.5}

@@ -53,7 +53,7 @@ export const ValueProposition: React.FC<ValuePropositionProps> = ({
 
   return (
     <section className="bg-[var(--color-offwhite)] py-20 md:py-28 border-b border-slate-200/70">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">

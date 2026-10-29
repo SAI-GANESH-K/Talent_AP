@@ -21,6 +21,7 @@ import { AuthModal } from './components/auth/AuthModal';
 import { Footer } from './components/layout/Footer';
 import { AppPreloader } from './components/layout/AppPreloader';
 import { HeroSection } from './components/landing/HeroSection';
+import { LifeStorySection } from './components/landing/LifeStorySection';
 import { ValueProposition } from './components/landing/ValueProposition';
 import { HowItWorks } from './components/landing/HowItWorks';
 import { ExplainableGuidance } from './components/landing/ExplainableGuidance';
@@ -231,90 +232,88 @@ function App() {
         />
       )}
 
-      {/* Navigation Bar */}
-      <nav className="bg-[var(--color-navy-900)] text-white sticky top-0 z-40 shadow-lg border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Brand Logo & Wordmark */}
-            <button
-              type="button"
-              onClick={handleReturnHome}
-              className="flex items-center text-left focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-xl py-1 px-1 cursor-pointer group shrink-0"
-              aria-label="CoverWise Home"
-            >
-              <img
-                src="/logo.png"
-                alt="CoverWise Shield"
-                className="w-7 h-7 sm:w-8 sm:h-8 object-contain mr-2 sm:mr-2.5 transition-transform duration-200 group-hover:scale-105 shrink-0"
-              />
-              <span className="font-[var(--font-heading)] font-extrabold text-xl sm:text-2xl tracking-tight text-white group-hover:text-teal-300 transition-colors whitespace-nowrap">
-                Cover<span className="text-teal-400">Wise</span>
-              </span>
-            </button>
+      {/* Navigation Bar — Logo on left-most, Enlarge Tabs in Middle, Login & Language on right-most */}
+      <nav className="bg-[var(--color-navy-900)] text-white sticky top-0 z-40 shadow-xl border-b border-slate-800 w-full">
+        <div className="w-full px-4 sm:px-8 lg:px-12 flex items-center justify-between h-20">
+          {/* Brand Logo & Wordmark — Left-Most Position */}
+          <button
+            type="button"
+            onClick={handleReturnHome}
+            className="flex items-center text-left focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-2xl py-1 px-1 cursor-pointer group shrink-0"
+            aria-label="CoverWise Home"
+          >
+            <img
+              src="/logo.png"
+              alt="CoverWise Shield"
+              className="w-8 h-8 sm:w-10 sm:h-10 object-contain mr-2.5 sm:mr-3 transition-transform duration-200 group-hover:scale-105 shrink-0 drop-shadow"
+            />
+            <span className="font-[var(--font-heading)] font-black text-2xl sm:text-3xl tracking-tight text-white group-hover:text-teal-300 transition-colors whitespace-nowrap">
+              Cover<span className="text-teal-400">Wise</span>
+            </span>
+          </button>
 
-            {/* Role-Specific Navigation Links with Animated SlideTabs */}
-            <div className="hidden md:flex items-center">
-              <SlideTabs
-                items={navItems}
-                activeId={activeNavId}
-                size="sm"
-                activePillClassName="bg-teal-500/20 border border-teal-400/40 text-teal-200 shadow-sm shadow-teal-500/10"
-                hoverPillClassName="bg-white/5 border border-white/10"
-              />
+          {/* Role-Specific Navigation Links with Animated SlideTabs — Large Center Prominence */}
+          <div className="hidden md:flex items-center justify-center flex-1 px-4 lg:px-8">
+            <SlideTabs
+              items={navItems}
+              activeId={activeNavId}
+              size="lg"
+              activePillClassName="bg-teal-500/25 border-2 border-teal-400/60 text-teal-200 shadow-md shadow-teal-500/20"
+              hoverPillClassName="bg-white/10 border border-white/15"
+            />
+          </div>
+
+          {/* Language Switcher & Auth Section — Right-Most Position */}
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Central 5-Language Switcher */}
+            <div className="relative">
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as any)}
+                aria-label="Select Interface Language"
+                className="bg-slate-800 text-white border border-slate-700 hover:border-teal-500/60 rounded-xl px-3 py-2 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition-colors shadow-xs"
+              >
+                {SUPPORTED_LANGUAGES.map((l: LanguageOption) => (
+                  <option key={l.code} value={l.code}>
+                    {l.nativeLabel} ({l.label})
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Language Switcher & Auth Section */}
-            <div className="flex items-center gap-3 text-xs">
-              {/* Central 5-Language Switcher */}
-              <div className="relative">
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value as any)}
-                  aria-label="Select Interface Language"
-                  className="bg-slate-800 text-white border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer"
+            {/* User Authentication Status */}
+            {currentUser ? (
+              <div className="flex items-center gap-2">
+                <div
+                  onClick={() => navigateToAppropriateDashboard(currentUser)}
+                  className="flex items-center gap-2 bg-slate-800 px-3.5 py-2 rounded-xl border border-slate-700 cursor-pointer hover:border-teal-500/50 transition shadow-xs"
                 >
-                  {SUPPORTED_LANGUAGES.map((l: LanguageOption) => (
-                    <option key={l.code} value={l.code}>
-                      {l.nativeLabel} ({l.label})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* User Authentication Status */}
-              {currentUser ? (
-                <div className="flex items-center gap-2">
-                  <div
-                    onClick={() => navigateToAppropriateDashboard(currentUser)}
-                    className="flex items-center gap-1.5 bg-slate-800 px-2.5 py-1.5 rounded-xl border border-slate-700 cursor-pointer hover:border-slate-600 transition"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span className="font-medium text-slate-200 hidden sm:inline">
-                      {currentUser.full_name}
-                    </span>
-                    <span className="text-[10px] text-teal-400 uppercase font-semibold">
-                      ({currentUser.role})
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="text-slate-300 hover:text-white px-2.5 py-1.5 rounded-xl hover:bg-slate-800 border border-slate-700 transition cursor-pointer"
-                  >
-                    {t.nav.logout}
-                  </button>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                  <span className="font-semibold text-slate-200 text-xs sm:text-sm hidden sm:inline">
+                    {currentUser.full_name}
+                  </span>
+                  <span className="text-xs text-teal-400 uppercase font-bold">
+                    ({currentUser.role})
+                  </span>
                 </div>
-              ) : (
+
                 <button
                   type="button"
-                  onClick={() => setIsAuthModalOpen(true)}
-                  className="bg-[var(--color-teal-600)] hover:bg-[var(--color-teal-500)] text-white px-3.5 py-1.5 rounded-xl font-semibold shadow-sm transition cursor-pointer"
+                  onClick={handleLogout}
+                  className="text-slate-300 hover:text-white px-3 py-2 rounded-xl hover:bg-slate-800 border border-slate-700 text-xs sm:text-sm font-medium transition cursor-pointer"
                 >
-                  {t.nav.login} / {t.nav.register}
+                  {t.nav.logout}
                 </button>
-              )}
-            </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-white px-5 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-teal-500/25 transition-all hover:-translate-y-0.5 cursor-pointer whitespace-nowrap"
+              >
+                {t.nav.login} / {t.nav.register}
+              </button>
+            )}
           </div>
         </div>
       </nav>
@@ -333,7 +332,10 @@ function App() {
               }}
             />
 
-            {/* Section 2: Why CoverWise? */}
+            {/* Section 2: CoverWise Life Story — Interactive Literacy & Awareness */}
+            <LifeStorySection onStartAssessment={handleStartAssessment} />
+
+            {/* Section 3: Why CoverWise? */}
             <ValueProposition
               onStartAssessment={handleStartAssessment}
               onExplorePlans={() => {

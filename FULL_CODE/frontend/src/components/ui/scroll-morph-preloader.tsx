@@ -11,7 +11,7 @@ type FormationPhase = 'circle' | 'line' | 'exit';
 
 interface MetaphorCard {
   id: string;
-  num: string;
+  icon: string;
   label: string;
   color: string;
   borderColor: string;
@@ -25,14 +25,14 @@ export const ScrollMorphPreloader: React.FC<ScrollMorphPreloaderProps> = ({
   const [phase, setPhase] = useState<FormationPhase>('circle');
   const [isVisible, setIsVisible] = useState(true);
 
-  // Exactly 5 Core Financial Protection Metaphor Cards (Clean numerical indicators, zero emojis)
+  // Exactly 5 Core Financial Protection Metaphor Cards with their previous emojis
   const cards: MetaphorCard[] = useMemo(
     () => [
-      { id: 'c1', num: '01', label: 'Family Shield', color: 'from-teal-500/25 to-teal-600/15', borderColor: 'border-teal-500/35' },
-      { id: 'c2', num: '02', label: 'Income Cover', color: 'from-cyan-500/25 to-cyan-600/15', borderColor: 'border-cyan-500/35' },
-      { id: 'c3', num: '03', label: 'Child Future', color: 'from-amber-500/25 to-amber-600/15', borderColor: 'border-amber-500/35' },
-      { id: 'c4', num: '04', label: 'Debt Payoff', color: 'from-emerald-500/25 to-emerald-600/15', borderColor: 'border-emerald-500/35' },
-      { id: 'c5', num: '05', label: 'Term Coverage', color: 'from-teal-500/25 to-teal-600/15', borderColor: 'border-teal-500/35' },
+      { id: 'c1', icon: '🛡️', label: 'Family Shield', color: 'from-teal-500/25 to-teal-600/15', borderColor: 'border-teal-500/35' },
+      { id: 'c2', icon: '💼', label: 'Income Cover', color: 'from-cyan-500/25 to-cyan-600/15', borderColor: 'border-cyan-500/35' },
+      { id: 'c3', icon: '🎓', label: 'Child Future', color: 'from-amber-500/25 to-amber-600/15', borderColor: 'border-amber-500/35' },
+      { id: 'c4', icon: '💳', label: 'Debt Payoff', color: 'from-emerald-500/25 to-emerald-600/15', borderColor: 'border-emerald-500/35' },
+      { id: 'c5', icon: '🏠', label: 'Term Coverage', color: 'from-teal-500/25 to-teal-600/15', borderColor: 'border-teal-500/35' },
     ],
     []
   );
@@ -213,8 +213,8 @@ export const ScrollMorphPreloader: React.FC<ScrollMorphPreloaderProps> = ({
                   }}
                   className={`absolute w-14 h-16 sm:w-16 sm:h-18 rounded-2xl bg-gradient-to-br ${card.color} border ${card.borderColor} backdrop-blur-md shadow-xl shadow-teal-950/40 flex flex-col items-center justify-center p-2`}
                 >
-                  <span className="text-[10px] sm:text-xs font-mono font-bold text-teal-300/90 mb-1 tracking-wider">
-                    {card.num}
+                  <span className="text-base sm:text-lg mb-1 leading-none">
+                    {card.icon}
                   </span>
                   <span className="text-[9px] sm:text-[10px] font-semibold text-slate-200 text-center leading-tight tracking-tight line-clamp-1">
                     {card.label}

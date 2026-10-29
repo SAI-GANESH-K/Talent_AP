@@ -347,12 +347,18 @@ def update_advisor_consultation(
             detail="Access denied: consultation is assigned to another advisor.",
         )
 
-    # Terminal state check: completed/cancelled cannot be modified or reopened
+    # Terminal state check: completed cannot reopen; cancelled cannot be modified
     if booking.status in ("completed", "cancelled"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Cannot update consultation in terminal '{booking.status}' state. Reopening terminal records is prohibited.",
-        )
+        if req.status and req.status != booking.status:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot update consultation in terminal '{booking.status}' state. Reopening terminal records is prohibited.",
+            )
+        if booking.status == "cancelled":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot modify a cancelled consultation.",
+            )
 
     if req.status:
         if req.status not in ("completed", "cancelled"):

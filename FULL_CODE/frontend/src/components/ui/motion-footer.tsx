@@ -113,11 +113,11 @@ const STYLES = `
   font-weight: 900;
   letter-spacing: 0.05em;
   color: transparent;
-  -webkit-text-stroke: 1.5px rgba(45, 212, 191, 0.45);
-  background: linear-gradient(180deg, rgba(45, 212, 191, 0.4) 0%, rgba(20, 184, 166, 0.18) 50%, rgba(13, 148, 136, 0.03) 100%);
+  -webkit-text-stroke: 2px rgba(45, 212, 191, 0.65);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(45, 212, 191, 0.45) 50%, rgba(20, 184, 166, 0.15) 100%);
   -webkit-background-clip: text;
   background-clip: text;
-  text-shadow: 0 0 35px rgba(20, 184, 166, 0.3);
+  text-shadow: 0 0 35px rgba(20, 184, 166, 0.4);
   user-select: none;
 }
 
@@ -387,73 +387,75 @@ export function CinematicFooter({
                   <span>Consult Certified Advisor</span>
                 </MagneticButton>
               </div>
-
-              {/* Secondary Navigation Links */}
-              <div className="flex flex-wrap justify-center gap-2.5 sm:gap-4 md:gap-6 w-full mt-2">
-                <MagneticButton
-                  as="button"
-                  type="button"
-                  onClick={onNavigateHome}
-                  className="footer-glass-pill px-5 py-2.5 rounded-full text-slate-300 font-medium text-xs sm:text-sm hover:text-white cursor-pointer"
-                >
-                  Home
-                </MagneticButton>
-                <MagneticButton
-                  as="button"
-                  type="button"
-                  onClick={onOpenPrivacy}
-                  className="footer-glass-pill px-5 py-2.5 rounded-full text-slate-300 font-medium text-xs sm:text-sm hover:text-white cursor-pointer"
-                >
-                  Privacy Policy
-                </MagneticButton>
-                <MagneticButton
-                  as="button"
-                  type="button"
-                  onClick={onOpenTerms}
-                  className="footer-glass-pill px-5 py-2.5 rounded-full text-slate-300 font-medium text-xs sm:text-sm hover:text-white cursor-pointer"
-                >
-                  How It Works
-                </MagneticButton>
-                <MagneticButton
-                  as="button"
-                  type="button"
-                  onClick={onOpenDisclaimer}
-                  className="footer-glass-pill px-5 py-2.5 rounded-full text-slate-300 font-medium text-xs sm:text-sm hover:text-white cursor-pointer"
-                >
-                  Disclaimer
-                </MagneticButton>
-              </div>
             </div>
           </div>
 
-          {/* 3. Bottom Bar / Credits */}
-          <div className="relative z-20 w-full pb-6 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* 3. Bottom Bar / Credits — All on the Same Line: "Crafted with Love" on left-most, 4 buttons in center, back-to-top on right */}
+          <div className="relative z-20 w-full pb-6 px-4 sm:px-8 md:px-12 flex flex-col lg:flex-row items-center justify-between gap-4">
             
-            {/* Copyright */}
-            <div className="text-slate-400 text-[10px] md:text-xs font-semibold tracking-wider uppercase order-2 md:order-1">
-              © 2026 CoverWise · Talent AP Mega Hackathon (Team We4)
+            {/* Left-Most: "Crafted with Love for India BFSI" + Copyright */}
+            <div className="flex items-center gap-3 order-1 shrink-0">
+              <div className="footer-glass-pill px-4 py-2 rounded-full flex items-center gap-2 cursor-default border-slate-700/50">
+                <span className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-wider">Crafted with</span>
+                <span className="animate-footer-heartbeat text-sm md:text-base text-red-500">❤</span>
+                <span className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-wider">for</span>
+                <span className="text-white font-extrabold text-xs md:text-sm tracking-normal ml-0.5">India BFSI</span>
+              </div>
+              <span className="text-slate-500 text-[10px] md:text-xs font-semibold tracking-wider uppercase hidden sm:inline">
+                © 2026 CoverWise
+              </span>
             </div>
 
-            {/* "Crafted with Love" Badge */}
-            <div className="footer-glass-pill px-5 py-2 rounded-full flex items-center gap-2 order-1 md:order-2 cursor-default border-slate-700/50">
-              <span className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-wider">Crafted with</span>
-              <span className="animate-footer-heartbeat text-sm md:text-base text-red-500">❤</span>
-              <span className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-wider">for</span>
-              <span className="text-white font-extrabold text-xs md:text-sm tracking-normal ml-0.5">India BFSI</span>
+            {/* Same Line: 4 Secondary Navigation Buttons (Home, Privacy Policy, How It Works, Disclaimer) */}
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 order-2">
+              <MagneticButton
+                as="button"
+                type="button"
+                onClick={onNavigateHome}
+                className="footer-glass-pill px-4 py-2 rounded-full text-slate-300 font-medium text-xs sm:text-sm hover:text-white cursor-pointer"
+              >
+                Home
+              </MagneticButton>
+              <MagneticButton
+                as="button"
+                type="button"
+                onClick={onOpenPrivacy}
+                className="footer-glass-pill px-4 py-2 rounded-full text-slate-300 font-medium text-xs sm:text-sm hover:text-white cursor-pointer"
+              >
+                Privacy Policy
+              </MagneticButton>
+              <MagneticButton
+                as="button"
+                type="button"
+                onClick={onOpenTerms}
+                className="footer-glass-pill px-4 py-2 rounded-full text-slate-300 font-medium text-xs sm:text-sm hover:text-white cursor-pointer"
+              >
+                How It Works
+              </MagneticButton>
+              <MagneticButton
+                as="button"
+                type="button"
+                onClick={onOpenDisclaimer}
+                className="footer-glass-pill px-4 py-2 rounded-full text-slate-300 font-medium text-xs sm:text-sm hover:text-white cursor-pointer"
+              >
+                Disclaimer
+              </MagneticButton>
             </div>
 
-            {/* Back to top */}
-            <MagneticButton
-              as="button"
-              type="button"
-              onClick={scrollToTop}
-              aria-label="Scroll back to top"
-              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full footer-glass-pill flex items-center justify-center text-slate-300 hover:text-white group order-3 cursor-pointer"
-            >
-              <svg className="w-4 h-4 transform group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
-              </svg>
-            </MagneticButton>
+            {/* Right-Most: Back to top */}
+            <div className="flex items-center gap-3 order-3 shrink-0">
+              <MagneticButton
+                as="button"
+                type="button"
+                onClick={scrollToTop}
+                aria-label="Scroll back to top"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full footer-glass-pill flex items-center justify-center text-slate-300 hover:text-white group cursor-pointer"
+              >
+                <svg className="w-4 h-4 transform group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                </svg>
+              </MagneticButton>
+            </div>
 
           </div>
         </footer>

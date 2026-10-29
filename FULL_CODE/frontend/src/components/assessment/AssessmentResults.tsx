@@ -6,6 +6,7 @@ import {
 } from '../../api/client';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { localizeGoalType } from '../../i18n/localizeCatalog';
+import { FinancialHelp } from '../education/FinancialHelp';
 
 interface AssessmentResultsProps {
   result: AssessmentResponse;
@@ -74,28 +75,28 @@ export function AssessmentResults({
   const hasZeroGap = parseFloat(recommended_gap_rounded) <= 0;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-200 gap-4">
-        <div>
-          {/* Big, Bold, Beautiful Stage 2 Badge */}
-          <div className="inline-flex items-center gap-2.5 sm:gap-3 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-teal-500/15 via-teal-500/10 to-emerald-500/10 border-2 border-teal-500/40 rounded-2xl mb-3 shadow-xs">
-            <span className="bg-teal-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg shadow-2xs">
-              Stage 2
-            </span>
-            <span className="text-teal-950 font-extrabold text-sm sm:text-base tracking-tight">
-              {(t.results as any).stagePill?.replace(/Stage 2\s*[·•-]?\s*/i, '') || 'Coverage Needs Analysis'}
-            </span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-navy-900)] font-[var(--font-heading)]">
-            {t.results.title}
-          </h2>
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-8 space-y-8">
+      {/* Top Header — Stage 2 Heading Centered, Big, Bold, and Black */}
+      <div className="flex flex-col items-center justify-center text-center pb-6 border-b border-slate-200 gap-3">
+        {/* Big, Bold, Black Stage 2 Badge */}
+        <div className="inline-flex items-center gap-2.5 sm:gap-3 px-4 py-2 bg-gradient-to-r from-teal-500/15 via-teal-500/10 to-emerald-500/10 border-2 border-teal-500/40 rounded-2xl shadow-xs">
+          <span className="bg-teal-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg shadow-2xs">
+            Stage 2
+          </span>
+          <span className="text-black font-black text-sm sm:text-base tracking-tight">
+            {(t.results as any).stagePill?.replace(/Stage 2\s*[·•-]?\s*/i, '') || 'Coverage Needs Analysis'}
+          </span>
         </div>
-        <div className="flex items-center gap-3">
+
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-black font-[var(--font-heading)] tracking-tight">
+          {t.results.title}
+        </h2>
+
+        <div className="flex items-center gap-3 mt-1">
           <button
             type="button"
             onClick={onRecalculate}
-            className="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition"
+            className="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
           >
             {t.results.recalculateBtn}
           </button>
@@ -103,7 +104,7 @@ export function AssessmentResults({
             <button
               type="button"
               onClick={onTalkToAdvisor}
-              className="bg-[var(--color-teal-600)] hover:bg-[var(--color-teal-500)] text-white px-4 py-2 rounded-xl text-xs font-semibold shadow transition"
+              className="bg-teal-600 hover:bg-teal-500 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-md shadow-teal-600/20 transition cursor-pointer"
             >
               {t.results.talkToAdvisorBtn}
             </button>
@@ -149,7 +150,8 @@ export function AssessmentResults({
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-medium text-[var(--color-teal-400)] backdrop-blur">
               <span className="w-2 h-2 rounded-full bg-[var(--color-teal-400)] animate-pulse" />
-              {t.results.recommendedGap}
+              <span>{t.results.recommendedGap}</span>
+              <FinancialHelp termId="recommended_cover" />
             </div>
 
             {hasZeroGap ? (
@@ -255,6 +257,7 @@ export function AssessmentResults({
               <div className="flex items-center justify-between mb-4">
                 <div className="font-semibold text-[var(--color-navy-900)] flex items-center gap-2">
                   <span>Net Needs Approach</span>
+                  <FinancialHelp termId="net_needs" />
                   {isNetNeedsDriver && (
                     <span className="text-[10px] bg-[var(--color-teal-600)] text-white px-2 py-0.5 rounded-full font-bold">
                       RECOMMENDED
@@ -309,6 +312,7 @@ export function AssessmentResults({
               <div className="flex items-center justify-between mb-4">
                 <div className="font-semibold text-[var(--color-navy-900)] flex items-center gap-2">
                   <span>Human Life Value (HLV)</span>
+                  <FinancialHelp termId="hlv" />
                   {!isNetNeedsDriver && (
                     <span className="text-[10px] bg-[var(--color-teal-600)] text-white px-2 py-0.5 rounded-full font-bold">
                       RECOMMENDED

@@ -127,42 +127,41 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-offwhite)] text-slate-900 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[var(--color-offwhite)] text-slate-900 py-8 px-4 sm:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Navigation & Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <button
-                type="button"
-                onClick={onBackToResults}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-900 transition-colors cursor-pointer"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                <span>{t.recommendations.backToAssessment}</span>
-              </button>
-              {/* Big, Bold, Beautiful Stage 3 Badge */}
-              <div className="inline-flex items-center gap-2.5 sm:gap-3 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-teal-500/15 via-teal-500/10 to-emerald-500/10 border-2 border-teal-500/40 rounded-2xl shadow-xs">
-                <span className="bg-teal-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg shadow-2xs">
-                  Stage 3
-                </span>
-                <span className="text-teal-950 font-extrabold text-sm sm:text-base tracking-tight">
-                  {(t.recommendations as any).stagePill?.replace(/Stage 3\s*[·•-]?\s*/i, '') || 'Product Recommendations'}
-                </span>
-              </div>
+        {/* Navigation & Header — Stage 3 Heading Centered, Big, Bold, and Black */}
+        <div className="flex flex-col items-center justify-center text-center pb-6 border-b border-slate-200 gap-3">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onBackToResults}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-900 transition-colors cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>{t.recommendations.backToAssessment}</span>
+            </button>
+            {/* Big, Bold, Black Stage 3 Badge */}
+            <div className="inline-flex items-center gap-2.5 sm:gap-3 px-4 py-2 bg-gradient-to-r from-teal-500/15 via-teal-500/10 to-emerald-500/10 border-2 border-teal-500/40 rounded-2xl shadow-xs">
+              <span className="bg-teal-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg shadow-2xs">
+                Stage 3
+              </span>
+              <span className="text-black font-black text-sm sm:text-base tracking-tight">
+                {(t.recommendations as any).stagePill?.replace(/Stage 3\s*[·•-]?\s*/i, '') || 'Product Recommendations'}
+              </span>
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight font-[var(--font-heading)]">
-              {t.recommendations.title}
-            </h1>
-            <p className="text-sm text-slate-600 mt-1 max-w-2xl">
-              {t.recommendations.subtitle}
-            </p>
           </div>
+          
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-black tracking-tight font-[var(--font-heading)]">
+            {t.recommendations.title}
+          </h1>
+          <p className="text-sm text-slate-600 max-w-2xl">
+            {t.recommendations.subtitle}
+          </p>
 
           {/* Quick Profile Controls Badge Bar */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-3 flex flex-wrap items-center gap-3 self-start shadow-xs">
+          <div className="bg-white border border-slate-200 rounded-2xl p-2.5 flex flex-wrap items-center justify-center gap-3 shadow-xs mt-2">
             {/* Gender Toggle */}
             <div className="flex items-center gap-1.5 text-xs bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
               <span className="text-slate-500 font-medium">{(t.wizard as any).genderLabel || 'Gender'}:</span>
@@ -207,102 +206,6 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
             </div>
           </div>
         </div>
-
-        {/* Selected Plan Summary Banner (if active) */}
-        {selectedPlan && (
-          <div className="bg-gradient-to-br from-teal-900 via-teal-800 to-[var(--color-navy-900)] text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-teal-500/30 animate-fadeIn">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-teal-700/50">
-              <div className="space-y-1">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-semibold text-teal-300">
-                  <span>✓</span> {(t.recommendations as any).selectedPlanTitle || 'Your Selected Protection Plan'}
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-[var(--font-heading)]">
-                  {selectedPlan.product_name}
-                </h2>
-                <p className="text-xs text-teal-200">
-                  {selectedPlan.product_type} {selectedPlan.variant ? `(${selectedPlan.variant})` : ''} · Validated Actuarial Quotation
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const prod = recData?.recommendations.find((p) => p.product_id === selectedPlan.product_id);
-                    if (prod) setCustomizingProduct(prod);
-                  }}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
-                >
-                  {(t.recommendations as any).editCustomizationBtn || 'Edit Customization'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onSelectPlan(null)}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
-                >
-                  {(t.recommendations as any).changePlanBtn || 'Change Plan'}
-                </button>
-                {(onContinueToAdvisor || onConsultAdvisor) && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (onContinueToAdvisor) onContinueToAdvisor();
-                      else if (onConsultAdvisor) onConsultAdvisor();
-                    }}
-                    className="px-6 py-2.5 bg-gradient-to-r from-teal-400 to-emerald-400 hover:from-teal-300 hover:to-emerald-300 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition-all cursor-pointer"
-                  >
-                    {(t.recommendations as any).continueToAdvisorBtn || 'Continue to Advisor Consultation →'}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
-              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-xs">
-                <span className="text-[11px] text-teal-200 uppercase font-medium block">Life Cover (SA)</span>
-                <span className="text-xl font-extrabold text-white mt-0.5 block">{formatINRLakhCr(selectedPlan.sum_assured)}</span>
-                <span className="text-[11px] text-teal-300">{selectedPlan.policy_term_years} Years Tenure</span>
-              </div>
-
-              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-xs">
-                <span className="text-[11px] text-teal-200 uppercase font-medium block">Premium Payable</span>
-                <span className="text-xl font-extrabold text-teal-300 mt-0.5 block">
-                  {formatINR(selectedPlan.total_instalment_premium)}
-                  <span className="text-xs font-normal text-teal-200 ml-1">/{selectedPlan.premium_mode}</span>
-                </span>
-                <span className="text-[11px] text-teal-300">Annual: {formatINR(selectedPlan.total_annual_premium)}</span>
-              </div>
-
-              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-xs">
-                <span className="text-[11px] text-teal-200 uppercase font-medium block">Chosen Riders</span>
-                <span className="text-base font-bold text-white mt-0.5 block">
-                  {selectedPlan.riders.length > 0 ? `${selectedPlan.riders.length} Active Rider(s)` : 'Base Cover Only'}
-                </span>
-                {selectedPlan.riders.length > 0 && (
-                  <span className="text-[11px] text-teal-200 truncate block">
-                    {selectedPlan.riders.map((r) => r.rider_name).join(', ')}
-                  </span>
-                )}
-              </div>
-
-              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-xs">
-                <span className="text-[11px] text-teal-200 uppercase font-medium block">Protection Fit</span>
-                <span className="text-base font-bold text-white mt-0.5 block">
-                  {selectedPlan.remaining_shortfall_inr === 0 ? (
-                    <span className="text-emerald-300 font-bold">✓ 100% Covered</span>
-                  ) : (
-                    <span className="text-amber-300">Shortfall: {formatINRLakhCr(selectedPlan.remaining_shortfall_inr)}</span>
-                  )}
-                </span>
-                <span className="text-[11px] text-teal-300">Target: {formatINRLakhCr(selectedPlan.recommended_gap_inr)}</span>
-              </div>
-            </div>
-
-            <p className="text-[11px] text-teal-300/80 pt-4 mt-4 border-t border-teal-700/40 text-center sm:text-left">
-              * Illustrative quote based on synthetic rates and entered health/age criteria. Non-binding demonstration.
-            </p>
-          </div>
-        )}
 
         {/* Coverage Need Banner */}
         <div className="bg-gradient-to-r from-[var(--color-navy-900)] to-[var(--color-navy-800)] text-white rounded-3xl p-6 sm:p-8 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -500,6 +403,156 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
               >
                 {t.common.cancel}
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Selected Plan Details Box Placed at the Bottom */}
+        {selectedPlan && (
+          <div
+            id="selected-plan-details-box"
+            className="bg-gradient-to-br from-teal-900 via-teal-800 to-[var(--color-navy-900)] text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-teal-500/30 animate-fadeIn mt-8 scroll-mt-24"
+          >
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-teal-700/50">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-semibold text-teal-300">
+                  <span>✓</span> {(t.recommendations as any).selectedPlanTitle || 'Your Selected Protection Plan'}
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-[var(--font-heading)]">
+                  {selectedPlan.product_name}
+                </h2>
+                <p className="text-xs text-teal-200">
+                  {selectedPlan.product_type} {selectedPlan.variant ? `(${selectedPlan.variant})` : ''} · Validated Actuarial Quotation
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const prod = recData?.recommendations.find((p) => p.product_id === selectedPlan.product_id);
+                    if (prod) setCustomizingProduct(prod);
+                  }}
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
+                >
+                  {(t.recommendations as any).editCustomizationBtn || 'Edit Customization'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onSelectPlan(null)}
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
+                >
+                  {(t.recommendations as any).changePlanBtn || 'Change Plan'}
+                </button>
+                {(onContinueToAdvisor || onConsultAdvisor) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onContinueToAdvisor) onContinueToAdvisor();
+                      else if (onConsultAdvisor) onConsultAdvisor();
+                    }}
+                    className="px-6 py-2.5 bg-gradient-to-r from-teal-400 to-emerald-400 hover:from-teal-300 hover:to-emerald-300 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition-all cursor-pointer"
+                  >
+                    {(t.recommendations as any).continueToAdvisorBtn || 'Continue to Advisor Consultation →'}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
+              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-xs">
+                <span className="text-[11px] text-teal-200 uppercase font-medium block">Life Cover (SA)</span>
+                <span className="text-xl font-extrabold text-white mt-0.5 block">{formatINRLakhCr(selectedPlan.sum_assured)}</span>
+                <span className="text-[11px] text-teal-300">{selectedPlan.policy_term_years} Years Tenure</span>
+              </div>
+
+              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-xs">
+                <span className="text-[11px] text-teal-200 uppercase font-medium block">Premium Payable</span>
+                <span className="text-xl font-extrabold text-teal-300 mt-0.5 block">
+                  {formatINR(selectedPlan.total_instalment_premium)}
+                  <span className="text-xs font-normal text-teal-200 ml-1">/{selectedPlan.premium_mode}</span>
+                </span>
+                <span className="text-[11px] text-teal-300">Annual: {formatINR(selectedPlan.total_annual_premium)}</span>
+              </div>
+
+              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-xs">
+                <span className="text-[11px] text-teal-200 uppercase font-medium block">Chosen Riders</span>
+                <span className="text-base font-bold text-white mt-0.5 block">
+                  {selectedPlan.riders.length > 0 ? `${selectedPlan.riders.length} Active Rider(s)` : 'Base Cover Only'}
+                </span>
+                {selectedPlan.riders.length > 0 && (
+                  <span className="text-[11px] text-teal-200 truncate block">
+                    {selectedPlan.riders.map((r) => r.rider_name).join(', ')}
+                  </span>
+                )}
+              </div>
+
+              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-xs">
+                <span className="text-[11px] text-teal-200 uppercase font-medium block">Protection Fit</span>
+                <span className="text-base font-bold text-white mt-0.5 block">
+                  {selectedPlan.remaining_shortfall_inr === 0 ? (
+                    <span className="text-emerald-300 font-bold">✓ 100% Covered</span>
+                  ) : (
+                    <span className="text-amber-300">Shortfall: {formatINRLakhCr(selectedPlan.remaining_shortfall_inr)}</span>
+                  )}
+                </span>
+                <span className="text-[11px] text-teal-300">Target: {formatINRLakhCr(selectedPlan.recommended_gap_inr)}</span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-teal-300/80 pt-4 mt-4 border-t border-teal-700/40 text-center sm:text-left">
+              * Illustrative quote based on synthetic rates and entered health/age criteria. Non-binding demonstration.
+            </p>
+          </div>
+        )}
+
+        {/* Swiggy / Zomato Style Floating Selected Plan Bottom Dialog Bar */}
+        {selectedPlan && (
+          <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-3xl rounded-2xl bg-gradient-to-r from-slate-950 via-[#0B1728] to-slate-950 text-white p-3.5 sm:p-4 shadow-2xl border-2 border-teal-400/50 backdrop-blur-xl flex items-center justify-between gap-3 animate-slideUp">
+            {/* Selected Plan Details Left */}
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300 font-bold shrink-0 shadow-inner">
+                ✓
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs sm:text-sm font-extrabold text-white truncate flex items-center gap-2">
+                  <span>{selectedPlan.product_name}</span>
+                  <span className="text-[10px] font-mono text-teal-300 bg-teal-900/60 px-1.5 py-0.5 rounded border border-teal-700/50 hidden sm:inline">
+                    {formatINRLakhCr(selectedPlan.sum_assured)}
+                  </span>
+                </div>
+                <div className="text-[11px] text-teal-300 font-semibold truncate">
+                  {formatINR(selectedPlan.total_instalment_premium)}/{selectedPlan.premium_mode} · {selectedPlan.policy_term_years} yrs tenure
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions Right: View Details + Need Advisor Button */}
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById('selected-plan-details-box');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl text-xs font-semibold transition cursor-pointer hidden sm:inline-flex"
+              >
+                View Details
+              </button>
+
+              {(onContinueToAdvisor || onConsultAdvisor) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onContinueToAdvisor) onContinueToAdvisor();
+                    else if (onConsultAdvisor) onConsultAdvisor();
+                  }}
+                  className="px-4 sm:px-5 py-2.5 bg-gradient-to-r from-teal-400 to-emerald-400 hover:from-teal-300 hover:to-emerald-300 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-lg transition-all cursor-pointer flex items-center gap-1.5 hover:scale-105"
+                >
+                  <span>Need Advisor?</span>
+                  <span>→</span>
+                </button>
+              )}
             </div>
           </div>
         )}
