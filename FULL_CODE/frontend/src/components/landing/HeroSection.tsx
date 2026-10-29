@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { BeamsBackground } from '../ui/beams-background';
 
 interface HeroSectionProps {
   onStartAssessment: () => void;
@@ -15,6 +16,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   return (
     <header className="relative bg-gradient-to-b from-[#0B1320] via-[#0F172A] to-[#131F33] text-white pt-16 pb-20 md:pt-20 md:pb-28 overflow-hidden">
+      {/* Animated Luminous Gradient Beams Background */}
+      <BeamsBackground
+        intensity="subtle"
+        colorVariant="mixed"
+        className="absolute inset-0 z-0 pointer-events-none"
+      />
+
       {/* Subtle ambient teal & navy glow */}
       <div
         aria-hidden="true"
@@ -29,28 +37,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
           {/* LEFT SIDE: Value message & Action CTAs (7 Cols) */}
-          <div className="lg:col-span-7 text-left space-y-6">
+          <div className="lg:col-span-7 text-left space-y-6 md:space-y-8">
             
-            {/* 5-Language Feature Pill — Prominently Highlighted */}
-            <motion.div
-              initial={{ y: 14, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-gradient-to-r from-teal-500/15 via-teal-500/10 to-transparent border border-teal-400/30 rounded-full text-xs backdrop-blur-md shadow-sm"
-            >
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-400/25 text-teal-200 font-bold text-[11px] border border-teal-300/30 tracking-wide">
-                🌐 {(t.landing as any).heroBadgeBadge || '5 Languages'}
-              </span>
-              <span className="text-slate-200 font-medium text-xs">
-                {(t.landing as any).heroBadgeText || 'Accessible in English, Telugu, Hindi, Tamil & Kannada'}
-              </span>
-            </motion.div>
-
             {/* Main Headline */}
             <motion.h1
               initial={{ y: 18, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="font-[var(--font-heading)] text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12]"
             >
               {t.landing.heroTitle1}{' '}
@@ -111,86 +104,84 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           </div>
 
-          {/* RIGHT SIDE: Premium Illustrative Dashboard Preview (5 Cols) */}
+          {/* RIGHT SIDE: Catchy Welcome & Financial Protection Showcase (5 Cols) */}
           <div className="lg:col-span-5 relative">
             <motion.div
-              initial={{ scale: 0.94, opacity: 0, y: 20 }}
+              initial={{ scale: 0.95, opacity: 0, y: 16 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              transition={{ delay: 0.25, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="relative rounded-3xl bg-gradient-to-b from-[#152336] to-[#0E1724] border border-slate-700/80 p-6 shadow-2xl shadow-black/40 backdrop-blur-md"
+              transition={{ delay: 0.25, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+              className="relative rounded-3xl bg-gradient-to-b from-[#142337] via-[#101C2C] to-[#0B1320] border border-teal-500/25 p-7 sm:p-8 shadow-2xl shadow-teal-950/50 backdrop-blur-md overflow-hidden"
             >
-              {/* Card Header Bar */}
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+              {/* Subtle Ambient Radial Highlight */}
+              <div className="absolute -top-16 -right-16 w-48 h-48 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Showcase Header: Brand Shield & Welcome Message */}
+              <div className="flex items-center gap-4 pb-5 border-b border-slate-800">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500/20 via-teal-600/10 to-transparent border border-teal-400/30 flex items-center justify-center p-2 shadow-lg shadow-teal-950/40 shrink-0">
+                  <img
+                    src="/logo.png"
+                    alt="CoverWise Shield"
+                    className="w-full h-full object-contain drop-shadow"
+                  />
+                </div>
+                <div>
+                  <span className="text-[11px] font-bold tracking-wider uppercase text-teal-300">
+                    Welcome to CoverWise
+                  </span>
+                  <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight mt-0.5">
+                    Protection Decided by Math, Not Agents.
+                  </h3>
+                </div>
+              </div>
+
+              {/* Key Value Propositions */}
+              <div className="my-6 space-y-4 text-xs sm:text-sm">
+                <div className="p-3.5 rounded-2xl bg-slate-800/50 border border-slate-700/60 hover:border-teal-500/40 transition-colors">
+                  <div className="font-bold text-white tracking-tight flex items-center justify-between">
+                    <span>Pure Protection First</span>
+                    <span className="text-[10px] font-mono text-teal-300 bg-teal-950/60 px-2 py-0.5 rounded-md border border-teal-800/40">Zero Cross-Selling</span>
+                  </div>
+                  <p className="text-slate-300 text-xs mt-1 leading-relaxed">
+                    We eliminate expensive ULIPs and opaque endowment plans. You receive honest, pure term insurance recommendations.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-slate-800/50 border border-slate-700/60 hover:border-teal-500/40 transition-colors">
+                  <div className="font-bold text-white tracking-tight flex items-center justify-between">
+                    <span>Dual-Engine Actuarial Math</span>
+                    <span className="text-[10px] font-mono text-teal-300 bg-teal-950/60 px-2 py-0.5 rounded-md border border-teal-800/40">HLV + Net Needs</span>
+                  </div>
+                  <p className="text-slate-300 text-xs mt-1 leading-relaxed">
+                    Simultaneous evaluation of your human life value and net debt/family obligations ensures zero risk of underinsurance.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-slate-800/50 border border-slate-700/60 hover:border-teal-500/40 transition-colors">
+                  <div className="font-bold text-white tracking-tight flex items-center justify-between">
+                    <span>Fee-Only Verified Advisors</span>
+                    <span className="text-[10px] font-mono text-teal-300 bg-teal-950/60 px-2 py-0.5 rounded-md border border-teal-800/40">5 Languages</span>
+                  </div>
+                  <p className="text-slate-300 text-xs mt-1 leading-relaxed">
+                    Book one-on-one video consultations with certified advisors fluent in your native language without any sales pressure.
+                  </p>
+                </div>
+              </div>
+
+              {/* Bottom Trust Action Strip */}
+              <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-teal-400"></div>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-teal-300">
-                    {t.landing.previewProtectionOverview}
-                  </span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-slate-300 font-medium">Free Actuarial Check · 3 Minutes</span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700">
-                  HLV + Net Needs
-                </span>
+                <button
+                  type="button"
+                  onClick={onStartAssessment}
+                  className="text-teal-400 hover:text-teal-300 font-bold transition-colors cursor-pointer flex items-center gap-1"
+                >
+                  <span>Start Now</span>
+                  <span>→</span>
+                </button>
               </div>
-
-              {/* Central Protection Metric Card */}
-              <div className="my-5 p-4 rounded-2xl bg-[#1B2B40]/70 border border-teal-500/20">
-                <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">
-                  {t.landing.previewIllustrativeEstimate}
-                </div>
-                <div className="text-2xl sm:text-3xl font-extrabold text-white mt-1 tracking-tight flex items-baseline gap-2">
-                  <span className="text-teal-300">₹1,90,00,000</span>
-                  <span className="text-xs font-normal text-slate-400">(₹1.90 Cr)</span>
-                </div>
-                <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-teal-300 font-medium">
-                  <svg className="w-3.5 h-3.5 text-teal-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span>{t.landing.previewRecommendedStatus}</span>
-                </div>
-              </div>
-
-              {/* Itemized 3-Pillar Breakdown Preview */}
-              <div className="space-y-2.5 text-xs">
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/40 border border-slate-800">
-                  <span className="text-slate-300 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
-                    {t.landing.previewLivingSupport}
-                  </span>
-                  <span className="font-semibold text-slate-200">₹1.42 Cr</span>
-                </div>
-
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/40 border border-slate-800">
-                  <span className="text-slate-300 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    {t.landing.previewDebtPayoff}
-                  </span>
-                  <span className="font-semibold text-slate-200">₹35.00 L</span>
-                </div>
-
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/40 border border-slate-800">
-                  <span className="text-slate-300 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                    {t.landing.previewMilestoneGoals}
-                  </span>
-                  <span className="font-semibold text-slate-200">₹28.21 L</span>
-                </div>
-              </div>
-
-              {/* Floating Bottom Badge */}
-              <motion.div
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.45, duration: 0.5 }}
-                className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400"
-              >
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Objective Actuarial Models
-                </span>
-                <span className="text-teal-400 font-semibold cursor-pointer hover:underline" onClick={onStartAssessment}>
-                  {t.landing.ctaFindCover}
-                </span>
-              </motion.div>
             </motion.div>
           </div>
 

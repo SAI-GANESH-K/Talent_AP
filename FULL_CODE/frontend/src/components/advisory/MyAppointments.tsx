@@ -84,7 +84,7 @@ export const MyAppointments: React.FC<MyAppointmentsProps> = ({ onExploreAdvisor
           onClick={onExploreAdvisors}
           className="bg-[var(--color-teal-600)] hover:bg-[var(--color-teal-500)] text-white px-5 py-2.5 rounded-xl font-semibold text-xs shadow-sm transition flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
         >
-          <span>🔍</span> Find Another Advisor
+          Find Another Advisor
         </button>
       </div>
 
@@ -95,12 +95,14 @@ export const MyAppointments: React.FC<MyAppointmentsProps> = ({ onExploreAdvisor
         </div>
       ) : error ? (
         <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700">
-          ⚠ {error}
+          {error}
         </div>
       ) : bookings.length === 0 ? (
         <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm">
-          <div className="w-16 h-16 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
-            📅
+          <div className="w-14 h-14 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-teal-100">
+            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
           </div>
           <h3 className="font-[var(--font-heading)] text-lg font-bold text-slate-800 mb-2">
             No consultations booked yet
@@ -129,12 +131,8 @@ export const MyAppointments: React.FC<MyAppointmentsProps> = ({ onExploreAdvisor
               >
                 {/* Left Info */}
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center text-xl font-bold flex-shrink-0">
-                    {booking.consultation_mode === 'video'
-                      ? '🎥'
-                      : booking.consultation_mode === 'phone'
-                      ? '📞'
-                      : '💬'}
+                  <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center text-xs font-bold uppercase tracking-wider flex-shrink-0 border border-teal-100">
+                    {booking.consultation_mode || 'Consult'}
                   </div>
 
                   <div>

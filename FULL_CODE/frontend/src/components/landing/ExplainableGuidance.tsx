@@ -1,182 +1,188 @@
 import React from 'react';
-import { useLanguage } from '../../i18n/LanguageContext';
 import { ScrollReveal } from '../ui/ScrollReveal';
 
 interface ExplainableGuidanceProps {
   onStartAssessment: () => void;
+  onConsultAdvisor?: () => void;
 }
 
 export const ExplainableGuidance: React.FC<ExplainableGuidanceProps> = ({
   onStartAssessment,
+  onConsultAdvisor,
 }) => {
-  const { t } = useLanguage();
+
+  const keyFeatures = [
+    {
+      title: 'Dual-Engine Actuarial Math',
+      subtitle: 'HLV + Net Needs Combined',
+      desc: 'Simultaneous calculation of your Human Life Value (future earning potential) and Net Needs (debt, living expenses, children education) ensures you are never underinsured.',
+      icon: (
+        <svg className="w-6 h-6 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      ),
+      highlight: 'Zero Underinsurance',
+    },
+    {
+      title: '100% Commission-Free',
+      subtitle: 'Pure Unbiased Matching',
+      desc: 'We never take sales commissions from insurance companies. Policies are ranked solely by actuarial suitability, solvency ratio, and customer affordability.',
+      icon: (
+        <svg className="w-6 h-6 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      ),
+      highlight: 'Zero Sales Pressure',
+    },
+    {
+      title: 'Accessible in 5 Languages',
+      subtitle: 'Native Regional Support',
+      desc: 'Financial security made crystal clear in English, Telugu (తెలుగు), Hindi (हिंदी), Tamil (தமிழ்), and Kannada (ಕನ್ನಡ) without intimidating legal jargon.',
+      icon: (
+        <svg className="w-6 h-6 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+        </svg>
+      ),
+      highlight: 'Multilingual Clarity',
+    },
+    {
+      title: 'Fee-Only Certified Advisors',
+      subtitle: '1-on-1 Video Consultations',
+      desc: 'Schedule dedicated consultations with IRDAI-registered fiduciaries who review your protection plan without pushing sales or receiving referral fees.',
+      icon: (
+        <svg className="w-6 h-6 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      ),
+      highlight: 'Direct Booking',
+    },
+    {
+      title: 'Real-Time Policy Customizer',
+      subtitle: 'Interactive Rider Modeler',
+      desc: 'Simulate critical illness, accidental disability, and waiver of premium add-ons with immediate recalculation of your annual premium and net safety net.',
+      icon: (
+        <svg className="w-6 h-6 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        </svg>
+      ),
+      highlight: 'Full Control',
+    },
+    {
+      title: 'Zero Spam Guarantee',
+      subtitle: 'Bank-Grade Confidentiality',
+      desc: 'Your contact details and financial inputs are strictly private. We never share or sell your phone number to insurance telemarketers or call centers.',
+      icon: (
+        <svg className="w-6 h-6 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      ),
+      highlight: '100% Confidential',
+    },
+  ];
 
   return (
     <section className="bg-gradient-to-b from-slate-50 via-teal-50/20 to-slate-50 py-20 md:py-28 border-b border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
-          
-          {/* LEFT: Context & 3 Core Pillars (7 Cols) */}
-          <div className="lg:col-span-7 space-y-6">
-            <ScrollReveal direction="up" delay={0}>
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-100/70 text-teal-800 rounded-full text-xs font-semibold mb-3 border border-teal-200">
-                <span>🔍</span> Audited & Explainable
+        
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <ScrollReveal direction="up" delay={0}>
+            <div className="inline-flex items-center px-4 py-1.5 bg-teal-50 text-teal-800 rounded-full text-xs font-bold mb-3 border border-teal-200/80 shadow-2xs">
+              CoverWise Advantage
+            </div>
+            <h2 className="font-[var(--font-heading)] text-3xl sm:text-4xl md:text-5xl font-extrabold text-[var(--color-navy-900)] tracking-tight">
+              Life Insurance Protection,{' '}
+              <span className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+                Engineered for Real Families
+              </span>
+            </h2>
+            <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+              Everything you need to safeguard your family’s financial future without deceptive sales tactics, complex equations, or unwanted sales calls.
+            </p>
+          </ScrollReveal>
+        </div>
+
+        {/* 6 Core Modern Feature Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {keyFeatures.map((item, idx) => (
+            <ScrollReveal
+              key={idx}
+              direction="up"
+              delay={0.08 + idx * 0.08}
+              className="h-full"
+            >
+              <div className="bg-white rounded-3xl p-7 sm:p-8 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-teal-300 transition-all duration-300 flex flex-col justify-between h-full group hover:-translate-y-1">
+                <div>
+                  {/* Top Bar: Icon & Pill Highlight */}
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center transition-all group-hover:bg-teal-600 group-hover:text-white group-hover:scale-105 shadow-2xs">
+                      {item.icon}
+                    </div>
+                    <span className="text-[11px] font-bold text-teal-800 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200/60">
+                      {item.highlight}
+                    </span>
+                  </div>
+
+                  {/* Title & Subtitle */}
+                  <h3 className="font-[var(--font-heading)] text-lg sm:text-xl font-bold text-[var(--color-navy-900)] mb-1 group-hover:text-teal-700 transition-colors">
+                    {item.title}
+                  </h3>
+                  <div className="text-xs font-semibold text-teal-600 mb-3">
+                    {item.subtitle}
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+
+                {/* Subtle indicator bar */}
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+                  <span className="font-medium text-[11px]">Feature {idx + 1} of 6</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-teal-500/30 group-hover:bg-teal-600 transition-colors" />
+                </div>
               </div>
-              <h2 className="font-[var(--font-heading)] text-3xl sm:text-4xl font-extrabold text-[var(--color-navy-900)] tracking-tight">
-                {t.landing.explainHeading}
-              </h2>
-              <p className="mt-3 text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl">
-                {t.landing.explainDesc}
-              </p>
             </ScrollReveal>
+          ))}
+        </div>
 
-            {/* 3 Pillars List */}
-            <div className="space-y-4 pt-2">
-              <ScrollReveal direction="up" delay={0.1}>
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-teal-300 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold flex-shrink-0 text-base">
-                    1
-                  </div>
-                  <div>
-                    <h4 className="font-[var(--font-heading)] font-bold text-slate-900 text-base">
-                      {t.landing.explainPoint1Title}
-                    </h4>
-                    <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                      {t.landing.explainPoint1Desc}
-                    </p>
-                  </div>
-                </div>
-              </ScrollReveal>
-
-              <ScrollReveal direction="up" delay={0.2}>
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-teal-300 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-base">
-                    2
-                  </div>
-                  <div>
-                    <h4 className="font-[var(--font-heading)] font-bold text-slate-900 text-base">
-                      {t.landing.explainPoint2Title}
-                    </h4>
-                    <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                      {t.landing.explainPoint2Desc}
-                    </p>
-                  </div>
-                </div>
-              </ScrollReveal>
-
-              <ScrollReveal direction="up" delay={0.3}>
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-teal-300 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold flex-shrink-0 text-base">
-                    3
-                  </div>
-                  <div>
-                    <h4 className="font-[var(--font-heading)] font-bold text-slate-900 text-base">
-                      {t.landing.explainPoint3Title}
-                    </h4>
-                    <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                      {t.landing.explainPoint3Desc}
-                    </p>
-                  </div>
-                </div>
-              </ScrollReveal>
+        {/* Feature Action Banner */}
+        <ScrollReveal direction="up" delay={0.4} className="mt-14">
+          <div className="rounded-3xl bg-gradient-to-r from-[var(--color-navy-900)] via-[#132238] to-[var(--color-navy-900)] text-white p-8 sm:p-10 shadow-xl border border-teal-500/30 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-left max-w-xl">
+              <span className="text-xs font-bold uppercase tracking-wider text-teal-400 bg-teal-950/60 px-3 py-1 rounded-md border border-teal-800/50">
+                100% Free · No Obligations
+              </span>
+              <h4 className="text-xl sm:text-2xl font-extrabold text-white mt-3 tracking-tight">
+                Calculate your exact family cover amount in just 3 minutes.
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
+                Objective actuarial formulas ensure zero underinsurance and zero wasted premium.
+              </p>
             </div>
 
-            {/* Action CTA */}
-            <ScrollReveal direction="up" delay={0.35} className="pt-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto shrink-0">
               <button
                 type="button"
                 onClick={onStartAssessment}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white font-bold text-sm px-6 py-3.5 rounded-xl shadow-md shadow-teal-600/20 transition-all hover:-translate-y-0.5 cursor-pointer"
+                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-white px-7 py-3.5 rounded-xl text-sm font-bold shadow-lg shadow-teal-500/25 transition-all hover:-translate-y-0.5 cursor-pointer text-center"
               >
-                <span>{t.landing.explainCta}</span>
+                Start Free Assessment →
               </button>
-            </ScrollReveal>
+              {onConsultAdvisor && (
+                <button
+                  type="button"
+                  onClick={onConsultAdvisor}
+                  className="bg-white/10 hover:bg-white/15 text-white border border-white/20 px-6 py-3.5 rounded-xl text-sm font-semibold transition cursor-pointer text-center"
+                >
+                  Book an Advisor
+                </button>
+              )}
+            </div>
           </div>
+        </ScrollReveal>
 
-          {/* RIGHT: Visual Formula Relationship Display (5 Cols) */}
-          <div className="lg:col-span-5">
-            <ScrollReveal direction="left" delay={0.2}>
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl relative overflow-hidden">
-                <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Net Needs Equation
-                  </span>
-                  <span className="text-[11px] font-mono text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md font-semibold">
-                    IRDAI Benchmark
-                  </span>
-                </div>
-
-                {/* Equation Flow Visual */}
-                <div className="space-y-4 my-6">
-                  {/* Step A: Gross Obligations */}
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
-                    <div className="flex items-center justify-between text-xs text-slate-500 font-medium mb-1">
-                      <span>Total Family Future Obligations</span>
-                      <span className="text-slate-700 font-bold">100% Need</span>
-                    </div>
-                    <div className="h-3 w-full bg-slate-200 rounded-full overflow-hidden flex">
-                      <div className="h-full bg-teal-500 w-[60%]" title="Living Expenses"></div>
-                      <div className="h-full bg-amber-400 w-[25%]" title="Loans & Debts"></div>
-                      <div className="h-full bg-emerald-400 w-[15%]" title="Milestones"></div>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px] text-slate-400 mt-2 font-mono">
-                      <span>Living Support (60%)</span>
-                      <span>Debt (25%)</span>
-                      <span>Goals (15%)</span>
-                    </div>
-                  </div>
-
-                  {/* Minus Sign */}
-                  <div className="flex justify-center -my-2">
-                    <div className="w-7 h-7 rounded-full bg-slate-200/90 text-slate-600 flex items-center justify-center font-bold text-xs shadow-xs">
-                      −
-                    </div>
-                  </div>
-
-                  {/* Step B: Existing Resources */}
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
-                    <div className="flex items-center justify-between text-xs text-slate-500 font-medium mb-1">
-                      <span>Current Assets & Existing Insurance</span>
-                      <span className="text-amber-800 font-bold">Deducted Fairly</span>
-                    </div>
-                    <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-slate-400 w-[35%]"></div>
-                    </div>
-                  </div>
-
-                  {/* Equals Sign */}
-                  <div className="flex justify-center -my-2">
-                    <div className="w-7 h-7 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                      =
-                    </div>
-                  </div>
-
-                  {/* Step C: Recommended Cover Gap */}
-                  <div className="p-5 rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 shadow-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-teal-900 uppercase tracking-wide">
-                        Recommended Life Cover
-                      </span>
-                      <span className="text-xs font-bold text-teal-700 bg-teal-100/80 px-2 py-0.5 rounded-full">
-                        Zero Underinsurance
-                      </span>
-                    </div>
-                    <p className="text-xs text-teal-800/80 mt-2 leading-relaxed">
-                      Your family is protected for the exact difference, ensuring no wasted premium and no coverage shortfall.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-center pt-2">
-                  <span className="text-[11px] text-slate-400">
-                    Transparent formulas · Auditable by certified actuaries
-                  </span>
-                </div>
-              </div>
-            </ScrollReveal>
-          </div>
-
-        </div>
       </div>
     </section>
   );

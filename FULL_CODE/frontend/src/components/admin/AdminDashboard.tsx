@@ -56,8 +56,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-semibold mb-2">
-            <span>🛡️</span> {t.nav.roleAdmin}
+          <div className="inline-flex items-center px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-semibold mb-2">
+            {t.nav.roleAdmin}
           </div>
           <h1 className="font-[var(--font-heading)] text-2xl sm:text-3xl font-bold text-slate-900">
             {t.adminPortal.title}
@@ -72,7 +72,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = () => {
           onClick={loadDashboardData}
           className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition cursor-pointer self-start sm:self-auto"
         >
-          🔄 Refresh Metrics
+          Refresh Metrics
         </button>
       </div>
 
@@ -82,7 +82,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = () => {
         </div>
       ) : error ? (
         <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700">
-          ⚠ {error}
+          {error}
         </div>
       ) : stats ? (
         <div className="space-y-8">
@@ -153,7 +153,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = () => {
                     <div key={m} className="space-y-1">
                       <div className="flex justify-between text-xs text-slate-600">
                         <span className="capitalize font-medium">
-                          {m === 'video' ? '🎥 Video Call' : m === 'phone' ? '📞 Phone' : '💬 Chat'}
+                          {m === 'video' ? 'Video Call' : m === 'phone' ? 'Phone' : 'Chat'}
                         </span>
                         <span className="font-semibold text-slate-900">{count} ({pct}%)</span>
                       </div>

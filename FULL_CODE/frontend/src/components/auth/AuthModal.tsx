@@ -76,10 +76,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           ✕
         </button>
 
-        {/* Header */}
+        {/* Header with Brand Logo */}
         <div className="text-center mb-6">
-          <div className="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-3 font-bold text-xl">
-            {mode === 'login' ? '🔐' : '👤'}
+          <div className="w-14 h-14 bg-teal-50/80 border border-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-3 p-2 shadow-xs">
+            <img src="/logo.png" alt="CoverWise Shield" className="w-10 h-10 object-contain" />
           </div>
           <h2
             id="auth-modal-title"

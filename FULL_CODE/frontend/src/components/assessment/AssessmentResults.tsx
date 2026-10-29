@@ -78,8 +78,14 @@ export function AssessmentResults({
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-200 gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold mb-2 border border-teal-200/60">
-            <span>📊</span> {(t.results as any).stagePill || 'Stage 2 · Coverage Needs Analysis'}
+          {/* Big, Bold, Beautiful Stage 2 Badge */}
+          <div className="inline-flex items-center gap-2.5 sm:gap-3 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-teal-500/15 via-teal-500/10 to-emerald-500/10 border-2 border-teal-500/40 rounded-2xl mb-3 shadow-xs">
+            <span className="bg-teal-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg shadow-2xs">
+              Stage 2
+            </span>
+            <span className="text-teal-950 font-extrabold text-sm sm:text-base tracking-tight">
+              {(t.results as any).stagePill?.replace(/Stage 2\s*[·•-]?\s*/i, '') || 'Coverage Needs Analysis'}
+            </span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-navy-900)] font-[var(--font-heading)]">
             {t.results.title}
@@ -91,7 +97,7 @@ export function AssessmentResults({
             onClick={onRecalculate}
             className="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition"
           >
-            ✏ {t.results.recalculateBtn}
+            {t.results.recalculateBtn}
           </button>
           {onTalkToAdvisor && (
             <button
@@ -99,7 +105,7 @@ export function AssessmentResults({
               onClick={onTalkToAdvisor}
               className="bg-[var(--color-teal-600)] hover:bg-[var(--color-teal-500)] text-white px-4 py-2 rounded-xl text-xs font-semibold shadow transition"
             >
-              💬 {t.results.talkToAdvisorBtn}
+              {t.results.talkToAdvisorBtn}
             </button>
           )}
         </div>
@@ -248,7 +254,7 @@ export function AssessmentResults({
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="font-semibold text-[var(--color-navy-900)] flex items-center gap-2">
-                  <span>🎯 Net Needs Approach</span>
+                  <span>Net Needs Approach</span>
                   {isNetNeedsDriver && (
                     <span className="text-[10px] bg-[var(--color-teal-600)] text-white px-2 py-0.5 rounded-full font-bold">
                       RECOMMENDED
@@ -302,7 +308,7 @@ export function AssessmentResults({
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="font-semibold text-[var(--color-navy-900)] flex items-center gap-2">
-                  <span>📈 Human Life Value (HLV)</span>
+                  <span>Human Life Value (HLV)</span>
                   {!isNetNeedsDriver && (
                     <span className="text-[10px] bg-[var(--color-teal-600)] text-white px-2 py-0.5 rounded-full font-bold">
                       RECOMMENDED
@@ -346,7 +352,7 @@ export function AssessmentResults({
           {/* Explanation Box */}
           <div className="p-5 bg-white rounded-2xl border border-slate-200 space-y-2">
             <h4 className="text-sm font-bold text-[var(--color-navy-900)] flex items-center gap-2">
-              💡 Why CoverWise recommends the {isNetNeedsDriver ? 'Net Needs' : 'HLV'} Approach:
+              Why CoverWise recommends the {isNetNeedsDriver ? 'Net Needs' : 'HLV'} Approach:
             </h4>
             <p className="text-xs text-slate-600 leading-relaxed">
               {explanation}

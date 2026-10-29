@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   api,
   type AdvisorSummary,
@@ -9,6 +9,7 @@ import {
 } from './api/client';
 import { useLanguage } from './i18n/LanguageContext';
 import { SUPPORTED_LANGUAGES, type LanguageOption } from './i18n/translations';
+import { SlideTabs, type TabItem } from './components/ui/slide-tabs';
 import { AssessmentWizard } from './components/assessment/AssessmentWizard';
 import { AssessmentResults } from './components/assessment/AssessmentResults';
 import { RecommendationsView } from './components/recommendations/RecommendationsView';
@@ -42,13 +43,7 @@ function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [pendingPostLoginAction, setPendingPostLoginAction] = useState<ViewMode | null>(null);
   const [pendingBookingAdvisor, setPendingBookingAdvisor] = useState<AdvisorSummary | null>(null);
-  const [hasCompletedPreloader, setHasCompletedPreloader] = useState<boolean>(() => {
-    try {
-      return sessionStorage.getItem('cw_preloader_shown') === 'true';
-    } catch {
-      return false;
-    }
-  });
+  const [hasCompletedPreloader, setHasCompletedPreloader] = useState<boolean>(false);
 
   // Assessment & Plan Selection state — preserved across language and view transitions
   const [isLoadingEstimate, setIsLoadingEstimate] = useState<boolean>(false);
@@ -154,17 +149,83 @@ function App() {
     return view;
   })();
 
+  // Active navigation tab identifier
+  const activeNavId =
+    effectiveView === 'results' || effectiveView === 'recommendations'
+      ? 'wizard'
+      : effectiveView;
+
+  // Derive responsive navbar tabs based on current role
+  const navItems: TabItem[] = useMemo(() => {
+    if (!currentUser || currentUser.role === 'customer') {
+      const items: TabItem[] = [
+        {
+          id: 'landing',
+          label: t.nav.home,
+          onClick: handleReturnHome,
+        },
+        {
+          id: 'wizard',
+          label: t.nav.findCover,
+          onClick: handleStartAssessment,
+        },
+        {
+          id: 'advisors',
+          label: t.nav.advisors,
+          onClick: () => {
+            setView('advisors');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          },
+        },
+      ];
+      if (currentUser?.role === 'customer') {
+        items.push({
+          id: 'my-appointments',
+          label: t.nav.myAppointments,
+          onClick: () => {
+            setView('my-appointments');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          },
+        });
+      }
+      return items;
+    }
+
+    if (currentUser?.role === 'advisor') {
+      return [
+        {
+          id: 'advisor-portal',
+          label: t.nav.advisorPortal,
+          onClick: () => {
+            setView('advisor-portal');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          },
+        },
+      ];
+    }
+
+    if (currentUser?.role === 'admin') {
+      return [
+        {
+          id: 'admin-dashboard',
+          label: (t.nav as any).adminDashboard || 'Admin Dashboard',
+          onClick: () => {
+            setView('admin-dashboard');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          },
+        },
+      ];
+    }
+
+    return [];
+  }, [currentUser, t]);
+
   return (
     <div className="min-h-screen bg-[var(--color-offwhite)] flex flex-col justify-between">
-      {/* Premium Branded Preloader (Runs once on initial site visit) */}
+      {/* Premium Branded Preloader (Runs on initial page load and every browser refresh) */}
       {!hasCompletedPreloader && (
         <AppPreloader
           onComplete={() => {
-            try {
-              sessionStorage.setItem('cw_preloader_shown', 'true');
-            } catch {
-              // ignore
-            }
             setHasCompletedPreloader(true);
           }}
         />
@@ -174,110 +235,32 @@ function App() {
       <nav className="bg-[var(--color-navy-900)] text-white sticky top-0 z-40 shadow-lg border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Brand Logo - Clean Text-only Wordmark */}
+            {/* Brand Logo & Wordmark */}
             <button
               type="button"
               onClick={handleReturnHome}
-              className="flex items-center text-left focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-xl py-1 px-1 cursor-pointer group"
+              className="flex items-center text-left focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-xl py-1 px-1 cursor-pointer group shrink-0"
               aria-label="CoverWise Home"
             >
-              <span className="font-[var(--font-heading)] font-extrabold text-2xl tracking-tight text-white group-hover:text-teal-300 transition-colors">
+              <img
+                src="/logo.png"
+                alt="CoverWise Shield"
+                className="w-7 h-7 sm:w-8 sm:h-8 object-contain mr-2 sm:mr-2.5 transition-transform duration-200 group-hover:scale-105 shrink-0"
+              />
+              <span className="font-[var(--font-heading)] font-extrabold text-xl sm:text-2xl tracking-tight text-white group-hover:text-teal-300 transition-colors whitespace-nowrap">
                 Cover<span className="text-teal-400">Wise</span>
               </span>
             </button>
 
-            {/* Role-Specific Navigation Links */}
-            <div className="hidden md:flex items-center gap-1 text-xs">
-              {/* Case A: Guest / Customer Navigation */}
-              {(!currentUser || currentUser.role === 'customer') && (
-                <>
-                  <button
-                    type="button"
-                    onClick={handleReturnHome}
-                    className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
-                      effectiveView === 'landing' ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white'
-                    }`}
-                  >
-                    {t.nav.home}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleStartAssessment}
-                    className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
-                      effectiveView === 'wizard' ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white'
-                    }`}
-                  >
-                    {t.nav.findCover}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setView('advisors');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
-                      effectiveView === 'advisors' ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white'
-                    }`}
-                  >
-                    {t.nav.advisors}
-                  </button>
-
-                  {currentUser?.role === 'customer' && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setView('my-appointments');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
-                        effectiveView === 'my-appointments'
-                          ? 'bg-white/10 text-white'
-                          : 'text-slate-300 hover:text-white'
-                      }`}
-                    >
-                      {t.nav.myAppointments}
-                    </button>
-                  )}
-                </>
-              )}
-
-              {/* Case B: Financial Advisor Navigation */}
-              {currentUser?.role === 'advisor' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setView('advisor-portal');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  className={`px-3.5 py-1.5 rounded-lg font-medium transition cursor-pointer ${
-                    effectiveView === 'advisor-portal'
-                      ? 'bg-white/10 text-teal-300'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  🩺 {t.nav.advisorPortal}
-                </button>
-              )}
-
-              {/* Case C: Administrator Navigation */}
-              {currentUser?.role === 'admin' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setView('admin-dashboard');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  className={`px-3.5 py-1.5 rounded-lg font-medium transition cursor-pointer ${
-                    effectiveView === 'admin-dashboard'
-                      ? 'bg-white/10 text-purple-300'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  🛡️ {(t.nav as any).adminDashboard || 'Admin Dashboard'}
-                </button>
-              )}
+            {/* Role-Specific Navigation Links with Animated SlideTabs */}
+            <div className="hidden md:flex items-center">
+              <SlideTabs
+                items={navItems}
+                activeId={activeNavId}
+                size="sm"
+                activePillClassName="bg-teal-500/20 border border-teal-400/40 text-teal-200 shadow-sm shadow-teal-500/10"
+                hoverPillClassName="bg-white/5 border border-white/10"
+              />
             </div>
 
             {/* Language Switcher & Auth Section */}
@@ -351,13 +334,33 @@ function App() {
             />
 
             {/* Section 2: Why CoverWise? */}
-            <ValueProposition />
+            <ValueProposition
+              onStartAssessment={handleStartAssessment}
+              onExplorePlans={() => {
+                if (assessmentResult) {
+                  setView('recommendations');
+                } else {
+                  handleStartAssessment();
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onConsultAdvisor={() => {
+                setView('advisors');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
 
             {/* Section 3: How CoverWise Works */}
             <HowItWorks />
 
             {/* Section 4: Clear & Explainable Financial Guidance */}
-            <ExplainableGuidance onStartAssessment={handleStartAssessment} />
+            <ExplainableGuidance
+              onStartAssessment={handleStartAssessment}
+              onConsultAdvisor={() => {
+                setView('advisors');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
 
             {/* Section 5: Final Call to Action */}
             <FinalCTA
@@ -522,8 +525,9 @@ function App() {
         )}
       </main>
 
-      {/* Redesigned Premium Minimal Fintech Footer */}
+      {/* Footer (Cinematic Motion on Landing, Sleek Compact Bar on Other Pages) */}
       <Footer
+        currentView={effectiveView}
         currentUser={currentUser}
         onNavigate={(v) => {
           setView(v);

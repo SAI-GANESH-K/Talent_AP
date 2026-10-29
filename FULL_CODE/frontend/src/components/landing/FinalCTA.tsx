@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { ScrollReveal } from '../ui/ScrollReveal';
+import { BeamsBackground } from '../ui/beams-background';
 
 interface FinalCTAProps {
   onStartAssessment: () => void;
@@ -15,6 +16,13 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
 
   return (
     <section className="relative bg-[#0B1320] text-white py-20 md:py-24 overflow-hidden border-t border-slate-800">
+      {/* Animated subtle beams background continuity */}
+      <BeamsBackground
+        intensity="subtle"
+        colorVariant="teal"
+        className="absolute inset-0 z-0 pointer-events-none"
+      />
+
       {/* Subtle background ambient radial glow */}
       <div
         aria-hidden="true"
@@ -23,8 +31,8 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <ScrollReveal direction="up" delay={0}>
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 text-teal-300 rounded-full text-xs font-semibold mb-6 border border-teal-400/30">
-            <span>🛡️</span> Pure Protection Clarity
+          <div className="inline-flex items-center px-3.5 py-1 bg-teal-500/10 text-teal-300 rounded-full text-xs font-semibold mb-6 border border-teal-400/30">
+            Pure Protection Clarity
           </div>
 
           <h2 className="font-[var(--font-heading)] text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
@@ -61,3 +69,4 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
     </section>
   );
 };
+

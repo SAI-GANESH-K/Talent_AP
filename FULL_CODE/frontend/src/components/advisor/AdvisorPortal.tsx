@@ -78,8 +78,8 @@ export const AdvisorPortal: React.FC<AdvisorPortalProps> = ({ currentUser }) => 
       <div className="bg-gradient-to-r from-[var(--color-navy-900)] to-[var(--color-navy-800)] text-white rounded-3xl p-8 mb-8 shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/20 text-teal-300 rounded-full text-xs font-semibold mb-2">
-              <span>🩺</span> {t.nav.roleAdvisor} Portal
+            <div className="inline-flex items-center px-3 py-1 bg-teal-500/20 text-teal-300 rounded-full text-xs font-semibold mb-2">
+              {t.nav.roleAdvisor} Portal
             </div>
             <h1 className="font-[var(--font-heading)] text-2xl sm:text-3xl font-bold">
               {currentUser.full_name}
@@ -95,7 +95,7 @@ export const AdvisorPortal: React.FC<AdvisorPortalProps> = ({ currentUser }) => 
               onClick={loadConsultations}
               className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-medium transition cursor-pointer"
             >
-              🔄 Refresh List
+              Refresh List
             </button>
           </div>
         </div>
@@ -112,12 +112,14 @@ export const AdvisorPortal: React.FC<AdvisorPortalProps> = ({ currentUser }) => 
         </div>
       ) : error ? (
         <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700">
-          ⚠ {error}
+          {error}
         </div>
       ) : consultations.length === 0 ? (
         <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm">
-          <div className="w-16 h-16 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
-            📋
+          <div className="w-14 h-14 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-teal-100">
+            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
           </div>
           <h3 className="font-[var(--font-heading)] text-lg font-bold text-slate-800 mb-1">
             {t.advisorPortal.noAssigned}
@@ -141,7 +143,6 @@ export const AdvisorPortal: React.FC<AdvisorPortalProps> = ({ currentUser }) => 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">👤</span>
                       <h3 className="font-[var(--font-heading)] font-bold text-base text-slate-900">
                         {booking.customer_name || 'Customer'}
                       </h3>
@@ -150,7 +151,7 @@ export const AdvisorPortal: React.FC<AdvisorPortalProps> = ({ currentUser }) => 
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 mt-1">
-                      <span>⏰ {formatDateTime(booking.slot_start)}</span>
+                      <span>{formatDateTime(booking.slot_start)}</span>
                       <span>·</span>
                       <span className="capitalize font-semibold text-teal-700">
                         Mode: {booking.consultation_mode}
@@ -181,7 +182,7 @@ export const AdvisorPortal: React.FC<AdvisorPortalProps> = ({ currentUser }) => 
                         onClick={() => handleUpdate(booking.id, 'completed')}
                         className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer"
                       >
-                        ✓ Mark Completed
+                        Mark Completed
                       </button>
                     )}
                   </div>
@@ -192,7 +193,7 @@ export const AdvisorPortal: React.FC<AdvisorPortalProps> = ({ currentUser }) => 
                   <div className="bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200 text-xs space-y-3">
                     <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
                       <div className="font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                        <span>📊</span> Customer's Shared Financial Summary
+                        Customer's Shared Financial Summary
                       </div>
                       {booking.assessment_summary.method && (
                         <span className="text-[11px] font-medium text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200 uppercase tracking-wider">

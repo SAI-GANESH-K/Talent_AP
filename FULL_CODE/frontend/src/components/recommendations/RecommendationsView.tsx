@@ -143,8 +143,14 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                 </svg>
                 <span>{t.recommendations.backToAssessment}</span>
               </button>
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold border border-teal-200/60">
-                <span>🎯</span> {(t.recommendations as any).stagePill || 'Stage 3 · Product Recommendations'}
+              {/* Big, Bold, Beautiful Stage 3 Badge */}
+              <div className="inline-flex items-center gap-2.5 sm:gap-3 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-teal-500/15 via-teal-500/10 to-emerald-500/10 border-2 border-teal-500/40 rounded-2xl shadow-xs">
+                <span className="bg-teal-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg shadow-2xs">
+                  Stage 3
+                </span>
+                <span className="text-teal-950 font-extrabold text-sm sm:text-base tracking-tight">
+                  {(t.recommendations as any).stagePill?.replace(/Stage 3\s*[·•-]?\s*/i, '') || 'Product Recommendations'}
+                </span>
               </div>
             </div>
             <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight font-[var(--font-heading)]">
@@ -227,7 +233,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                   }}
                   className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
                 >
-                  ✏ {(t.recommendations as any).editCustomizationBtn || 'Edit Customization'}
+                  {(t.recommendations as any).editCustomizationBtn || 'Edit Customization'}
                 </button>
                 <button
                   type="button"

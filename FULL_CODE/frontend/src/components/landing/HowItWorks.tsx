@@ -55,8 +55,8 @@ export const HowItWorks: React.FC = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <ScrollReveal direction="up" delay={0}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold mb-3 border border-teal-200/60">
-              <span>🛣️</span> How It Works
+            <div className="inline-flex items-center px-3.5 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold mb-3 border border-teal-200/60">
+              How It Works
             </div>
             <h2 className="font-[var(--font-heading)] text-3xl sm:text-4xl font-extrabold text-[var(--color-navy-900)] tracking-tight">
               {t.landing.howHeading}
@@ -117,3 +117,4 @@ export const HowItWorks: React.FC = () => {
     </section>
   );
 };
+

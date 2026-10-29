@@ -358,8 +358,14 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
       {/* Top Banner & Mode Toggle */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-200 gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold mb-2 border border-teal-200/60">
-            <span>📋</span> {(t.wizard as any).stagePill || 'Stage 1 · Financial Needs Assessment'}
+          {/* Big, Bold, Beautiful Stage 1 Badge */}
+          <div className="inline-flex items-center gap-2.5 sm:gap-3 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-teal-500/15 via-teal-500/10 to-emerald-500/10 border-2 border-teal-500/40 rounded-2xl mb-3 shadow-xs">
+            <span className="bg-teal-600 text-white text-xs sm:text-sm font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg shadow-2xs">
+              Stage 1
+            </span>
+            <span className="text-teal-950 font-extrabold text-sm sm:text-base tracking-tight">
+              {(t.wizard as any).stagePill?.replace(/Stage 1\s*[·•-]?\s*/i, '') || 'Financial Needs Assessment'}
+            </span>
           </div>
           <div className="text-xs uppercase tracking-wider font-semibold text-[var(--color-teal-600)] mb-1">
             {t.wizard.stepOf} {step} {t.wizard.stepOfTotal} 5 · {stepTitles[step - 1]}
@@ -383,13 +389,17 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
           <button
             type="button"
             onClick={() => setExpertMode(true)}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
               expertMode
                 ? 'bg-[var(--color-navy-900)] text-white shadow font-semibold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            ⚙ {t.wizard.expertMode}
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>{t.wizard.expertMode}</span>
           </button>
         </div>
       </div>
@@ -912,7 +922,7 @@ export function AssessmentWizard({ onSubmit, onCancel, isLoading }: AssessmentWi
               <div className="mt-6 p-4 bg-slate-900 text-white rounded-xl space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-700 pb-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-teal-400)]">
-                    ⚙ {t.wizard.expertAssumptionsTitle}
+                    {t.wizard.expertAssumptionsTitle}
                   </span>
                   <span className="text-xs text-slate-400">{t.wizard.expertMode}</span>
                 </div>
