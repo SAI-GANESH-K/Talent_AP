@@ -1,365 +1,163 @@
-# CoverWise — Intelligent Life Insurance Needs Finder & Digital Advisory Platform
+# TEAMID_12 · BFSI B2: CoverWise — Intelligent Life Insurance Needs Finder & Digital Advisory Platform
 
 > **Talent AP Mega Hackathon 2026 — Problem Statement: BFSI B2**  
-> **Team:** We4 · **Workspace:** `TEAMID_12`  
-> **Target Production Release:** October 30–31, 2026  
-> **Official Dataset:** Saffron Bank / Saffron Life Synthetic Insurance Data Pack
+> **Team:** We4 · **Team ID:** `TEAMID_12`  
+> **Target Release:** October 30–31, 2026  
+> **Repository:** `SAI-GANESH-K/Talent_AP` · **Stack:** React 19 + TypeScript + Vite + Tailwind CSS v4 + FastAPI + PostgreSQL  
 
 ---
 
-## 1. Project Overview
+## What It Does
 
-**CoverWise** is an enterprise-grade, explainable, and multi-lingual life insurance needs calculation and digital advisory platform built specifically for Saffron Bank customers. Developed by **Team We4** for the Talent AP Mega Hackathon 2026 (Problem Statement BFSI B2), CoverWise transforms the intimidating and opaque life insurance procurement process into an intuitive, transparent, and empathetic digital journey.
+### The Problem
+In Indian retail banking, life insurance penetration remains critically low despite high customer touchpoints. Customers face three major roadblocks:
+1. **Opaque, Arbitrary Calculations:** Banks frequently offer generic rules of thumb (e.g., *"buy 10x your annual salary"*), completely ignoring outstanding home loans, dependent education milestones, inflation, and existing liquid assets.
+2. **Push Culture & Commission Distrust:** Customers avoid seeking guidance because traditional agency channels are notorious for aggressive telemarketing and pushing high-commission endowment/ULIP products instead of affordable pure term insurance.
+3. **Linguistic & Accessibility Barriers:** Digital calculators are overwhelmingly technical and English-first, alienating non-English-speaking families across Tier-2 and Tier-3 India.
 
-Rather than relying on opaque AI black boxes or aggressive sales push tactics, CoverWise puts actuarial rigor, mathematical transparency, customer autonomy, and data privacy at the core of the insurance advisory experience.
+### Who Uses CoverWise
+* **Retail Bank Customers:** Salaried employees, self-employed professionals, homemakers, and small-business owners seeking an honest, spam-free financial assessment.
+* **Licensed Fee-Only Advisors:** Bank-certified advisors conducting unbiased consultations without sales quotas or commission incentives.
+* **Bank Compliance & Administrators:** Supervisory staff monitoring system health, aggregate booking metrics, and actuarial audit trails.
 
----
-
-## 2. Problem Statement & Solution
-
-### The BFSI B2 Challenge
-In modern retail banking, life insurance under-penetration remains pervasive:
-1. **Opaque Calculation:** Customers are offered arbitrary coverage multiples (e.g., "10x annual income") without considering inflation, liabilities, existing assets, or family life-stage milestones.
-2. **Push Culture vs. Empathetic Advisory:** Customers fear interacting with commission-driven agents who aggressively promote high-margin endowment plans over cost-effective pure term protection.
-3. **Linguistic & Accessibility Barriers:** Digital insurance calculators are overwhelmingly English-first and complex, isolating non-English-speaking Tier-2/Tier-3 customers.
-4. **Data Privacy & Security:** Sensitive financial profiles (income, debt, medical flags) are frequently leaked to third-party telemarketers.
-
-### The CoverWise Solution
-CoverWise addresses each challenge with a four-pillar approach:
-- **Dual Actuarial Engine:** Side-by-side Human Life Value (Income Replacement) and Net Needs Analysis (Liability & Goal-based), fully transparent with down-to-the-rupee inflation and present value schedules.
-- **Empathetic Digital Journey:** Four-stage guided journey (Assessment $\to$ Coverage Needs $\to$ Product Customizer $\to$ Advisor Booking) allowing self-directed exploration without spam.
-- **Five-Language Support:** Instant runtime switching across **English, Telugu (తెలుగు), Hindi (हिन्दी), Tamil (தமிழ்), and Kannada (ಕನ್ನಡ)** with complete mathematical parity.
-- **Bank-Grade Security Architecture:** HttpOnly cookie-based session tokens, double-submit CSRF defense, Argon2id password hashing, Safe Client IP rate-limiting, and strict server-side Role-Based Access Control (RBAC).
-
----
-
-## 3. Main Features
-
-- **Empathetic Financial Assessment:** Multi-step guided wizard collecting annual income, household expenses, retirement timeline, outstanding loans, existing insurance covers, and dependent milestones (child education, marriage).
-- **Dual Actuarial Modeling:**
-  - **Human Life Value (HLV):** Finite-horizon income replacement discounted at real net discount rates ($r_{real} = \frac{1 + r}{1 + g} - 1$).
-  - **Net Needs Approach:** Comprehensive sum of immediate expenses, debt clearance, inflation-adjusted future family goals, and ongoing living maintenance, less liquid assets and existing life insurance.
-- **Simple vs. Expert Mode:** Instant toggle between a clean, accessible summary view and an expert actuarial dashboard with year-by-year cash flow projections.
-- **Deterministic 4-Pillar Recommendation Engine:** Scores and ranks all 14 official Saffron Life products based on Suitability, Value-for-Money, Flexibility, and Claim Solvency.
-- **Dynamic Policy Customizer:** Interactive sliders for Sum Assured, Policy Term, Premium Payment Term, Payment Mode (Annual, Semi-Annual, Quarterly, Monthly), and Riders with real-time Decimal-precise premium calculations.
-- **Plan Comparison Matrix:** Side-by-side modal comparing up to 3 plans across premiums, coverage, entry age, riders, and key features.
-- **Transaction-Safe Advisor Booking:** Slot reservation engine backed by PostgreSQL row-level locks (`SELECT ... FOR UPDATE`) and a database partial unique index (`ix_bookings_confirmed_slot`) preventing race conditions and double-bookings.
-- **Role-Based Portals:** Specialized dashboards for **Customers** (manage appointments), **Advisors** (consultation queue and status lifecycle), and **Administrators** (anonymized system telemetry, booking metrics, and platform health).
+### What Users Experience
+CoverWise delivers a self-directed, empathetic four-stage digital journey:
+1. **Stage 1 — Financial Assessment:** An intuitive wizard capturing household income, monthly living costs, retirement timeline, outstanding liabilities (home/vehicle/personal loans), active life covers, and family milestones (children's higher education, marriage).
+2. **Stage 2 — Dual Actuarial Coverage Needs:** Clear, side-by-side presentation of two respected actuarial models:
+   * **Human Life Value (HLV):** Future economic earning power discounted to present value.
+   * **Net Needs Analysis:** Total financial obligations minus existing resources, leaving the exact net protection shortfall.
+   * *Simple vs. Expert Mode:* Users can view a clean summary or expand full year-by-year cashflow projections with interactive inflation and discount rate sensitivity sliders.
+3. **Stage 3 — Product Exploration & Real-Time Customizer:**
+   * Algorithmic 4-pillar ranking (Need Suitability, Value for Money, Flexibility, Solvency) evaluating the official 14 Saffron Life insurance products.
+   * Interactive policy sliders for Sum Assured, Policy Term, and Premium Payment Term with real-time recalculation of annual, semi-annual, quarterly, and monthly premiums down to the exact rupee.
+   * Side-by-side comparison modal evaluating up to 3 plans simultaneously.
+4. **Stage 4 — Fee-Only Advisor Booking:**
+   * Filterable advisor directory by language and specialization.
+   * Concurrency-safe calendar slot reservation with zero spam calls and zero personal data leakage.
+   * Dedicated management dashboards for customers and advisors.
+5. **5 Indic Languages:** Complete runtime switching across **English, Telugu (తెలుగు), Hindi (हिन्दी), Tamil (தமிழ்), and Kannada (ಕನ್ನಡ)** with 100% mathematical parity.
 
 ---
 
-## 4. Technology Stack
+## How to Run
 
-| Layer | Technologies | Justification |
-|---|---|---|
-| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS v4, Lucide Icons | Type safety, ultra-fast HMR (<350ms build time), utility-first responsive styling, and modern accessibility primitives. |
-| **Backend** | Python 3.10+, FastAPI, Pydantic v2, Uvicorn | High-performance asynchronous REST API, automatic OpenAPI generation, and strict data validation contracts. |
-| **ORM & Migrations** | SQLAlchemy 2.0, Alembic | Type-annotated relational queries, transactional integrity, and version-controlled schema migrations. |
-| **Database** | PostgreSQL 14+ | ACID compliance, `NUMERIC(15, 2)` financial precision, and advanced partial unique indexing. |
-| **Security** | Argon2id, Secure HttpOnly Cookies, Double-Submit CSRF | Bank-standard cryptographic password hashing, prevention of XSS token theft, and cross-site forgery mitigation. |
-| **Testing** | pytest, pytest-asyncio, HTTPX, Node Test Runner | 97 comprehensive regression, actuarial, security, and concurrency tests. |
+### System Prerequisites
+* **Operating System:** Windows, macOS, or Linux
+* **Python:** 3.10+ (64-bit)
+* **Node.js:** 18.x or 20.x+ with `npm`
+* **PostgreSQL:** 14+ running locally (default port: `5432`)
 
 ---
 
-## 5. System Architecture
+### Method A: 1-Click Launch (Windows)
 
-```mermaid
-flowchart TD
-    subgraph Client["Client Tier (Browser)"]
-        UI["React 18 + Vite SPA"]
-        I18N["Five-Language Context (en, te, hi, ta, kn)"]
-        Store["Client State (Zustand / React Context)"]
-        UI --> I18N
-        UI --> Store
-    end
+We have provided ready-to-run automation batch scripts in the project root:
 
-    subgraph Gateway["API & Security Boundary"]
-        Proxy["Vite Proxy / Reverse Proxy (/api/v1)"]
-        CookieAuth["HttpOnly Session Cookie"]
-        CSRF["X-CSRF-Token Validation Header"]
-        RateLimit["Safe Client IP InMemory Rate Limiter"]
-        Proxy --> CookieAuth
-        Proxy --> CSRF
-        Proxy --> RateLimit
-    end
+1. **Start Everything:** Double-click [`run.bat`](file:///e:/TEAMID_12/run.bat) (or run `./run.bat` in Command Prompt).
+   * Automatically clears any stale processes on ports `8000` and `5173`.
+   * Activates the Python virtual environment and starts the FastAPI backend on `http://0.0.0.0:8000`.
+   * Starts the Vite frontend on `http://0.0.0.0:5173`.
+   * Detects your local network IP and prints the mobile testing link.
+   * Automatically launches your default browser to `http://localhost:5173`.
+2. **Stop Cleanly:** Double-click [`stop.bat`](file:///e:/TEAMID_12/stop.bat) to terminate backend and frontend servers and free all ports.
+3. **Mobile Cloudflare Preview:** Double-click [`mobile-tunnel.bat`](file:///e:/TEAMID_12/mobile-tunnel.bat) to generate an instant, secure public HTTPS link for mobile testing on 4G/5G networks.
 
-    subgraph Server["FastAPI Backend Application"]
-        Router["FastAPI REST Endpoints (/api/v1)"]
-        RBAC["Server-Side RBAC Guard (customer, advisor, admin)"]
-        NeedsEngine["Needs Calculation Engine (HLV & Net Needs)"]
-        PricingEngine["Deterministic Premium Pricing Engine"]
-        RecEngine["4-Pillar Product Recommendation Engine"]
-        BookingService["Transaction-Safe Booking Service"]
-        
-        Router --> RBAC
-        RBAC --> NeedsEngine
-        RBAC --> PricingEngine
-        RBAC --> RecEngine
-        RBAC --> BookingService
-    end
+---
 
-    subgraph Database["Data Tier (PostgreSQL 14+)"]
-        PG[(PostgreSQL Database)]
-        BookingService -- "SELECT ... FOR UPDATE" --> PG
-        Router -- "SQLAlchemy 2.0 ORM" --> PG
-    end
+### Method B: Manual Step-by-Step Setup
 
-    UI -- "REST over HTTPS / Credentials: Include" --> Proxy
-    Proxy --> Router
+#### 1. Clone & Environment Setup
+```bash
+git clone https://github.com/SAI-GANESH-K/Talent_AP.git TEAMID_12
+cd TEAMID_12/FULL_CODE
+
+# Copy environment variables template
+cp .env.example .env
+```
+Edit `FULL_CODE/.env` with your PostgreSQL database credentials:
+```env
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/coverwise
+SESSION_SECRET_KEY=coverwise_secure_production_secret_key_2026
+ENVIRONMENT=development
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 ```
 
----
+#### 2. Backend Setup & Data Ingestion
+```bash
+cd FULL_CODE/backend
 
-## 6. Database Architecture
-
-CoverWise utilizes 15 relational tables categorized into **Official Source Data** (immutable catalog tables imported from the hackathon data pack) and **Application Operational Data** (transactional tables with UUID primary keys):
-
-```
-DATABASE: coverwise (PostgreSQL)
-│
-├── Official Source Catalog (9 Tables)
-│   ├── products                 - 14 Saffron Life insurance products (term, savings, ulip, health)
-│   ├── premium_rates            - 39,588 actuarial premium rate rows across age, gender, smoker, term
-│   ├── riders                   - 5 optional supplementary riders (ADB, CI, WOP, Term, Hospital)
-│   ├── ulip_funds               - 4 investment fund profiles with benchmark return histories
-│   ├── ulip_mortality_charges   - 328 mortality rate factors by age and gender
-│   ├── advisors                 - 15 licensed financial advisors with credentials and languages
-│   ├── advisor_slots            - 2,201 availability windows across October/November 2026
-│   ├── synthetic_profiles       - 200 benchmark customer financial profiles for instant demo
-│   └── customer_goals           - 371 mapped milestones (education, marriage, property, wealth)
-│
-└── Application Operational Tables (6 Tables)
-    ├── users                    - Authenticated accounts with Argon2id password hashes and role tags
-    ├── user_sessions            - Server-side HttpOnly active session store with TTL expiry
-    ├── assessment_records       - Saved customer financial profiles and calculated coverage needs
-    ├── product_recommendations  - Recommendation score snapshots linked to assessments
-    ├── bookings                 - Advisory appointments with strict finite state machine
-    └── audit_logs               - Administrative audit trails for security and compliance
-```
-
-### Critical Concurrency Protection
-To guarantee zero double-booking under concurrent load, the `bookings` table enforces a database-level partial unique index:
-```sql
-CREATE UNIQUE INDEX ix_bookings_confirmed_slot 
-ON bookings (slot_id) 
-WHERE status = 'confirmed';
-```
-This index guarantees that while multiple historical records (`cancelled`, `completed`) may exist for a time slot, exactly one `confirmed` appointment can exist for any given `slot_id` at any time.
-
----
-
-## 7. HLV & Net Needs Explanation
-
-### Human Life Value (HLV) — Income Replacement Method
-The HLV method evaluates the economic capital value of the primary earner to their surviving family:
-$$\text{HLV} = \sum_{t=1}^{N} \frac{\text{Earnings}_t \times (1 - \text{Self Expense Ratio})}{(1 + r)^t}$$
-- **Earnings Projection:** Current annual income escalated at annual income growth rate $g$ (default: 8.0%).
-- **Self-Maintenance Deduction:** The earner's personal consumption is deducted (default: 25.0% for 2+ dependents, 30.0% for 1 dependent).
-- **Discounting:** Cash flows are discounted to present value using discount rate $r$ (default: 7.0%).
-- **Working Years Remaining ($N$):** $\text{Target Retirement Age} - \text{Current Age}$.
-
-### Net Needs Approach — Liability & Goal-Based Method
-The Net Needs method calculates the immediate lump sum required to insulate the family against all debt and future commitments:
-$$\text{Net Needs} = \text{Immediate Needs} + \text{Debt Payoff} + \text{Future Family Goals} + \text{Living Maintenance} - \text{Liquid Assets} - \text{Existing Life Cover}$$
-- **Immediate Needs:** Emergency fund (6 months household expenses) + funeral/transition costs.
-- **Debt Payoff:** Total outstanding home loans, personal loans, vehicle loans, and credit card balances.
-- **Future Family Goals:** Education, marriage, and milestone funds escalated by specific goal inflation $i$ (default: 8.0%) and discounted to present value.
-- **Living Maintenance:** Present value of annual household living expenses for the required dependency horizon (years until youngest child reaches age 25).
-- **Existing Coverage Deductions:** Liquid savings, mutual funds, PF balance, and active life covers (GTLI, individual term) are credited against gross needs.
-
----
-
-## 8. Official Synthetic Premium-Pricing Methodology
-
-All premium pricing strictly executes the official Saffron Life actuarial rate formulation:
-$$\text{Annual Base Premium} = \left(\frac{\text{Sum Assured}}{1,000}\right) \times \text{Base Rate} \times (1 - \text{Large Sum Assured Rebate})$$
-$$\text{Modal Factor:} \quad \text{Annual} = 1.0, \quad \text{Semi-Annual} = 0.51, \quad \text{Quarterly} = 0.26, \quad \text{Monthly} = 0.0875$$
-$$\text{Installment Premium} = \text{RoundHalfUp}\left(\text{Annual Premium} \times \text{Modal Factor}\right)$$
-
-### Official Benchmark Verification (₹1,045 Total Monthly Premium)
-CoverWise pricing has been verified against the official B2 benchmark rate row:
-- **Product:** Saffron Kesaro Term (`PRD-X4CBUF`)
-- **Profile:** Age 30, Male, Non-smoker, ₹1,00,00,000 (₹1 Crore) Base Life Cover
-- **Policy Term:** **30-year policy term** (regular premium payment term: 30 years)
-- **Payment Frequency:** Monthly (`modal_factor = 0.0875`)
-- **Add-on Rider:** Saffron Kesaro Accidental Death Benefit Rider (`RDR-LUR23D`) with ₹50,00,000 (₹50 Lakh) Sum Assured (Rider Rate = 0.30 per ₹1,000 SA)
-
-```text
-CALCULATION BREAKDOWN:
-Base Rate: 1.044 per 1,000 SA
-Base Annual Premium: (1,00,00,000 / 1,000) * 1.044 = ₹10,440.00
-Base Monthly Premium: RoundHalfUp(10,440.00 * 0.0875) = ₹914.00
-
-Rider Rate: 0.30 per 1,000 SA
-Rider Annual Premium: (50,00,000 / 1,000) * 0.30 = ₹1,500.00
-Rider Monthly Premium: RoundHalfUp(1,500.00 * 0.0875) = ₹131.00
-
-Total Monthly Premium: ₹914.00 + ₹131.00 = ₹1,045.00
-```
-*Validated in regression test `test_golden_premium_exact_decimal`.*
-
----
-
-## 9. Recommendation Logic
-
-CoverWise implements a fully explainable, transparent 4-pillar scoring algorithm (0 to 100 points) evaluating every eligible plan from the 14-product catalog:
-
-| Pillar | Weight | Evaluation Criteria |
-|---|---|---|
-| **1. Need Suitability** | 35% | Exact alignment between plan category (Term, Savings, ULIP) and customer stated objective (pure protection, wealth accumulation, retirement). |
-| **2. Value for Money** | 25% | Ratio of coverage benefit to premium cost per lakh sum assured relative to market category benchmarks. |
-| **3. Flexibility & Customization** | 20% | Availability of rider add-ons (ADB, Critical Illness), multiple payment frequencies, and policy term options. |
-| **4. Solvency & Claim Track Record** | 20% | Saffron Life historical claims settlement ratio (98.4%) and regulatory solvency margin (2.1x). |
-
-Plans are filtered through strict eligibility gates (minimum/maximum entry age, maximum maturity age, minimum income, smoker acceptance) before ranking.
-
----
-
-## 10. Security Architecture
-
-CoverWise is engineered to meet commercial banking security standards:
-
-1. **HttpOnly Session Cookies:** Session tokens are stored strictly in `HttpOnly`, `SameSite=Lax` (or `Strict`), and `Secure` cookies. JavaScript cannot access session tokens, completely thwarting token-theft via Cross-Site Scripting (XSS).
-2. **Double-Submit CSRF Protection:** Mutating requests (`POST`, `PUT`, `PATCH`, `DELETE`) require an `X-CSRF-Token` header matching the client cookie, verified server-side.
-3. **Argon2id Password Hashing:** User passwords are encrypted with Argon2id using recommended OWASP cryptographic memory and time cost parameters.
-4. **Safe Client IP Rate Limiting:** Brute-force attacks against authentication routes are throttled per client IP address. To prevent IP spoofing, `X-Forwarded-For` headers are only inspected if the direct connection originates from a configured, trusted proxy.
-5. **Server-Side Role-Based Access Control (RBAC):**
-   - `customer`: Can view and manage only their own assessments and bookings.
-   - `advisor`: Can view and update consultation notes only for bookings assigned specifically to their advisor profile.
-   - `admin`: Accesses system-wide aggregate telemetry; sensitive customer financial records and private notes are filtered out of admin responses.
-6. **No Client-Side Secrets:** Zero demo passwords or API secrets are packaged into public JavaScript bundles or localized language files.
-
----
-
-## 11. Four-Stage Customer Journey
-
-```
-[ Stage 1: Assessment Wizard ]
-  ├── Basic demographics (Age, Gender, Smoker Status)
-  ├── Financial flows (Annual Income, Monthly Expenses)
-  ├── Liabilities (Home Loans, Education Loans, Credit Cards)
-  └── Family goals (Child Education, Marriage, Retirement Timeline)
-         │
-         ▼
-[ Stage 2: Coverage Recommendation Dashboard ]
-  ├── Dual Actuarial Display: HLV vs. Net Needs
-  ├── Recommended Target Coverage Amount
-  ├── Interactive Simple / Expert Mode Actuarial Cashflow Schedules
-  └── Inflation & Discount Rate Sensitivity Controls
-         │
-         ▼
-[ Stage 3: Product Exploration & Policy Customizer ]
-  ├── 4-Pillar Recommended Plan Matches
-  ├── Real-time Interactive Customizer (SA, Term, Riders, Frequency)
-  ├── Dynamic Premium Recalculation with Modal Breakdown
-  └── Side-by-Side Plan Comparison Matrix (up to 3 products)
-         │
-         ▼
-[ Stage 4: Digital Advisory & Booking ]
-  ├── Advisor Directory (Language, Specialization, Rating)
-  ├── Live Real-time Available Slot Selection
-  ├── Concurrency-Safe Confirmation
-  └── Dedicated Customer & Advisor Management Portals
-```
-
----
-
-## 12. Local Setup & Execution
-
-### Prerequisites
-- **Python 3.10+** (64-bit)
-- **Node.js 18+** & **npm**
-- **PostgreSQL 14+** (running on `localhost:5432`)
-
-### Step-by-Step Installation
-
-```powershell
-# 1. Clone repository and navigate to workspace
-git clone <repository_url>
-cd TEAMID_12
-
-# 2. Configure Environment Variables
-cd FULL_CODE
-copy .env.example .env
-# Edit .env with your local PostgreSQL password:
-# DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/coverwise
-# SESSION_SECRET_KEY=generate_a_secure_random_hex_key
-
-# 3. Backend Setup
-cd backend
+# Create and activate virtual environment
 python -m venv .venv
+
+# Windows PowerShell:
 .venv\Scripts\Activate.ps1
+# Linux/macOS:
+# source .venv/bin/activate
+
+# Install dependencies
 pip install -e ".[dev]"
 
-# 4. Database Initialization
-# In PostgreSQL CLI (psql):
-# CREATE DATABASE coverwise;
+# Create the PostgreSQL database (if not already created)
+# psql -U postgres -c "CREATE DATABASE coverwise;"
+
+# Run database migrations
 alembic upgrade head
 
-# 5. Import Official B2 Datasets
+# Ingest official B2 CSV datasets into PostgreSQL
 python -m scripts.import_official_data
 
-# 6. (Optional) Seed Synthetic Demo Accounts
+# (Optional) Seed demo user accounts
 python -m scripts.seed_demo_accounts
+```
 
-# 7. Frontend Setup
-cd ..\frontend
+#### 3. Frontend Setup
+```bash
+cd ../frontend
+
+# Install dependencies
 npm install
-
-# 8. Start Development Servers
-# Terminal 1 — Backend:
-cd FULL_CODE\backend
-.venv\Scripts\Activate.ps1
-uvicorn app.main:app --reload --port 8000
-
-# Terminal 2 — Frontend:
-cd FULL_CODE\frontend
-npm run dev
 ```
 
-The application is accessible at **`http://localhost:5173`**.  
-Interactive Swagger API documentation is available at **`http://localhost:8000/docs`**.
+#### 4. Start Development Servers
+Open two separate terminal windows:
+
+* **Terminal 1 (Backend):**
+  ```bash
+  cd FULL_CODE/backend
+  .venv/Scripts/uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+  ```
+* **Terminal 2 (Frontend):**
+  ```bash
+  cd FULL_CODE/frontend
+  npm run dev
+  ```
+
+* **Frontend Web App:** [http://localhost:5173](http://localhost:5173)
+* **Backend Swagger API Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+* **Backend Health Check:** [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)
 
 ---
 
-## 13. Migration & Dataset Import Instructions
-
-Database migrations and dataset loaders are fully idempotent:
-```powershell
-cd FULL_CODE\backend
-.venv\Scripts\Activate.ps1
-
-# Execute Alembic Migrations
-alembic upgrade head
-
-# Run Official Data Importer (reads B2 CSV datasets)
-python -m scripts.import_official_data
+### Where to Put the Data Pack Files
+Per Rule 2 and Rule 11 of the hackathon guidelines, the original synthetic datasets are located in:
 ```
-
-**Imported Catalog Inventory:**
-- Products: **14**
-- Premium Rate Factor Rows: **39,588**
-- Supplementary Riders: **5**
-- ULIP Investment Funds: **4**
-- Mortality Charge Factors: **328**
-- Licensed Financial Advisors: **15**
-- Availability Time Slots: **2,201**
-- Benchmark Customer Profiles: **200**
-- Tracked Life Goals: **371**
+FULL_CODE/data/B2_Life_Insurance_Needs_Finder/data/
+```
+This folder contains the official CSV datasets (`products.csv`, `premium_rates.csv`, `riders.csv`, `advisors.csv`, etc.). As required, `FULL_CODE/data/` is excluded from version control via `.gitignore` and is loaded cleanly into PostgreSQL via `python -m scripts.import_official_data`.
 
 ---
 
-## 14. Test Instructions & Actual Results
+## How to Run the Tests
 
-CoverWise includes an exhaustive test suite covering actuarial precision, API validation, RBAC boundaries, rate limiting, and slot booking race conditions.
+CoverWise includes an exhaustive automated test suite validating actuarial formulas, exact decimal pricing, recommendation ranking, session security, CSRF defense, and database concurrency locks.
 
+### The One Command to Run All Tests:
 ```powershell
-cd FULL_CODE\backend
-.venv\Scripts\Activate.ps1
-pytest -v
+cd FULL_CODE/backend
+.venv\Scripts\pytest.exe -v
 ```
 
-### Verified Test Run: 97/97 Passing Tests (100% Pass Rate)
+### Verified Test Results: 97/97 Passing Tests (100% Pass Rate)
 ```text
 ============================= test session starts =============================
 platform win32 -- Python 3.10.11, pytest-8.3.4, pluggy-1.5.0
@@ -374,51 +172,172 @@ tests/test_phase3.py ....................                                [ 76%]
 tests/test_phase4.py .............                                       [ 89%]
 tests/test_phase5.py ...........                                         [100%]
 
-============================= 97 passed in 6.64s ==============================
+============================= 97 passed in 11.75s =============================
+```
+
+### What the Test Suite Verifies:
+* **Actuarial Benchmark Test (`test_golden_premium_exact_decimal`):** Verifies the exact official B2 golden benchmark of **₹1,045.00** monthly premium for a 30-year-old male, non-smoker, purchasing ₹1 Crore Saffron Kesaro Term for 30 years with ₹50 Lakh Accidental Death Benefit Rider.
+* **Dual-Model Calculation Integrity:** Verifies HLV present value discounting and Net Needs liability clearance across edge-case profiles (zero liabilities, multi-child goals, early retirement).
+* **Security & Auth:** Verifies Argon2id password hashing, HttpOnly session cookie handling, rate limiting on `/api/v1/auth/login`, and cross-origin CSRF header checks.
+* **Concurrency Lock Verification:** Simulates concurrent booking requests on the same advisor slot to ensure zero double-booking under race conditions via `SELECT ... FOR UPDATE` and the `ix_bookings_confirmed_slot` unique partial index.
+
+---
+
+## Architecture
+
+### System Flow Diagram
+
+```mermaid
+flowchart TD
+    subgraph Client["Client Tier (Browser / Mobile)"]
+        UI["React 19 + Vite SPA"]
+        I18N["Five-Language Context (en, te, hi, ta, kn)"]
+        UI_Components["Tailwind CSS v4 + 21st.dev Effects"]
+        UI --> I18N
+        UI --> UI_Components
+    end
+
+    subgraph Security["API Gateway & Security Layer"]
+        Proxy["Vite Dev Proxy (/api/v1)"]
+        CookieAuth["HttpOnly Session Cookie Guard"]
+        CSRF["X-CSRF-Token Verification"]
+        RateLimit["Client IP InMemory Rate Limiter"]
+        Proxy --> CookieAuth
+        Proxy --> CSRF
+        Proxy --> RateLimit
+    end
+
+    subgraph Server["FastAPI Backend Application (FULL_CODE/backend)"]
+        Router["FastAPI REST Endpoints (/api/v1)"]
+        RBAC["Server-Side RBAC (Customer, Advisor, Admin)"]
+        NeedsEngine["Actuarial Needs Engine (HLV & Net Needs)"]
+        PricingEngine["Deterministic Decimal Premium Engine"]
+        RecEngine["4-Pillar Product Recommendation Engine"]
+        BookingService["Concurrency-Safe Slot Booking Service"]
+
+        Router --> RBAC
+        RBAC --> NeedsEngine
+        RBAC --> PricingEngine
+        RBAC --> RecEngine
+        RBAC --> BookingService
+    end
+
+    subgraph Database["Data Tier (PostgreSQL 14+)"]
+        PG[(PostgreSQL Database)]
+        BookingService -- "SELECT ... FOR UPDATE" --> PG
+        Router -- "SQLAlchemy 2.0 ORM" --> PG
+    end
+
+    UI -- "REST over HTTPS (credentials: include)" --> Proxy
+    Proxy --> Router
+```
+
+### Structure Inside `FULL_CODE/`
+
+```
+FULL_CODE/
+├── backend/
+│   ├── app/
+│   │   ├── api/v1/              # REST routers: auth, assessment, recommendations, advisors, bookings
+│   │   ├── core/                # Configuration, security utilities, CSRF, rate-limiter, exceptions
+│   │   ├── db/                  # SQLAlchemy database session and Base declarations
+│   │   ├── models/              # Relational models: products, premium_rates, advisors, bookings, users
+│   │   ├── schemas/             # Pydantic v2 validation contracts for requests and responses
+│   │   └── services/            # Core business & actuarial logic:
+│   │       ├── needs.py         # Pure HLV & Net Needs actuarial calculations
+│   │       ├── pricing.py       # Actuarial rate lookups & Decimal modal factor rounding
+│   │       ├── recommendation.py# 4-Pillar scoring algorithm
+│   │       └── booking.py       # Row-locked transaction slot reservations
+│   ├── alembic/                 # Version-controlled database schema migrations
+│   ├── scripts/                 # Idempotent CSV data import and demo account seeders
+│   ├── tests/                   # 97 pytest test cases across 5 test suites
+│   ├── pyproject.toml           # Pinned Python package dependencies
+│   └── requirements.txt         # Lock-style pip requirements
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── assessment/      # Multi-step financial needs assessment wizard
+│   │   │   ├── recommendations/ # Plan cards, policy sliders, modal breakdown, comparison modal
+│   │   │   ├── advisors/        # Advisor discovery, calendar slot picker, booking confirmation
+│   │   │   ├── portals/         # Dedicated Customer, Advisor, and Admin portals
+│   │   │   ├── landing/         # Cinematic split hero, life insurance story modal, how it works, final CTA
+│   │   │   └── ui/              # Reusable UI primitives and animated effects (21st.dev inspired)
+│   │   ├── i18n/                # Complete translations for English, Telugu, Hindi, Tamil, and Kannada
+│   │   ├── services/            # Type-safe API client (Axios-like fetch wrapper with CSRF handling)
+│   │   ├── types/               # TypeScript interface definitions mirroring backend schemas
+│   │   ├── App.tsx              # Application shell with responsive navigation and view state router
+│   │   └── main.tsx             # Application entry point
+│   ├── package.json             # Pinned npm dependencies
+│   ├── package-lock.json        # Committed deterministic npm lockfile
+│   └── vite.config.ts           # Vite bundler configuration with backend proxy
+├── docs/                        # In-depth architectural, calculation policy, and audit specifications
+└── .env.example                 # Committed environment variables template (zero secrets)
 ```
 
 ---
 
-## 15. AI Tools Used & Team Contributions
+## AI Usage
 
-### AI Tools Utilized
-- **Google Antigravity / Gemini:** Utilized as an intelligent pair programming assistant for boilerplate generation, test case expansion, localized translation verification, and architecture documentation.
-- **Strictly No External AI Runtime Dependencies:** All runtime calculations (HLV, Net Needs, premium rates, product scoring) are 100% deterministic, transparent Python algorithms executing locally without third-party LLM APIs.
+In compliance with Rule 12 of the Talent AP Mega Hackathon guidelines, we transparently disclose all AI tools utilized during the conception, design, and engineering of CoverWise:
 
-### Team We4 Contributions
-- **Actuarial Modeling & Mathematics:** Formalized HLV income replacement and Net Needs present-value formulations with inflation and discounting schedules.
-- **Full-Stack Engineering:** Developed FastAPI REST contracts, PostgreSQL schema with partial indexes, and React TypeScript frontend with 5-language accessibility.
-- **Security Hardening:** Implemented HttpOnly cookie management, Double-Submit CSRF, rate limiters, and RBAC gatekeepers.
-- **Quality Assurance:** Authored 97 automated regression tests and verified zero secret leakage in production builds.
+### 1. Instructional Design & Prompt Engineering (ChatGPT)
+* **Prompt Structuring:** All high-level problem statement breakdowns, user journey personas, financial domain questions, and step-by-step engineering prompts provided to the development environment were designed and structured using **ChatGPT**.
+* **Edge-Case Brainstorming:** Used to formulate complex testing scenarios (such as concurrent double-booking race conditions, non-working spouse dependency horizons, and Indic localization edge cases).
 
----
+### 2. Code Implementation & Verification (Antigravity by Google DeepMind)
+* **AI Coding Assistant:** The entire codebase — including backend FastAPI routes, Pydantic schemas, SQLAlchemy ORM models, Alembic migrations, React 19 TypeScript components, Tailwind CSS v4 styles, and all 97 automated pytest tests — was authored, debugged, and verified using **Antigravity** (Google DeepMind's agentic AI coding assistant).
+* **Test Verification & Refactoring:** Antigravity was used to run live command-line test suites, verify mathematical precision against official IRDAI benchmarks, fix linter warnings, and optimize responsive mobile layout behavior.
 
-## 16. Pre-Developed Work Disclosure
-
-- **Project Planning & Ideation:** Architecture design, problem analysis, and PRD specifications were outlined prior to Day 1.
-- **Open-Source Foundations:** Relies on standardized open-source libraries (FastAPI, React, Vite, Tailwind CSS, SQLAlchemy, Pydantic, Alembic).
-- **Zero Proprietary Code Reuse:** 100% of the application source code, API routes, calculation engines, and UI components were written exclusively for the Talent AP Mega Hackathon 2026.
+### 3. Crucial Architectural Fact: Zero Runtime AI / LLM Dependencies
+* **100% Deterministic Calculations:** CoverWise does **NOT** rely on any external LLM API (OpenAI, Anthropic, or Gemini) at runtime for financial calculations, policy pricing, or product recommendations.
+* **Why This Matters:** Financial advisory requires absolute mathematical auditability and deterministic reproducibility. Every rupee recommended by CoverWise is calculated using verified Python actuarial formulas and official rate tables, guaranteeing zero hallucinations, zero prompt injection vulnerabilities, and zero API downtime.
 
 ---
 
-## 17. Prototype Limitations
+## Pre-Built and Third-Party Code
 
-1. **Fictional Entity Scope:** Saffron Bank and Saffron Life are synthetic entities created for the hackathon.
-2. **Advisory Simulation:** The digital advisory module facilitates calendar appointment booking and consultation management; it does not host integrated WebRTC video calls.
-3. **Underwriting Assumptions:** Health and medical risk factors (BMI, medical history) are not simulated, reflecting the structure of the official hackathon synthetic rate tables.
-4. **Tax Modeling:** Tax deductions under Section 80C and Section 10(10D) are noted for informational reference but are not dynamically computed across state tax jurisdictions.
-5. **Fixed Calendar Window:** Advisor availability slots reflect the official hackathon snapshot period (October–November 2026).
+### 1. UI Components & Animation Effects (21st.dev)
+To achieve a consumer-grade, modern digital banking user experience, several visual components and animation patterns were adapted from open-source community creations on **[21st.dev](https://21st.dev/)** and customized for the CoverWise theme:
+* **Morphing Brand Preloader:** Smooth Apple-style preloader morphing SVG brand assets on initial page load (`src/components/ui/scroll-morph-preloader.tsx` and `src/components/AppPreloader.tsx`).
+* **Beams Background Canvas:** Ambient light-beam canvas shader illuminating the homepage hero section (`src/components/ui/beams-background.tsx`).
+* **Animated SlideTabs:** Magnetic sliding pill tab indicator for the top navigation bar (`src/components/ui/slide-tabs.tsx`).
+* **Dynamic Watermark Motion Footer:** Interactive branded footer with scroll-revealing typography and floating quick links (`src/components/ui/motion-footer.tsx`).
+
+### 2. Open-Source Libraries & Frameworks
+All third-party libraries used in the project are permissive open-source packages (MIT / Apache-2.0 / BSD) pinned in lockfiles:
+* **Backend:** FastAPI, Uvicorn, SQLAlchemy 2.0, Alembic, Pydantic v2, Argon2-cffi, pytest, pytest-asyncio, HTTPX.
+* **Frontend:** React 19, TypeScript, Vite 8, Tailwind CSS v4, Motion (formerly Framer Motion), Recharts, Lucide React.
+
+### 3. Pre-Hackathon Work Declaration
+* Prior to Day 1, our team reviewed the BFSI problem statements, explored actuarial methodologies (Human Life Value formulas and IRDAI solvency benchmarks), and drafted initial architecture flowcharts.
+* **100% of the application code**, database schemas, API routes, calculation engines, localized language dictionaries, and UI components were developed exclusively during the hackathon period.
 
 ---
 
-## 18. Synthetic-Data & Non-Binding Quote Disclaimer
+## Limitations & Future Roadmap
 
-> **IMPORTANT REGULATORY DISCLAIMER:**  
-> CoverWise is a hackathon prototype developed solely for educational and competitive demonstration purposes for the **Talent AP Mega Hackathon 2026**.  
-> 
-> All bank names, insurance products, premium schedules, advisor credentials, and customer profiles are **purely synthetic and fictional**. Products referenced are not registered with or approved by the Insurance Regulatory and Development Authority of India (IRDAI).  
-> 
-> Calculations and recommendations generated by CoverWise are illustrative estimations and do **NOT** constitute binding insurance offers, legal underwriting commitments, or certified financial advice.
+In the spirit of honest engineering and transparent disclosure (Rule 12), we highlight the current boundaries of our prototype and our post-hackathon roadmap:
+
+1. **Synthetic Entity Scope:** Saffron Bank and Saffron Life are synthetic entities provided for the Talent AP Mega Hackathon. Rate tables and advisor profiles reflect the official hackathon synthetic datasets.
+2. **Advisory Video Integration:** The platform handles calendar slot reservation, time-zone alignment, and consultation notes lifecycle; live video conferencing is simulated and intended to integrate with enterprise Google Meet / WebRTC services.
+3. **Medical Underwriting Telemetry:** The current engine models entry age, gender, smoker status, policy term, and sum assured. It does not perform invasive medical underwriting or BMI risk loadings, which would require integration with third-party diagnostic labs.
+4. **Dynamic Tax Slabs:** Section 80C and Section 10(10D) tax benefits are noted for informational education, but are not dynamically modeled across individual state tax brackets or evolving Union Budget regimes.
+5. **Future Roadmap:**
+   * **Account Aggregator (AA) Integration:** Direct consent-based fetching of verified bank statements and mutual fund holdings via Sahamati AA APIs to automate the financial assessment in under 30 seconds.
+   * **Vernacular Voice Agent:** Interactive speech-to-text assessment for rural daily-wage earners with limited digital literacy.
+   * **Core Banking System (CBS) Webhooks:** Instant pre-approved policy issuance for KYC-verified Saffron Bank account holders.
 
 ---
-*CoverWise — Developed with precision by Team We4 for Talent AP Mega Hackathon 2026.*
+
+## Summary Checklist (Hackathon Compliance)
+
+- [x] **Top-level directory structure:** Clean layout with `README.md`, `.gitignore`, `LICENSE`, and `FULL_CODE/`.
+- [x] **No Secrets Committed:** `.env` is ignored; `.env.example` is committed with safe dummy values.
+- [x] **Data Excluded:** `FULL_CODE/data/` synthetic datasets are excluded from git history.
+- [x] **No Build Junk:** `.venv/`, `node_modules/`, `dist/`, `.pytest_cache/`, and temporary folders removed and ignored.
+- [x] **Deterministic Dependencies:** Lockfiles committed (`package-lock.json`, `pyproject.toml`).
+- [x] **Automated Tests:** 97 tests passing with single-command execution.
+- [x] **Transparent Attribution:** Full disclosure of AI tools (ChatGPT, Antigravity) and UI effects (21st.dev).
+
+---
+*CoverWise — Developed with precision by Team We4 (`TEAMID_12`) for the Talent AP Mega Hackathon 2026 (BFSI B2).*

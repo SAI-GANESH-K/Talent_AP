@@ -23,3 +23,4 @@ if exist "%ROOT_DIR%..\cloudflared.exe" (
 
 "%CF_EXE%" tunnel --url http://localhost:5173
 pause
+
