@@ -1,7 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { ScrollReveal } from '../ui/ScrollReveal';
-import { BeamsBackground } from '../ui/beams-background';
 
 interface FinalCTAProps {
   onStartAssessment: () => void;
@@ -15,23 +14,16 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
   const { t } = useLanguage();
 
   return (
-    <section className="relative bg-[#0B1320] text-white pt-8 md:pt-10 pb-16 md:pb-20 overflow-hidden">
-      {/* Animated subtle beams background continuity */}
-      <BeamsBackground
-        intensity="subtle"
-        colorVariant="teal"
-        className="absolute inset-0 z-0 pointer-events-none"
-      />
-
-      {/* Subtle background ambient radial glow */}
+    <section className="relative bg-[#070D18] text-white pt-6 sm:pt-8 pb-12 sm:pb-16 overflow-hidden">
+      {/* Sleek CSS ambient radial glow — pure zero-gap performance */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-32 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-teal-500/10 blur-[120px] rounded-full"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(20,184,166,0.12),rgba(7,13,24,0))]"
       />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <ScrollReveal direction="up" delay={0}>
-          <div className="inline-flex items-center px-3.5 py-1 bg-teal-500/10 text-teal-300 rounded-full text-xs font-semibold mb-6 border border-teal-400/30">
+        <ScrollReveal direction="up" delay={0} distance={12} viewportMargin="0px">
+          <div className="inline-flex items-center px-3.5 py-1 bg-teal-500/10 text-teal-300 rounded-full text-xs font-semibold mb-3.5 border border-teal-400/30">
             Pure Protection Clarity
           </div>
 
@@ -39,11 +31,11 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
             {t.landing.finalHeading}
           </h2>
 
-          <p className="mt-4 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-3 sm:mt-4 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
             {t.landing.finalSubheading}
           </p>
 
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="mt-7 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               type="button"
               onClick={onStartAssessment}
@@ -61,7 +53,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
             </button>
           </div>
 
-          <p className="mt-6 text-xs text-slate-400">
+          <p className="mt-5 sm:mt-6 text-xs text-slate-400">
             Free educational assessment · Takes 3 minutes · No personal data stored
           </p>
         </ScrollReveal>
@@ -69,4 +61,3 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
     </section>
   );
 };
-

@@ -44,6 +44,16 @@ function App() {
   const [pendingPostLoginAction, setPendingPostLoginAction] = useState<ViewMode | null>(null);
   const [pendingBookingAdvisor, setPendingBookingAdvisor] = useState<AdvisorSummary | null>(null);
   const [hasCompletedPreloader, setHasCompletedPreloader] = useState<boolean>(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 25);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Assessment & Plan Selection state — preserved across language and view transitions
   const [isLoadingEstimate, setIsLoadingEstimate] = useState<boolean>(false);
@@ -231,12 +241,16 @@ function App() {
         />
       )}
 
-      {/* Navigation Bar — Seamless Frosted Glass on Homepage, Standard Solid Navy on All Other Pages */}
+      {/* Navigation Bar — Seamless Transparent Floating on Homepage (100% matched with Hero), Standard Solid Navy on All Other Pages */}
       <nav
-        className={`sticky top-0 z-40 w-full transition-all duration-300 text-white ${
+        className={`w-full transition-all duration-300 text-white ${
           effectiveView === 'landing'
-            ? 'bg-[#070D18]/75 backdrop-blur-md border-b border-slate-800/30'
-            : 'bg-[var(--color-navy-900)] shadow-xl border-b border-slate-800'
+            ? `fixed top-0 left-0 right-0 z-40 ${
+                isScrolled
+                  ? 'bg-[#070D18]/90 backdrop-blur-md border-b border-slate-800/40 shadow-lg'
+                  : 'bg-transparent border-b border-transparent shadow-none'
+              }`
+            : 'sticky top-0 z-40 bg-[var(--color-navy-900)] shadow-xl border-b border-slate-800'
         }`}
       >
         <div className="w-full px-4 sm:px-8 lg:px-12 flex items-center justify-between h-20">

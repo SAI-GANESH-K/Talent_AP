@@ -16,7 +16,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   return (
     <header className="relative w-full overflow-hidden border-b border-slate-800/80">
-      <BeamsBackground intensity="medium" className="bg-[#070D18] py-16 sm:py-24 md:py-28">
+      <BeamsBackground intensity="medium" className="bg-[#070D18] pt-28 sm:pt-36 md:pt-40 pb-16 sm:pb-24 md:pb-28">
         <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-8 text-center flex flex-col items-center">
           
           {/* Main Headline */}

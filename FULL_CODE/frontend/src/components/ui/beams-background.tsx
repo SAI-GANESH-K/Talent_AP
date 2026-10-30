@@ -65,15 +65,18 @@ export function BeamsBackground({
 
         const updateCanvasSize = () => {
             const dpr = window.devicePixelRatio || 1;
-            canvas.width = window.innerWidth * dpr;
-            canvas.height = window.innerHeight * dpr;
-            canvas.style.width = `${window.innerWidth}px`;
-            canvas.style.height = `${window.innerHeight}px`;
+            const parent = canvas.parentElement;
+            const width = parent?.clientWidth || window.innerWidth;
+            const height = parent?.clientHeight || window.innerHeight;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
             ctx.scale(dpr, dpr);
 
             const totalBeams = MINIMUM_BEAMS * 1.5;
             beamsRef.current = Array.from({ length: totalBeams }, () =>
-                createBeam(canvas.width, canvas.height)
+                createBeam(width, height)
             );
         };
 
@@ -171,7 +174,7 @@ export function BeamsBackground({
     return (
         <div
             className={cn(
-                "relative min-h-[500px] w-full overflow-hidden bg-neutral-950",
+                "relative min-h-[500px] w-full overflow-hidden bg-[#070D18]",
                 className
             )}
         >
@@ -182,7 +185,7 @@ export function BeamsBackground({
             />
 
             <motion.div
-                className="absolute inset-0 bg-neutral-950/20"
+                className="absolute inset-0 bg-[#070D18]/20"
                 animate={{
                     opacity: [0.05, 0.15, 0.05],
                 }}

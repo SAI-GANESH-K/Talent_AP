@@ -49,7 +49,7 @@ export const HowItWorks: React.FC = () => {
   ];
 
   return (
-    <section className="bg-white pt-16 md:pt-20 pb-10 md:pb-12 border-b border-slate-100">
+    <section className="bg-white pt-16 md:pt-20 pb-8 sm:pb-10 border-b border-slate-100">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
         
         {/* Section Header */}
