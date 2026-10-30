@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { api, type Booking } from '../../api/client';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { AIChatbotModal } from './AIChatbotModal';
 
 interface MyAppointmentsProps {
   onExploreAdvisors: () => void;
@@ -17,6 +18,7 @@ export const MyAppointments: React.FC<MyAppointmentsProps> = ({ onExploreAdvisor
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [selectedChatBooking, setSelectedChatBooking] = useState<Booking | null>(null);
 
   const loadBookings = () => {
     setIsLoading(true);
@@ -178,21 +180,46 @@ export const MyAppointments: React.FC<MyAppointmentsProps> = ({ onExploreAdvisor
                 </div>
 
                 {/* Right Actions */}
-                {isConfirmed && (
+                <div className="flex flex-wrap items-center gap-2 self-end sm:self-center">
                   <button
                     type="button"
-                    disabled={cancellingId === booking.id}
-                    onClick={() => handleCancelBooking(booking.id)}
-                    className="px-4 py-2 text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl border border-red-200 transition self-end sm:self-center disabled:opacity-50 cursor-pointer"
+                    onClick={() => setSelectedChatBooking(booking)}
+                    className="px-3.5 py-2 text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 rounded-xl border border-teal-200 transition flex items-center gap-2 cursor-pointer shadow-xs"
                   >
-                    {cancellingId === booking.id ? t.common.loading : t.advisory.cancelBookingBtn}
+                    <img
+                      src="/insuremate.png"
+                      alt="InsureMate"
+                      className="w-5 h-5 rounded-full object-cover ring-1 ring-cyan-500 shadow-xs"
+                    />
+                    <span>Need Help? Chat with InsureMate</span>
                   </button>
-                )}
+
+                  {isConfirmed && (
+                    <button
+                      type="button"
+                      disabled={cancellingId === booking.id}
+                      onClick={() => handleCancelBooking(booking.id)}
+                      className="px-3.5 py-2 text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl border border-red-200 transition disabled:opacity-50 cursor-pointer"
+                    >
+                      {cancellingId === booking.id ? t.common.loading : t.advisory.cancelBookingBtn}
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
       )}
+
+      {/* AI Chatbot Assistant Modal */}
+      <AIChatbotModal
+        isOpen={Boolean(selectedChatBooking)}
+        onClose={() => setSelectedChatBooking(null)}
+        advisor={null}
+        booking={selectedChatBooking}
+        assessmentSummary={selectedChatBooking?.assessment_summary}
+        currentUser={null}
+      />
     </div>
   );
 };

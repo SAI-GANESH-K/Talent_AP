@@ -43,7 +43,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div
-      className={`relative rounded-3xl transition-all duration-300 transform hover:-translate-y-3 hover:shadow-2xl hover:shadow-teal-900/15 flex flex-col justify-between overflow-hidden cursor-pointer ${
+      onClick={() => onCustomize(product)}
+      className={`relative rounded-3xl transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-teal-900/15 flex flex-col justify-between overflow-hidden cursor-pointer ${
         isTopMatch
           ? 'bg-white border-2 border-teal-600 ring-4 ring-teal-500/10 shadow-xl'
           : 'bg-white border border-slate-200/90 hover:border-teal-500/50 shadow-sm'
@@ -80,7 +81,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div className="flex flex-col items-end">
             <button
               type="button"
-              onClick={() => setShowScoreDetails(!showScoreDetails)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowScoreDetails(!showScoreDetails);
+              }}
               className={`group flex items-center gap-1 border rounded-xl px-2.5 py-1 transition-all cursor-pointer ${scoreBadgeBg}`}
               title="Click to view match score breakdown"
             >
@@ -190,7 +194,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {product.key_benefits.length > 2 && (
             <button
               type="button"
-              onClick={() => setShowAllBenefits(!showAllBenefits)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowAllBenefits(!showAllBenefits);
+              }}
               className="text-[11px] text-teal-700 hover:text-teal-900 font-medium pt-1 cursor-pointer"
             >
               {showAllBenefits ? ((t.recommendations as any).showFewerFeatures || '− Show fewer features') : `+ ${product.key_benefits.length - 2} ${(t.recommendations as any).moreFeatures || 'more features'}`}
@@ -205,12 +212,35 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {localizeLimitation(product.key_limitations[0], language)}
           </div>
         )}
+
+        {/* Available Riders Teaser Bar */}
+        {product.eligible_rider_ids && product.eligible_rider_ids.length > 0 && (
+          <div className="mt-3.5 p-2.5 rounded-xl bg-teal-50/70 border border-teal-200/80 flex items-center justify-between text-xs transition-all hover:bg-teal-100/70">
+            <div className="flex items-center gap-2">
+              <span className="text-base">🛡️</span>
+              <div>
+                <div className="font-bold text-teal-950 text-[11px] leading-tight">
+                  {product.eligible_rider_ids.length} Extra Protection Riders Available
+                </div>
+                <div className="text-[10px] text-teal-700">
+                  Accident, Critical Illness & Premium Waiver
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] font-black text-teal-800 bg-white px-2 py-0.5 rounded-lg border border-teal-200 uppercase tracking-wider shrink-0 shadow-2xs">
+              View & Add →
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Card Actions Footer */}
       <div className="p-4 sm:p-5 border-t border-slate-200 bg-slate-50/70 rounded-b-3xl flex items-center justify-between gap-3">
         {/* Compare Checkbox */}
-        <label className="flex items-center gap-2 cursor-pointer select-none text-xs text-slate-600 hover:text-slate-900">
+        <label
+          onClick={(e) => e.stopPropagation()}
+          className="flex items-center gap-2 cursor-pointer select-none text-xs text-slate-600 hover:text-slate-900"
+        >
           <input
             type="checkbox"
             checked={isSelectedForCompare}
@@ -224,7 +254,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Customize CTA */}
         <button
           type="button"
-          onClick={() => onCustomize(product)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onCustomize(product);
+          }}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 shadow-sm cursor-pointer ${
             isTopMatch
               ? 'bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white shadow-teal-600/20'

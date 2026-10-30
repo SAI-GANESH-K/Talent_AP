@@ -15,6 +15,96 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { CoverageShortfallVisualizer } from './CoverageShortfallVisualizer';
 import { FinancialHelp } from '../education/FinancialHelp';
 
+interface RiderInfo {
+  icon: string;
+  friendlyName: string;
+  badge: string;
+  shortDescription: string;
+  whyNeeded: string;
+}
+
+const getRiderInfo = (
+  riderId: string,
+  rawName: string,
+  benefitText: string,
+  rateBasis: string
+): RiderInfo => {
+  const normId = (riderId || '').toUpperCase();
+  const lowerName = (rawName || '').toLowerCase();
+
+  if (normId === 'RDR-LUR23D' || lowerName.includes('accidental death')) {
+    return {
+      icon: '🚗',
+      friendlyName: 'Accidental Death Protection',
+      badge: '2x Extra Payout',
+      shortDescription:
+        'Pays an additional 100% lump-sum cash directly to your family if death occurs due to an accident.',
+      whyNeeded: 'Doubles family payout on road or workplace accidents',
+    };
+  }
+
+  if (normId === 'RDR-GRH8AS' || lowerName.includes('critical illness')) {
+    return {
+      icon: '🩺',
+      friendlyName: 'Critical Illness Protection',
+      badge: '20 Major Illnesses',
+      shortDescription:
+        'Pays immediate cash upon diagnosis of 20 severe medical illnesses (cancer, heart attack, stroke).',
+      whyNeeded: 'Provides instant cash for emergency hospital treatment',
+    };
+  }
+
+  if (normId === 'RDR-I0Q2E6' || lowerName.includes('disability')) {
+    return {
+      icon: '♿',
+      friendlyName: 'Accidental Disability Protection',
+      badge: 'Income Shield',
+      shortDescription:
+        'Provides guaranteed cash support and monthly income replacement if an accident causes permanent disability.',
+      whyNeeded: 'Protects your family if you are unable to earn an income',
+    };
+  }
+
+  if (
+    normId === 'RDR-XBHTE9' ||
+    lowerName.includes('waiver of premium') ||
+    lowerName.includes('wop')
+  ) {
+    return {
+      icon: '🛡️',
+      friendlyName: 'Waiver of Premium (WOP)',
+      badge: 'Zero Premium Burden',
+      shortDescription:
+        'If you suffer disability or serious illness, all future premiums are waived for free while your full life cover stays 100% active.',
+      whyNeeded: 'Keeps family life cover active even if you cannot pay premiums',
+    };
+  }
+
+  if (normId === 'RDR-ZG7SVA' || lowerName.includes('terminal illness')) {
+    return {
+      icon: '🏥',
+      friendlyName: 'Terminal Illness Benefit (Built-in)',
+      badge: 'Included Free',
+      shortDescription:
+        'Pays the life cover amount early in advance if diagnosed with a certified terminal illness.',
+      whyNeeded: 'Pre-included at no extra charge in this plan',
+    };
+  }
+
+  const cleanTitle = rawName
+    .replace(/^saffron life\s*/i, '')
+    .replace(/rider/i, '')
+    .trim();
+  return {
+    icon: '✨',
+    friendlyName: cleanTitle || 'Additional Protection Rider',
+    badge: rateBasis === 'included_free' ? 'Included Free' : 'Optional Add-on',
+    shortDescription:
+      benefitText.length > 95 ? benefitText.slice(0, 95) + '...' : benefitText,
+    whyNeeded: 'Extra financial cushion for unexpected events',
+  };
+};
+
 interface PolicyCustomizerModalProps {
   product: RecommendedProduct;
   customer: CustomerProfile;
@@ -189,8 +279,8 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-4xl bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden my-8 max-h-[90vh] flex flex-col text-slate-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+      <div className="relative w-full max-w-5xl bg-white border border-slate-200 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden my-4 sm:my-8 max-h-[94vh] flex flex-col text-slate-800">
         {/* Modal Header */}
         <div className="px-6 py-5 bg-[var(--color-navy-900)] border-b border-slate-800 flex items-center justify-between text-white">
           <div>
@@ -410,65 +500,142 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
               </div>
             </div>
 
-            {/* Optional Riders Selection */}
+            {/* Optional Riders Selection — Fully Responsive across Mobile, Tablet, Laptop */}
             {productRiders.length > 0 && (
-              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 space-y-3 shadow-xs">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs uppercase font-bold tracking-wider text-slate-700 flex items-center">
-                    <span>{t.recommendations.optionalRiders}</span>
-                    <FinancialHelp termId="riders" />
-                  </label>
-                  <span className="text-[11px] text-teal-700 font-semibold bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
-                    {Object.values(selectedRiders).filter(Boolean).length} Selected
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 space-y-4 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div>
+                    <label className="text-xs sm:text-sm uppercase font-black tracking-wider text-slate-800 flex items-center gap-1.5">
+                      <span>🛡️ Extra Protection Riders (Add-ons)</span>
+                      <FinancialHelp termId="riders" />
+                    </label>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Strengthen your base cover against unexpected accidents, major illnesses, or disability.
+                    </p>
+                  </div>
+                  <span className="text-[11px] text-teal-800 font-bold bg-teal-50 px-3 py-1 rounded-full border border-teal-200 shrink-0 self-start sm:self-auto shadow-2xs">
+                    {Object.values(selectedRiders).filter(Boolean).length} Active Add-on{Object.values(selectedRiders).filter(Boolean).length === 1 ? '' : 's'}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Grid: 1 col on mobile, 2 cols on tablet and laptop */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
                   {productRiders.map((rider) => {
-                    const isChecked = !!selectedRiders[rider.rider_id];
-                    const activeSa = riderSumAssureds[rider.rider_id] || Math.min(sumAssured * 0.5, 5000000);
+                    const isBuiltIn = rider.rate_basis === 'included_free';
+                    const isChecked = isBuiltIn || !!selectedRiders[rider.rider_id];
+                    const info = getRiderInfo(rider.rider_id, rider.rider_name, rider.benefit, rider.rate_basis);
+                    const activeSa = riderSumAssureds[rider.rider_id] || Math.min(sumAssured * 0.5, rider.max_rider_sa_inr || 5000000);
+                    const riderQuote = liveQuote?.rider_quotes?.find((rq) => rq.rider_id === rider.rider_id);
 
                     return (
                       <div
                         key={rider.rider_id}
-                        className={`p-3 rounded-xl border transition-all flex flex-col justify-between ${
-                          isChecked
-                            ? 'bg-teal-50/60 border-teal-400'
-                            : 'bg-slate-50/80 border-slate-200 hover:border-slate-300'
+                        onClick={() => {
+                          if (!isBuiltIn) {
+                            toggleRider(rider.rider_id, rider.max_rider_sa_inr);
+                          }
+                        }}
+                        className={`relative p-4 rounded-2xl border-2 transition-all duration-200 flex flex-col justify-between ${
+                          isBuiltIn
+                            ? 'bg-emerald-50/70 border-emerald-300 shadow-2xs cursor-default'
+                            : isChecked
+                            ? 'bg-gradient-to-br from-teal-50/90 to-cyan-50/60 border-teal-500 shadow-md ring-2 ring-teal-500/15 cursor-pointer'
+                            : 'bg-white border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/80 shadow-2xs cursor-pointer'
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-2.5">
-                          <label className="flex items-start gap-2.5 cursor-pointer flex-1">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => toggleRider(rider.rider_id, rider.max_rider_sa_inr)}
-                              className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 mt-0.5"
-                            />
-                            <div>
-                              <div className="text-xs font-bold text-slate-900 leading-tight">
-                                {rider.rider_name}
-                              </div>
-                              <div className="text-[11px] text-slate-500 mt-0.5 line-clamp-2">
-                                {rider.benefit}
-                              </div>
+                        {/* Top: Large Touch-friendly Checkbox + Clear Bold Heading + Category Badge */}
+                        <div className="space-y-2">
+                          <div className="flex items-start gap-3">
+                            {/* Custom Touch-Friendly Checkbox */}
+                            <div className="pt-0.5 shrink-0">
+                              {isBuiltIn ? (
+                                <div
+                                  title="Pre-included free in base policy"
+                                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs"
+                                >
+                                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                              ) : (
+                                <div
+                                  className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                                    isChecked
+                                      ? 'bg-teal-600 border-teal-600 text-white shadow-xs'
+                                      : 'bg-white border-slate-300 hover:border-teal-500'
+                                  }`}
+                                >
+                                  {isChecked && (
+                                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  )}
+                                </div>
+                              )}
                             </div>
-                          </label>
 
-                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white text-slate-600 border border-slate-200 shrink-0">
-                            {rider.rider_category}
-                          </span>
+                            {/* Heading & Badge */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1 flex-wrap">
+                                <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight flex items-center gap-1.5">
+                                  <span>{info.icon}</span>
+                                  <span>{info.friendlyName}</span>
+                                </h4>
+                                <span
+                                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 ${
+                                    isBuiltIn
+                                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                      : isChecked
+                                      ? 'bg-teal-100 text-teal-800 border border-teal-300'
+                                      : 'bg-slate-100 text-slate-600 border border-slate-200'
+                                  }`}
+                                >
+                                  {info.badge}
+                                </span>
+                              </div>
+
+                              {/* Plain Language Short Description */}
+                              <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                                {info.shortDescription}
+                              </p>
+                            </div>
+                          </div>
                         </div>
 
-                        {/* If checked & customizable SA */}
-                        {isChecked && rider.rate_basis === 'per_1000_rider_sa' && (
-                          <div className="mt-2.5 pt-2 border-t border-slate-200 flex items-center justify-between gap-2">
-                            <span className="text-[10px] text-slate-500">Rider Cover:</span>
-                            <span className="text-xs font-bold text-teal-700">
-                              {formatINRLakhCr(activeSa)}
-                            </span>
+                        {/* Bottom Bar: Status, Cover Amount, and Live Added Cost */}
+                        <div className="mt-3.5 pt-2.5 border-t border-slate-200/80 flex items-center justify-between text-xs flex-wrap gap-2">
+                          <div>
+                            {isBuiltIn ? (
+                              <span className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
+                                ✓ Pre-included for Free
+                              </span>
+                            ) : isChecked ? (
+                              <span className="text-[11px] text-teal-700 font-bold flex items-center gap-1">
+                                ✓ Added to Plan
+                              </span>
+                            ) : (
+                              <span className="text-[11px] text-slate-400">
+                                Click to add
+                              </span>
+                            )}
                           </div>
-                        )}
+
+                          <div className="flex items-center gap-2">
+                            {/* If checked and has customizable SA */}
+                            {isChecked && rider.rate_basis === 'per_1000_rider_sa' && (
+                              <span className="text-[11px] font-bold text-slate-800 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
+                                Cover: <strong className="text-teal-700">{formatINRLakhCr(activeSa)}</strong>
+                              </span>
+                            )}
+
+                            {/* Added premium if quoted */}
+                            {isChecked && riderQuote && parseFloat(riderQuote.instalment_premium) > 0 && (
+                              <span className="text-[11px] font-extrabold text-teal-800 bg-teal-100/70 px-2 py-0.5 rounded-md border border-teal-200">
+                                +{formatINR(riderQuote.instalment_premium)}/{paymentMode === 'annual' ? 'yr' : 'mo'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
@@ -545,19 +712,19 @@ export const PolicyCustomizerModal: React.FC<PolicyCustomizerModalProps> = ({
                     )}
                   </div>
 
-                  {/* Calculation Transparency Badges */}
-                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 space-y-1.5 font-mono">
+                  {/* Calculation Transparency Badges — Simplified Plain Language */}
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 space-y-1.5">
                     <div className="flex justify-between">
-                      <span>Rate Per 1,000 SA:</span>
-                      <span className="text-slate-800 font-medium">{liveQuote.rate_per_1000_used}</span>
+                      <span>Official Base Pricing Rate:</span>
+                      <span className="text-slate-800 font-bold">{liveQuote.rate_per_1000_used} per ₹1,000</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Band Factor Applied:</span>
-                      <span className="text-slate-800 font-medium">{liveQuote.sa_band_factor_used}</span>
+                      <span>High-Coverage Volume Discount:</span>
+                      <span className="text-slate-800 font-bold">{liveQuote.sa_band_factor_used}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Modal Factor Used:</span>
-                      <span className="text-slate-800 font-medium">{liveQuote.modal_factor_used}</span>
+                      <span>Payment Frequency Factor:</span>
+                      <span className="text-slate-800 font-bold">{liveQuote.modal_factor_used}</span>
                     </div>
                   </div>
                 </div>

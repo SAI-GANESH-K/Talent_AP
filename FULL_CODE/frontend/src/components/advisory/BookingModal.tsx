@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { api, type AdvisorSlot, type AdvisorSummary, type Booking, type User } from '../../api/client';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { AIChatbotModal } from './AIChatbotModal';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -35,6 +36,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
   useEffect(() => {
     if (!isOpen || !advisor) {
@@ -44,6 +46,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       setSelectedMode('');
       setConfirmedBooking(null);
       setBookingError(null);
+      setIsChatbotOpen(false);
       return;
     }
 
@@ -207,13 +210,29 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={onClose}
-                className="bg-[var(--color-teal-600)] hover:bg-[var(--color-teal-500)] text-white px-8 py-3 rounded-xl font-semibold text-sm shadow-md transition cursor-pointer"
-              >
-                {t.common.close}
-              </button>
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <button
+                  type="button"
+                  onClick={() => setIsChatbotOpen(true)}
+                  className="w-full sm:w-auto bg-gradient-to-r from-teal-600 via-cyan-700 to-slate-900 hover:from-teal-500 hover:to-slate-800 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2.5 transition cursor-pointer transform hover:-translate-y-0.5 border border-cyan-400/30"
+                >
+                  <img
+                    src="/insuremate.png"
+                    alt="InsureMate"
+                    className="w-6 h-6 rounded-full object-cover shadow-xs border border-white/40 ring-1 ring-cyan-300"
+                  />
+                  <span>Need Any Help? Chat with InsureMate</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full sm:w-auto border border-slate-300 hover:bg-slate-100 text-slate-700 px-6 py-3 rounded-xl font-semibold text-sm transition cursor-pointer"
+                >
+                  {t.common.close}
+                </button>
+              </div>
             </div>
           ) : (
             /* BOOKING FLOW */
@@ -421,6 +440,16 @@ export const BookingModal: React.FC<BookingModalProps> = ({
           )}
         </div>
       </div>
+
+      {/* Interactive AI Chatbot Assistant */}
+      <AIChatbotModal
+        isOpen={isChatbotOpen}
+        onClose={() => setIsChatbotOpen(false)}
+        advisor={advisor}
+        booking={confirmedBooking}
+        assessmentSummary={assessmentSummary}
+        currentUser={currentUser}
+      />
     </div>
   );
 };
