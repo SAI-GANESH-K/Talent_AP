@@ -269,7 +269,6 @@ FULL_CODE/
 │   ├── package.json             # Pinned npm dependencies
 │   ├── package-lock.json        # Committed deterministic npm lockfile
 │   └── vite.config.ts           # Vite bundler configuration with backend proxy
-├── docs/                        # In-depth architectural, calculation policy, and audit specifications
 └── .env.example                 # Committed environment variables template (zero secrets)
 ```
 

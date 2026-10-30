@@ -1,9 +1,12 @@
 # Git ignore for CoverWise - BFSI B2
-# Official datasets (temporary reference only)
+# Official datasets and problem statement files (temporary reference only)
 FULL_CODE/data/
+*.pdf
 
-# Local Phase Completion Reports (never commit to git per user requirement)
-FULL_CODE/docs/PHASE_*_COMPLETE.md
+# Documentation, audits, and agent instructions (never commit to git)
+FULL_CODE/docs/
+FULL_CODE/AGENTS.md
+docs/
 
 # Environment
 .env
