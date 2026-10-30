@@ -45,6 +45,10 @@ desktop.ini
 *.sqlite
 *.sql.gz
 
+# Executables & Tunnels
+cloudflared.exe
+*.exe
+
 # Testing
 .coverage
 htmlcov/

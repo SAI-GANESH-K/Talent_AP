@@ -26,3 +26,4 @@ echo.
 echo [✓] CoverWise servers have been stopped. Ports 8000, 5173, and 5174 are free.
 echo.
 pause
+
