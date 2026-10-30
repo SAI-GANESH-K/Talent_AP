@@ -1,7 +1,7 @@
-# TEAMID_12 · BFSI B2: CoverWise — Intelligent Life Insurance Needs Finder & Digital Advisory Platform
+# 1201 · BFSI B2: CoverWise — Intelligent Life Insurance Needs Finder & Digital Advisory Platform
 
 > **Talent AP Mega Hackathon 2026 — Problem Statement: BFSI B2**  
-> **Team:** We4 · **Team ID:** `TEAMID_12`  
+> **Team:** We4 · **Team ID:** `1201`  
 > **Repository:** `SAI-GANESH-K/Talent_AP` · **Stack:** React 19 + TypeScript + Vite + Tailwind CSS v4 + FastAPI + PostgreSQL  
 
 ---
@@ -57,8 +57,8 @@ CoverWise delivers a self-directed, empathetic four-stage digital journey:
 
 #### 1. Clone & Environment Configuration
 ```bash
-git clone https://github.com/SAI-GANESH-K/Talent_AP.git TEAMID_12
-cd TEAMID_12/FULL_CODE
+git clone https://github.com/SAI-GANESH-K/Talent_AP.git 1201_B2
+cd 1201_B2/FULL_CODE
 
 # Copy environment variables template
 cp .env.example .env
@@ -325,4 +325,4 @@ In the spirit of honest engineering and transparent disclosure, we highlight the
    * **Core Banking System (CBS) Webhooks:** Instant pre-approved policy issuance for KYC-verified Saffron Bank account holders.
 
 ---
-*CoverWise — Developed with precision by Team We4 (`TEAMID_12`) for the Talent AP Mega Hackathon 2026 (BFSI B2).*
+*CoverWise — Developed with precision by Team We4 (`1201`) for the Talent AP Mega Hackathon 2026 (BFSI B2).*
