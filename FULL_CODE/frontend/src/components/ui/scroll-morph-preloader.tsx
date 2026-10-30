@@ -46,21 +46,21 @@ export const ScrollMorphPreloader: React.FC<ScrollMorphPreloaderProps> = ({
       return;
     }
 
-    // Step 1: 5 cards start in circle orbit (0ms)
-    // Step 2: Smoothly arrange into a neat horizontal line below the title at 450ms
-    const tLine = setTimeout(() => setPhase('line'), 450);
+    // Step 1: 5 cards start in gentle orbit (0ms)
+    // Step 2: Smoothly glide into clean horizontal line below the title at 400ms
+    const tLine = setTimeout(() => setPhase('line'), 400);
 
-    // Step 3: Complete and exit smoothly at 1200ms
+    // Step 3: Complete and smoothly dissolve at 1400ms
     const tExit = setTimeout(() => {
       setPhase('exit');
       setIsVisible(false);
-    }, minDurationMs);
+    }, Math.max(minDurationMs, 1400));
 
     // Guaranteed safety timeout fallback
     const safetyTimeout = setTimeout(() => {
       setIsVisible(false);
       onComplete();
-    }, minDurationMs + 350);
+    }, Math.max(minDurationMs, 1400) + 400);
 
     return () => {
       clearTimeout(tLine);
@@ -128,8 +128,8 @@ export const ScrollMorphPreloader: React.FC<ScrollMorphPreloaderProps> = ({
         <motion.div
           key="coverwise-scroll-morph-preloader"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.02 }}
-          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1320] overflow-hidden select-none pointer-events-auto"
           aria-live="polite"
           aria-busy="true"
@@ -206,10 +206,8 @@ export const ScrollMorphPreloader: React.FC<ScrollMorphPreloaderProps> = ({
                     opacity: currentTransform.opacity,
                   }}
                   transition={{
-                    type: 'spring',
-                    stiffness: 160,
-                    damping: 20,
-                    mass: 0.8,
+                    duration: 0.6,
+                    ease: [0.16, 1, 0.3, 1],
                   }}
                   className={`absolute w-14 h-16 sm:w-16 sm:h-18 rounded-2xl bg-gradient-to-br ${card.color} border ${card.borderColor} backdrop-blur-md shadow-xl shadow-teal-950/40 flex flex-col items-center justify-center p-2`}
                 >

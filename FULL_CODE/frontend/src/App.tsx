@@ -231,22 +231,27 @@ function App() {
         />
       )}
 
-      {/* Navigation Bar — Luminous Beams & Glassmorphism Effect, Logo on left-most, Enlarge Tabs in Middle, Login & Language on right-most */}
-      <nav className="sticky top-0 z-40 w-full bg-[#070D18]/90 backdrop-blur-xl border-b border-slate-800/80 shadow-2xl relative overflow-hidden transition-all duration-300 text-white">
-        {/* Subtle Ambient Radial Glows matching hero beams */}
-        <div className="absolute -top-16 left-1/4 w-80 h-24 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -top-16 right-1/4 w-80 h-24 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
-        {/* Sleek bottom gradient accent line */}
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-teal-500/40 to-transparent pointer-events-none" />
-
-        <div className="relative z-10 w-full px-4 sm:px-8 lg:px-12 flex items-center justify-between h-20">
-          {/* Brand Wordmark — Left-Most Position */}
+      {/* Navigation Bar — Seamless Frosted Glass on Homepage, Standard Solid Navy on All Other Pages */}
+      <nav
+        className={`sticky top-0 z-40 w-full transition-all duration-300 text-white ${
+          effectiveView === 'landing'
+            ? 'bg-[#070D18]/75 backdrop-blur-md border-b border-slate-800/30'
+            : 'bg-[var(--color-navy-900)] shadow-xl border-b border-slate-800'
+        }`}
+      >
+        <div className="w-full px-4 sm:px-8 lg:px-12 flex items-center justify-between h-20">
+          {/* Brand Logo & Wordmark — Left-Most Position */}
           <button
             type="button"
             onClick={handleReturnHome}
             className="flex items-center text-left focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-2xl py-1 px-1 cursor-pointer group shrink-0"
             aria-label="CoverWise Home"
           >
+            <img
+              src="/logo.png"
+              alt="CoverWise Shield"
+              className="w-8 h-8 sm:w-10 sm:h-10 object-contain mr-2.5 sm:mr-3 transition-transform duration-200 group-hover:scale-105 shrink-0 drop-shadow"
+            />
             <span className="font-[var(--font-heading)] font-black text-2xl sm:text-3xl tracking-tight text-white group-hover:text-teal-300 transition-colors whitespace-nowrap">
               Cover<span className="text-teal-400">Wise</span>
             </span>

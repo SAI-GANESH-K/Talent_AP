@@ -46,14 +46,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         onClose();
       }
     } catch (err: any) {
-      let msg = err.message || 'Authentication failed. Please verify your credentials and try again.';
+      let msg = err.message || 'Invalid email or wrong password. Please check your credentials and try again.';
       if (
-        msg.toLowerCase().includes('api error') ||
-        msg.toLowerCase().includes('401') ||
-        msg.toLowerCase().includes('unauthorized') ||
-        msg.toLowerCase().includes('invalid credential')
+        mode === 'login' &&
+        (err.status === 401 ||
+          msg.toLowerCase().includes('api error') ||
+          msg.toLowerCase().includes('401') ||
+          msg.toLowerCase().includes('unauthorized') ||
+          msg.toLowerCase().includes('invalid credential') ||
+          msg.toLowerCase().includes('busy') ||
+          msg.toLowerCase().includes('demand'))
       ) {
-        msg = 'Invalid email or password. Please verify your credentials and try again.';
+        msg = 'Invalid email or wrong password. Please check your credentials and try again.';
       }
       setErrorMessage(msg);
     } finally {

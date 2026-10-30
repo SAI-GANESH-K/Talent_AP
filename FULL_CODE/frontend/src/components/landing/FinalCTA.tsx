@@ -15,7 +15,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
   const { t } = useLanguage();
 
   return (
-    <section className="relative bg-[#0B1320] text-white py-20 md:py-24 overflow-hidden border-t border-slate-800">
+    <section className="relative bg-[#0B1320] text-white pt-8 md:pt-10 pb-16 md:pb-20 overflow-hidden">
       {/* Animated subtle beams background continuity */}
       <BeamsBackground
         intensity="subtle"
