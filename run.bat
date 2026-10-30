@@ -19,19 +19,14 @@ if exist "%CURRENT_DIR%FULL_CODE\backend" (
     set "FRONTEND_DIR=%CURRENT_DIR%frontend"
 ) else (
     echo [ERROR] Could not locate backend and frontend folders.
-    echo Please make sure this script is located in TEAMID_12 or FULL_CODE folder.
+    echo Please make sure this script is located in the project root or FULL_CODE folder.
     pause
     exit /b 1
 )
 
-:: Free up ports 8000 and 5173 in case old instances are lingering
+:: Free up ports 8000 and 5173 forcefully in case any old or hung processes are lingering
 echo [*] Checking and clearing ports 8000 and 5173...
-for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":8000" ^| findstr "LISTENING"') do (
-    taskkill /F /PID %%a >nul 2>&1
-)
-for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":5173" ^| findstr "LISTENING"') do (
-    taskkill /F /PID %%a >nul 2>&1
-)
+powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 8000,5173 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }" >nul 2>&1
 
 :: Validate Backend Python Virtual Environment
 if not exist "%BACKEND_DIR%\.venv\Scripts\python.exe" (
@@ -60,13 +55,13 @@ for /f "tokens=4" %%a in ('route print 0.0.0.0 2^>nul ^| findstr " 0.0.0.0 "') d
     if "!LOCAL_IP!"=="localhost" set "LOCAL_IP=%%a"
 )
 
-echo [*] Starting FastAPI Backend on http://0.0.0.0:8000 ...
-start "CoverWise - Backend Server (FastAPI :8000)" cmd /k "cd /d "%BACKEND_DIR%" && call .venv\Scripts\activate.bat && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+echo [*] Starting FastAPI Backend on http://127.0.0.1:8000 ...
+start "CoverWise - Backend Server (FastAPI :8000)" cmd /k "cd /d "%BACKEND_DIR%" && call .venv\Scripts\activate.bat && python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload"
 
 :: Brief pause to let backend initialize
 timeout /t 2 /nobreak >nul
 
-echo [*] Starting Vite Frontend on http://0.0.0.0:5173 ...
+echo [*] Starting Vite Frontend on http://localhost:5173 ...
 start "CoverWise - Frontend Server (Vite :5173)" cmd /k "cd /d "%FRONTEND_DIR%" && npm run dev"
 
 echo.

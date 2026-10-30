@@ -478,8 +478,10 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
       userFriendlyMessage = errorDetail || 'This appointment slot or record is already reserved. Please choose another option.';
     } else if (response.status === 422) {
       userFriendlyMessage = errorDetail || 'Please verify that all fields have been filled in correctly.';
+    } else if (response.status === 502 || response.status === 503 || response.status === 504) {
+      userFriendlyMessage = 'Backend service is currently unreachable. Please ensure the FastAPI backend server is running on port 8000.';
     } else if (response.status >= 500) {
-      userFriendlyMessage = 'Our secure service is temporarily experiencing high demand. Please try again shortly.';
+      userFriendlyMessage = errorDetail || 'Our calculation service encountered a temporary issue. Please try again shortly.';
     } else if (!userFriendlyMessage) {
       userFriendlyMessage = response.statusText || 'Unable to complete your request. Please try again.';
     }
