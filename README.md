@@ -2,7 +2,6 @@
 
 > **Talent AP Mega Hackathon 2026 — Problem Statement: BFSI B2**  
 > **Team:** We4 · **Team ID:** `TEAMID_12`  
-> **Target Release:** October 30–31, 2026  
 > **Repository:** `SAI-GANESH-K/Talent_AP` · **Stack:** React 19 + TypeScript + Vite + Tailwind CSS v4 + FastAPI + PostgreSQL  
 
 ---
