@@ -234,18 +234,13 @@ function App() {
       {/* Navigation Bar — Logo on left-most, Enlarge Tabs in Middle, Login & Language on right-most */}
       <nav className="bg-[var(--color-navy-900)] text-white sticky top-0 z-40 shadow-xl border-b border-slate-800 w-full">
         <div className="w-full px-4 sm:px-8 lg:px-12 flex items-center justify-between h-20">
-          {/* Brand Logo & Wordmark — Left-Most Position */}
+          {/* Brand Wordmark — Left-Most Position */}
           <button
             type="button"
             onClick={handleReturnHome}
             className="flex items-center text-left focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-2xl py-1 px-1 cursor-pointer group shrink-0"
             aria-label="CoverWise Home"
           >
-            <img
-              src="/logo.png"
-              alt="CoverWise Shield"
-              className="w-8 h-8 sm:w-10 sm:h-10 object-contain mr-2.5 sm:mr-3 transition-transform duration-200 group-hover:scale-105 shrink-0 drop-shadow"
-            />
             <span className="font-[var(--font-heading)] font-black text-2xl sm:text-3xl tracking-tight text-white group-hover:text-teal-300 transition-colors whitespace-nowrap">
               Cover<span className="text-teal-400">Wise</span>
             </span>

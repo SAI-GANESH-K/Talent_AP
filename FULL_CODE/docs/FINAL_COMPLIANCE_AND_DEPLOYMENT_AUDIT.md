@@ -119,16 +119,16 @@ CoverWise has successfully completed a comprehensive, rigorous source-code and r
 
 ## 5. EDUCATIONAL & INDIC ACCESSIBILITY LAYER
 
-### CoverWise Life Story
-- **Purpose:** Breaks down the fundamental concept of life insurance for diverse demographics (farmers, shopkeepers, daily-wage earners, first-time salaried employees) without assuming prior financial literacy.
+### CoverWise Financial Protection Literacy Example
+- **Purpose:** Breaks down the fundamental concept of life insurance for diverse demographics (farmers, shopkeepers, daily-wage earners, first-time salaried employees) without assuming prior financial literacy or requiring video streaming.
 - **Implementation:**
-  - Accessible via a prominent 2-minute video trigger banner on the homepage.
-  - Interactive 4-scene narrative following Farmer Ramu:
-    1. *Scene 1 (Everyday Life):* Hard work supporting household expenses and dependents.
-    2. *Scene 2 (Sudden Tragedy):* Income stops abruptly while debts and school fees continue.
-    3. *Scene 3 (The Safety Shield):* Pure term insurance provides guaranteed financial settlement.
-    4. *Scene 4 (Family Dignity):* Debts cleared, children educated, family dignity preserved.
-  - Complete multi-lingual narrative and key takeaways available across all 5 supported languages.
+  - Lightweight, interactive educational card rendered directly on the homepage without clutter.
+  - Simple real-life example featuring primary earner (Age 32, supporting spouse, 2 children, elderly parents with monthly income ₹50,000, living expenses ₹30,000/mo, ₹15 Lakhs loan, ₹20 Lakhs child education).
+  - Interactive comparison toggle:
+    1. *Without Protection:* Monthly income ends abruptly, ₹15 Lakhs loan burden falls on family, risking loss of family home or stopping children's schooling.
+    2. *With Pure Term Insurance (₹1 Crore Cover at ~₹800/mo):* Immediate ₹1 Crore tax-free claim settlement clears ₹15 Lakhs debt to zero, safely invested capital provides ~₹45,000/month living support, and children's college fund remains intact.
+  - Transparent disclaimer clearly noting hypothetical figures for education, with personalized needs calculated in Stage 1 & 2.
+  - Complete multi-lingual support across English, Telugu, Hindi, Tamil, and Kannada.
 
 ### CoverWise Explain (Contextual Guidance)
 - Non-intrusive contextual help buttons placed adjacent to complex actuarial terms:
@@ -283,6 +283,14 @@ GROUP BY advisor_id, is_booked;
 ```
 
 ### Step 5: Check Bookings & User Accounts
+To view all columns for all user accounts, run the following safe query:
+```sql
+-- View all user records (* means all columns in the table)
+SELECT * FROM public.users;
+```
+*(In SQL, the asterisk symbol `*` means "select all columns" defined in the table schema, such as `id`, `email`, `role`, `advisor_id`, `is_active`, and `created_at`).*
+
+To view customer appointments and booking statuses:
 ```sql
 -- View all customer bookings and their statuses
 SELECT b.id AS booking_id, u.email AS customer_email, a.full_name AS advisor_name, 
@@ -360,8 +368,9 @@ Verify that `FULL_CODE/frontend/dist/` contains `index.html` and assets.
    - **Runtime:** `Python 3`
    - **Build Command:**
      ```bash
-     cd frontend && npm install && npm run build && cd ../backend && pip install -r requirements.txt && alembic upgrade head && python -m app.seeds.seed_data
+     cd frontend && npm install && npm run build && cd ../backend && pip install -r requirements.txt && alembic upgrade head
      ```
+     *(Note: `alembic upgrade head` applies schema migrations safely and idempotently without touching data. Seed scripts are strictly excluded from the build command to ensure restarts and rebuilds never overwrite production data).*
    - **Start Command:**
      ```bash
      cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
@@ -370,8 +379,23 @@ Verify that `FULL_CODE/frontend/dist/` contains `index.html` and assets.
    - `DATABASE_URL`: *(Your Neon PostgreSQL SSL connection string)*
    - `SECRET_KEY`: *(Generate a secure 64-character random string)*
    - `ENVIRONMENT`: `production`
-   - `ALLOWED_ORIGINS`: `https://coverwise.onrender.com`
+   - `CORS_ORIGINS`: `https://coverwise.onrender.com,http://localhost:5173`
    - `COOKIE_SECURE`: `True`
+
+#### Step 4: One-Time Production Database Initialization
+Run once from a local terminal or Render One-Off Job using the production `DATABASE_URL`:
+```bash
+# 1. Apply Schema Migrations
+alembic upgrade head
+
+# 2. Idempotently Import Official B2 Insurance Products, Rates, and Profiles
+python -m scripts.import_official_data
+```
+*(Note: `import_official_data` uses SQL `ON CONFLICT DO UPDATE` or checks existing primary keys, guaranteeing zero duplicate records).*
+
+#### Free Tier Cold Start Characteristics
+- **Render Free Tier:** Spins down backend instances after 15 minutes of inactivity. When the next visitor arrives, Render initiates a container spin-up which takes **~45 to 55 seconds** for the first request, after which all subsequent requests respond instantaneously (<150ms).
+- **Neon Serverless:** Automatically suspends compute after 5 minutes of idle time and resumes compute in **<1 second** upon incoming SQL query.
 
 #### Free Tier Cold Start Characteristics
 - **Render Free Tier:** Spins down backend instances after 15 minutes of inactivity. When the next visitor arrives, Render initiates a container spin-up which takes **~45 to 55 seconds** for the first request, after which all subsequent requests respond instantaneously (<150ms).
@@ -465,3 +489,4 @@ dist/assets/index-B0KEU2L8.js   995.26 kB │ gzip: 276.05 kB
 5. Project structure strictly follows submission guidelines Rule 2.
 
 **RECOMMENDED NEXT STEP:** Await user authorization to push local commits to GitHub repository `SAI-GANESH-K/Talent_AP` and proceed with Render + Neon deployment.
+
