@@ -448,18 +448,46 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   });
 
   if (!response.ok) {
-    let errorDetail = response.statusText;
+    let errorDetail = '';
     try {
       const body = await response.json();
       if (body.error?.message) {
         errorDetail = body.error.message;
       } else if (body.detail) {
-        errorDetail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail);
+        if (typeof body.detail === 'string') {
+          errorDetail = body.detail;
+        } else if (Array.isArray(body.detail) && body.detail.length > 0 && body.detail[0].msg) {
+          errorDetail = body.detail.map((d: any) => d.msg).join(', ');
+        } else {
+          errorDetail = JSON.stringify(body.detail);
+        }
       }
     } catch {
-      // ignore
+      // Fallback if response body is not JSON
     }
-    throw new Error(`API error (${response.status}): ${errorDetail}`);
+
+    // Professional user-facing messages without raw "API error (xyz)" developer prefixes
+    let userFriendlyMessage = errorDetail;
+    if (response.status === 401) {
+      userFriendlyMessage = errorDetail || 'Invalid email or password. Please verify your credentials and try again.';
+    } else if (response.status === 403) {
+      userFriendlyMessage = 'You do not have permission to access this resource or perform this action.';
+    } else if (response.status === 404) {
+      userFriendlyMessage = errorDetail || 'The requested resource could not be found.';
+    } else if (response.status === 409) {
+      userFriendlyMessage = errorDetail || 'This appointment slot or record is already reserved. Please choose another option.';
+    } else if (response.status === 422) {
+      userFriendlyMessage = errorDetail || 'Please verify that all fields have been filled in correctly.';
+    } else if (response.status >= 500) {
+      userFriendlyMessage = 'Our secure service is temporarily experiencing high demand. Please try again shortly.';
+    } else if (!userFriendlyMessage) {
+      userFriendlyMessage = response.statusText || 'Unable to complete your request. Please try again.';
+    }
+
+    const err: any = new Error(userFriendlyMessage);
+    err.status = response.status;
+    err.detail = errorDetail;
+    throw err;
   }
 
   return response.json();

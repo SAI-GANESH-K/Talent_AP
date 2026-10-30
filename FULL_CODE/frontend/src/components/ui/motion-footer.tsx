@@ -108,16 +108,17 @@ const STYLES = `
 
 /* Giant Background Text Masking */
 .footer-giant-bg-text {
-  font-size: clamp(3rem, 12.5vw, 10.5rem);
+  font-size: clamp(2.5rem, 11vw, 8.5rem);
   line-height: 0.85;
   font-weight: 900;
   letter-spacing: 0.05em;
   color: transparent;
-  -webkit-text-stroke: 2px rgba(45, 212, 191, 0.65);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(45, 212, 191, 0.45) 50%, rgba(20, 184, 166, 0.15) 100%);
+  -webkit-text-stroke: 1px rgba(45, 212, 191, 0.18);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(45, 212, 191, 0.05) 50%, transparent 100%);
   -webkit-background-clip: text;
   background-clip: text;
-  text-shadow: 0 0 35px rgba(20, 184, 166, 0.4);
+  opacity: 0.28;
+}
   user-select: none;
 }
 
@@ -318,10 +319,10 @@ export function CinematicFooter({
           <div className="footer-aurora absolute left-1/2 top-1/2 h-[60vh] w-[80vw] -translate-x-1/2 -translate-y-1/2 animate-footer-breathe rounded-[50%] blur-[80px] pointer-events-none z-0" />
           <div className="footer-bg-grid absolute inset-0 z-0 pointer-events-none" />
 
-          {/* Giant background text — Framed prominently and clearly visible */}
+          {/* Giant background text watermark positioned above bottom bar */}
           <div
             ref={giantTextRef}
-            className="footer-giant-bg-text absolute bottom-2 sm:bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap z-0 pointer-events-none select-none uppercase text-center w-full px-2"
+            className="footer-giant-bg-text absolute bottom-28 sm:bottom-32 md:bottom-36 left-1/2 -translate-x-1/2 whitespace-nowrap z-0 pointer-events-none select-none uppercase text-center w-full px-2"
           >
             {brandName}
           </div>
@@ -390,29 +391,23 @@ export function CinematicFooter({
             </div>
           </div>
 
-          {/* 3. Bottom Bar / Credits — All on the Same Line: "Crafted with Love" on left-most, 4 buttons in center, back-to-top on right */}
+          {/* 3. Bottom Bar / Credits — 4 Buttons in Center, "Crafted with Love" & 2026 CoverWise on Right-Most Side */}
           <div className="relative z-20 w-full pb-6 px-4 sm:px-8 md:px-12 flex flex-col lg:flex-row items-center justify-between gap-4">
             
-            {/* Left-Most: "Crafted with Love for India BFSI" + Copyright */}
-            <div className="flex items-center gap-3 order-1 shrink-0">
-              <div className="footer-glass-pill px-4 py-2 rounded-full flex items-center gap-2 cursor-default border-slate-700/50">
-                <span className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-wider">Crafted with</span>
-                <span className="animate-footer-heartbeat text-sm md:text-base text-red-500">❤</span>
-                <span className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-wider">for</span>
-                <span className="text-white font-extrabold text-xs md:text-sm tracking-normal ml-0.5">India BFSI</span>
-              </div>
-              <span className="text-slate-500 text-[10px] md:text-xs font-semibold tracking-wider uppercase hidden sm:inline">
-                © 2026 CoverWise
+            {/* Left Balance: Brand Tag */}
+            <div className="hidden lg:flex items-center gap-2 order-1 shrink-0 w-44">
+              <span className="font-[var(--font-heading)] font-black text-sm tracking-tight text-slate-400">
+                Cover<span className="text-teal-400">Wise</span>
               </span>
             </div>
 
-            {/* Same Line: 4 Secondary Navigation Buttons (Home, Privacy Policy, How It Works, Disclaimer) */}
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 order-2">
+            {/* Middle: 4 Secondary Navigation Buttons (Home, Privacy Policy, How It Works, Disclaimer) */}
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 order-2 flex-1">
               <MagneticButton
                 as="button"
                 type="button"
                 onClick={onNavigateHome}
-                className="footer-glass-pill px-4 py-2 rounded-full text-slate-300 font-medium text-xs sm:text-sm hover:text-white cursor-pointer"
+                className="footer-glass-pill px-4 py-2 rounded-full text-slate-200 font-semibold text-xs sm:text-sm hover:text-white bg-slate-900/90 border border-slate-700/80 shadow-md cursor-pointer"
               >
                 Home
               </MagneticButton>
@@ -420,7 +415,7 @@ export function CinematicFooter({
                 as="button"
                 type="button"
                 onClick={onOpenPrivacy}
-                className="footer-glass-pill px-4 py-2 rounded-full text-slate-300 font-medium text-xs sm:text-sm hover:text-white cursor-pointer"
+                className="footer-glass-pill px-4 py-2 rounded-full text-slate-200 font-semibold text-xs sm:text-sm hover:text-white bg-slate-900/90 border border-slate-700/80 shadow-md cursor-pointer"
               >
                 Privacy Policy
               </MagneticButton>
@@ -428,7 +423,7 @@ export function CinematicFooter({
                 as="button"
                 type="button"
                 onClick={onOpenTerms}
-                className="footer-glass-pill px-4 py-2 rounded-full text-slate-300 font-medium text-xs sm:text-sm hover:text-white cursor-pointer"
+                className="footer-glass-pill px-4 py-2 rounded-full text-slate-200 font-semibold text-xs sm:text-sm hover:text-white bg-slate-900/90 border border-slate-700/80 shadow-md cursor-pointer"
               >
                 How It Works
               </MagneticButton>
@@ -436,20 +431,31 @@ export function CinematicFooter({
                 as="button"
                 type="button"
                 onClick={onOpenDisclaimer}
-                className="footer-glass-pill px-4 py-2 rounded-full text-slate-300 font-medium text-xs sm:text-sm hover:text-white cursor-pointer"
+                className="footer-glass-pill px-4 py-2 rounded-full text-slate-200 font-semibold text-xs sm:text-sm hover:text-white bg-slate-900/90 border border-slate-700/80 shadow-md cursor-pointer"
               >
                 Disclaimer
               </MagneticButton>
             </div>
 
-            {/* Right-Most: Back to top */}
-            <div className="flex items-center gap-3 order-3 shrink-0">
+            {/* Right-Most Side: "Crafted with Love for India BFSI", Copyright, and Back-to-Top */}
+            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 order-3 shrink-0">
+              <div className="footer-glass-pill px-4 py-2 rounded-full flex items-center gap-2 cursor-default border-slate-700/60 bg-slate-900/80 shadow-xs">
+                <span className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-wider">Crafted with</span>
+                <span className="animate-footer-heartbeat text-sm md:text-base text-red-500">❤</span>
+                <span className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-wider">for</span>
+                <span className="text-white font-extrabold text-xs md:text-sm tracking-normal ml-0.5">India BFSI</span>
+              </div>
+
+              <span className="text-slate-400 text-[10px] md:text-xs font-semibold tracking-wider uppercase">
+                © 2026 CoverWise
+              </span>
+
               <MagneticButton
                 as="button"
                 type="button"
                 onClick={scrollToTop}
                 aria-label="Scroll back to top"
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full footer-glass-pill flex items-center justify-center text-slate-300 hover:text-white group cursor-pointer"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full footer-glass-pill flex items-center justify-center text-slate-300 hover:text-white bg-slate-900/90 border border-slate-700 group cursor-pointer shadow-md"
               >
                 <svg className="w-4 h-4 transform group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>

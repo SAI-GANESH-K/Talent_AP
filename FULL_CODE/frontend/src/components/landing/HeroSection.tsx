@@ -19,19 +19,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       <BeamsBackground intensity="medium" className="bg-[#070D18] py-16 sm:py-24 md:py-28">
         <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-8 text-center flex flex-col items-center">
           
-          {/* Subtle Institutional Brand Pill */}
-          <motion.div
-            initial={{ y: -10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900/80 border border-teal-500/30 backdrop-blur-md mb-6 shadow-lg shadow-teal-950/30"
-          >
-            <img src="/logo.png" alt="CoverWise" className="w-5 h-5 object-contain" />
-            <span className="text-xs font-bold text-teal-300 tracking-wide">
-              Objective Actuarial Models · Zero Commission Bias
-            </span>
-          </motion.div>
-
           {/* Main Headline */}
           <motion.h1
             initial={{ y: 16, opacity: 0 }}
@@ -67,7 +54,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               onClick={onStartAssessment}
               className="w-full sm:w-auto bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-white px-9 py-4 rounded-2xl text-base font-extrabold shadow-xl shadow-teal-500/25 transition-all duration-200 hover:shadow-teal-500/40 hover:-translate-y-0.5 cursor-pointer text-center flex items-center justify-center gap-2 group"
             >
-              <span>{t.landing.ctaFindCover}</span>
+              <span>{t.landing.ctaFindCover.replace(/→/g, '').trim()}</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </button>
 
